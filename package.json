@@ -1,0 +1,15 @@
+{
+  "name": "pwa_builder",
+  "version": "1.0.0",
+  "description": "Build PWA App using Frappe UI for Frappe",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "cd frontend && yarn install",
+    "dev": "cd frontend && yarn dev",
+    "build": "cd frontend && yarn build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
