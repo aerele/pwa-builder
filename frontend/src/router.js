@@ -10,8 +10,18 @@ const routes = [
   },
   {
     name: 'Login',
-    path: '/account/login',
+    path: '/login',
     component: () => import('@/pages/Login.vue'),
+  },
+  {
+    name: 'SignUp',
+    path: '/signup',
+    component: () => import('@/pages/SignUp.vue'),
+  },
+  {
+    name: 'ForgetPassword',
+    path: '/forget-password',
+    component: () => import('@/pages/ForgetPassword.vue'),
   },
 ]
 
@@ -29,12 +39,12 @@ router.beforeEach(async (to, from, next) => {
   }
 
   if (to.name === 'Login' && isLoggedIn) {
-    next({ name: 'Home' })
-  } else if (to.name !== 'Login' && !isLoggedIn) {
-    next({ name: 'Login' })
+    next({ name: 'Home' });
+  } else if (to.name === 'ForgetPassword' || to.name === 'Login' || to.name === 'SignUp' || isLoggedIn) {
+    next();
   } else {
-    next()
+    next({ name: 'Login'});
   }
-})
+});
 
 export default router

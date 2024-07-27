@@ -46,8 +46,13 @@
                   Enter password
                 </div>
               </div>
-              <div class="w-80 pr-3 flex justify-end">
-                <a href="/" class="text-xs hover:underline text-gray-700">Forget Password?</a>
+              <div class="w-full">
+                <router-link
+                  to="/forget-password"
+                  class="pb-1 text-xs text-gray-600 justify-end flex pr-2 hover:underline"
+                >
+                  Forgot Password?
+                </router-link>
               </div>
               <div class="p-2 w-80 mt-2">
                 <Button :loading="session.login.loading" variant="solid" class="w-full">Login</Button>
@@ -56,7 +61,9 @@
                 <p class="text-gray-600 text-lg">or</p>
               </div>
               <div class="p-2 pt-1 w-80 mt-2">
-                <Button :loading="session.login.loading" variant="subtle" class="w-full">Sign Up</Button>
+                <Button variant="subtle" class="w-full" @click="goToSignUp"
+                >Sign up</Button
+              >
               </div>
             </div>
           </div>
@@ -80,9 +87,11 @@
 
 <script lang="ts" setup>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router'
 import { Button, FormControl, FeatherIcon } from 'frappe-ui';
 import { session } from '../data/session';
 
+const router = useRouter()
 const email = ref('');
 const password = ref('');
 const showPassword = ref(false);
@@ -126,6 +135,10 @@ const submit = (e: Event) => {
   });
 };
 
+const goToSignUp = () => {
+  router.push('/signup')
+}
+
 const imageSrc = ref('');
 const currentURL = ref(window.location.href);
 const baseURL = computed(() => {
@@ -133,7 +146,7 @@ const baseURL = computed(() => {
   return `${url.protocol}//${url.hostname}`;
 });
 
-const modifiedLogoURL = computed(() => `${baseURL.value}:8001/assets`);
+const modifiedLogoURL = computed(() => `${baseURL.value}:8003/assets`);
 
 const myHeaders = new Headers();
 myHeaders.append("Cookie", "full_name=Guest; sid=Guest; system_user=no; user_id=Guest; user_image=");
