@@ -1,0 +1,62 @@
+<template>
+  <div class="border-2 rounded-lg border-gray-400 h-full m-4 drop-shadow-lg">
+    <div class="w-full px-4 py-6" placeholder="Search Here">
+      <TextInput type="text" placeholder="Search Here">
+        <template #prefix>
+          <FeatherIcon class="w-4" name="search" />
+        </template>
+      </TextInput>
+    </div>
+    <!-- <div>
+		<div v-for="item in fieldList" :key="item.fieldname" class="px-6 py-2 w-full">
+
+        <Button
+			class="w-full"
+          :variant="'subtle'"
+          theme="gray"
+          size="sm"
+          :label="item.label"
+          :loading="false"
+          :loadingText="null"
+          :disabled="false"
+          :link="null"
+        >
+          {{ item.label }}
+        </Button>
+      </div>
+    </div> -->
+    <div class="w-full p-2">
+      <draggable
+        :list="fieldSource"
+		:group="{ name: 'listOfFields', pull: 'clone', put: false }"
+        @change="log"
+        item-key="fieldname"
+      >
+        <template #item="{ element }">
+          <Button
+            class="w-full m-2"
+            :variant="'subtle'"
+            theme="gray"
+            size="sm"
+            :label="element.label"
+            :loading="false"
+            :loadingText="null"
+            :disabled="false"
+            :link="null"
+          >
+            {{ element.label }}
+          </Button>
+        </template>
+      </draggable>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import draggable from 'vuedraggable';
+import { Button, TextInput, FeatherIcon } from 'frappe-ui'
+const { fieldSource } = defineProps(['fieldSource'])
+const log = function (evt) {
+  window.console.log("Cloned", evt)
+}
+</script>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/assets/pwa_builder/frontend/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Frappe UI App</title>
+    <script type="module" crossorigin src="/assets/pwa_builder/frontend/assets/index.ad7915cd.js"></script>
+    <link rel="modulepreload" href="/assets/pwa_builder/frontend/assets/vendor.283cfc3e.js">
+    <link rel="stylesheet" href="/assets/pwa_builder/frontend/assets/vendor.1875b906.css">
+    <link rel="stylesheet" href="/assets/pwa_builder/frontend/assets/index.a1d796ea.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    <div id="modals"></div>
+    <div id="popovers"></div>
+
+    <script>
+      window.csrf_token = '{{ frappe.session.csrf_token }}'
+    </script>
+    
+  </body>
+</html>
