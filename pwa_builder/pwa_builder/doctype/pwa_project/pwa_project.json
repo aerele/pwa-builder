@@ -1,0 +1,71 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-07-27 18:10:12.802033",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "project_title",
+  "sub_title",
+  "site_url",
+  "user_id",
+  "password",
+  "description"
+ ],
+ "fields": [
+  {
+   "fieldname": "project_title",
+   "fieldtype": "Data",
+   "label": "Project title"
+  },
+  {
+   "fieldname": "sub_title",
+   "fieldtype": "Data",
+   "label": "Sub title"
+  },
+  {
+   "fieldname": "site_url",
+   "fieldtype": "Data",
+   "label": "Site URL"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "user_id",
+   "fieldtype": "Data",
+   "label": "User ID"
+  },
+  {
+   "fieldname": "password",
+   "fieldtype": "Password",
+   "label": "Password"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-07-27 18:12:42.564487",
+ "modified_by": "Administrator",
+ "module": "PWA Builder",
+ "name": "PWA-Project",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

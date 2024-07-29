@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-3xl py-12 mx-auto">
+  <!-- <div class="max-w-3xl py-12 mx-auto">
     <h2 class="font-bold text-lg text-gray-600 mb-4">
       Welcome {{ session.user }}!
     </h2>
@@ -15,11 +15,12 @@
     <div class="flex flex-row space-x-2 mt-4">
       <Button @click="showDialog = true">Open Dialog</Button>
       <Button @click="session.logout.submit()">Logout</Button>
-    </div>
+    </div> -->
 
     <!-- Dialog -->
-    <Dialog title="Title" v-model="showDialog"> Dialog content </Dialog>
-  </div>
+    <!-- <Dialog title="Title" v-model="showDialog"> Dialog content </Dialog>
+  </div> -->
+  <ProjectPage />
 </template>
 
 <script setup>
@@ -27,6 +28,7 @@ import { ref } from 'vue'
 import { Dialog } from 'frappe-ui'
 import { createResource } from 'frappe-ui'
 import { session } from '../data/session'
+import ProjectPage from '../components/ProjectPage.vue'
 
 const ping = createResource({
   url: 'ping',
