@@ -10,6 +10,7 @@
   "site_url",
   "user_id",
   "password",
+  "project_logo",
   "description"
  ],
  "fields": [
@@ -42,11 +43,16 @@
    "fieldname": "password",
    "fieldtype": "Password",
    "label": "Password"
+  },
+  {
+   "fieldname": "project_logo",
+   "fieldtype": "Attach",
+   "label": "Project Logo"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-07-27 18:12:42.564487",
+ "modified": "2024-07-29 19:52:54.207973",
  "modified_by": "Administrator",
  "module": "PWA Builder",
  "name": "PWA-Project",

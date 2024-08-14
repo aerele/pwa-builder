@@ -8,6 +8,7 @@
                 <!-- <div class="flex flex-row items-center gap-2"> -->
                     <Avatar
                     label="Aerele Technologies"
+                    shape="square"
                     size="2xl"/>
                 <!-- </div> -->
             </div>
@@ -21,47 +22,21 @@
                     <div class="w-24 h-24 bg-gray-400 flex items-center justify-center mt-4 ml-5 add-icon" @click="open = true">
                         <FeatherIcon name="plus" class="w-15 h-15 text-white" />
                     </div>
-                    <div class="w-24 h-24 flex items-center justify-center my-7 ml-5 add-icon">
-                        <div class="flex flex-col items-center">
-                            <img src="https://raw.githubusercontent.com/frappe/erpnext/develop/erpnext/public/images/erpnext-logo.png" class="w-full h-full mb-1" />
-                            <div>ERPNext</div>
-                        </div>
-                    </div>
-                    <div class="w-24 h-24 flex items-center justify-center my-7 ml-5 add-icon">
-                        <div class="flex flex-col items-center">
-                            <img src="https://raw.githubusercontent.com/frappe/erpnext/develop/erpnext/public/images/erpnext-logo.png" class="w-full h-full mb-1" />
-                            <div>ERPNext</div>
-                        </div>
-                    </div>
-                    <div class="w-24 h-24 flex items-center justify-center my-7 ml-5 add-icon">
-                        <div class="flex flex-col items-center">
-                            <img src="https://raw.githubusercontent.com/frappe/erpnext/develop/erpnext/public/images/erpnext-logo.png" class="w-full h-full mb-1" />
-                            <div>ERPNext</div>
-                        </div>
-                    </div>
-                    <div class="w-24 h-24 flex items-center justify-center my-7 ml-5 add-icon">
-                        <div class="flex flex-col items-center">
-                            <img src="https://raw.githubusercontent.com/frappe/erpnext/develop/erpnext/public/images/erpnext-logo.png" class="w-full h-full mb-1" />
-                            <div>ERPNext</div>
-                        </div>
-                    </div>
-                    <div class="w-24 h-24 flex items-center justify-center my-7 ml-5 add-icon">
-                        <div class="flex flex-col items-center">
-                            <img src="https://raw.githubusercontent.com/frappe/erpnext/develop/erpnext/public/images/erpnext-logo.png" class="w-full h-full mb-1" />
-                            <div>ERPNext</div>
-                        </div>
-                    </div>
-                    <div class="w-24 h-24 flex items-center justify-center my-7 ml-5 add-icon">
-                        <div class="flex flex-col items-center">
-                            <img src="https://raw.githubusercontent.com/frappe/erpnext/develop/erpnext/public/images/erpnext-logo.png" class="w-full h-full mb-1" />
-                            <div>ERPNext</div>
-                        </div>
-                    </div>
-                    <div class="w-24 h-24 flex items-center justify-center my-7 ml-5 add-icon">
-                        <div class="flex flex-col items-center">
-                            <img src="https://raw.githubusercontent.com/frappe/erpnext/develop/erpnext/public/images/erpnext-logo.png" class="w-full h-full mb-1" />
-                            <div>ERPNext</div>
-                        </div>
+                    
+                    <div v-if="response.length" v-for="project in response" :key="project.name" >
+                        <router-link :to="{ name:'BuilderEdit', params : { id : project.name } }">
+                            <div class="w-24 h-24 flex items-center justify-center my-7 ml-5 add-icon">
+                                <div class="flex flex-col items-center">
+                                    <Avatar 
+                                    :label="project.project_title"
+                                    :image="project.project_logo"
+                                    shape="square"
+                                    class="w-24 h-24 mb-1"
+                                    />
+                                    <div>{{ project.project_title }}</div>
+                                </div>
+                            </div>
+                        </router-link>
                     </div>
                 </div>
             </div>
@@ -145,8 +120,10 @@ import { createListResource, createResource } from 'frappe-ui';
 import Drawer from './Drawer.vue';
 import { reactive, ref } from 'vue';
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
+import Project from './Project.vue';
 
 const open = ref(false)
+let response = ref([])
 
 let project = reactive({
     project_title: "",
@@ -165,13 +142,26 @@ let pwaProject = createResource({
         return data
     }
 })
+
 function createProject() {
     pwaProject.reload()
     open.value = false;
 }
-// const pwaProject = createListResource({
-//     doctype: "PWA-Project",
-// })
+const pwaProjectList = createListResource({
+    doctype: "PWA-Project",
+    fields: ['project_title', 'sub_title', 'site_url', 'user_id', "name", "project_logo"],
+    transform(data) {
+        console.log(data)
+        let transformData = []
+        data.map((item) => {
+            transformData.push(item)
+        })
+        response.value = transformData
+        return transformData
+    }
+})
+
+pwaProjectList.reload()
 
 // function createProject() {
 //     pwaProject.insert.submit(project);
