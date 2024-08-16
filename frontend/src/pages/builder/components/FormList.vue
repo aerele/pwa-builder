@@ -113,6 +113,10 @@ let props = defineProps({
 	pwaForm: {
 		type: Object,
         required: true,
+	},
+	projectName:{
+		type: String,
+        required: true,
 	}
 })
 
@@ -164,6 +168,7 @@ let createForm = () => {
 	pwaForm.insert.submit({
 		title: formModel.form_name,
 		doctype_name: formModel.doctype_name.value,
+		project_name: props.projectName
 	}).then(r => {
 	console.log(r)
 	window.location.reload()
