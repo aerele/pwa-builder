@@ -14,22 +14,12 @@
       <!-- <div v-if="!fieldList.length" class="w-full h-full flex items-center justify-center">
           Drag & Drop
       </div> -->
-      <Draggable :list="fieldList" group="listOfFields" @change="log" item-key="fieldname"  class="h-full w-full">
+      <Draggable :list="fieldList" group="listOfFields" @change="log" item-key="fieldname"  class=" w-full">
         <template #item="{ element }">
          <div class="mt-4">
-           <Button
-           class="w-full"
-             :variant="'subtle'"
-             theme="gray"
-             size="lg"
-             :label="element.label"
-             :loading="false"
-             :loadingText="null"
-             :disabled="false"
-             :link="null"
-           >
-             {{ element.label }}
-       </Button>
+           <div class="p-4 border border-gray-400">
+            {{ element.label }}
+           </div>
          </div>
         </template>
       </Draggable>
@@ -40,8 +30,22 @@
 
 <script setup>
 import Draggable from 'vuedraggable'
-import { Button } from 'frappe-ui'
-import { ref } from 'vue'
+// import { Button } from 'frappe-ui'
+// import { ref } from 'vue'
+// import Text from '../../../form/components/Text.vue';
+// import Select from '../../../form/components/Select.vue';
+// import Int from '../../../form/components/Int.vue';
+// import Autocomplete from '../../../form/components/Autocomplete.vue';
+// import DateTime from '../../../form/components/DateTime.vue';
+// import Date from '../../../form/components/Date.vue';
+// import SectionBreak from '../../../form/components/SectionBreak.vue';
+// import Checkbox from '../../../form/components/Checkbox.vue';
+// import Float from '../../../form/components/Float.vue';
+// import Link from '../../../form/components/Link.vue';
+// import Currency from '../../../form/components/Currency.vue';
+// import Textarea from '../../../form/components/Textarea.vue';
+// import Badge from '../../../form/components/Badge.vue';
+
 
 // Define props
 const { fieldList, formName } = defineProps(['fieldList', 'formName'])
@@ -52,6 +56,25 @@ function handleSave() {
   console.log("handleSave")
   emit('handle-save')
 }
+
+// const fieldMap = {
+//   Data: Text,
+//   Select: Select,
+//   Int: Int,
+//   Autocomplete: Autocomplete,
+//   Dynamic_Link: Select,
+//   Heading: Badge,
+//   Datetime: DateTime,
+//   Date: Date,
+//   'Section Break': SectionBreak,
+//   Check: Checkbox,
+//   Text: Text,
+//   'Long Text': Textarea,
+//   'Small Text': Textarea,
+//   Float: Float,
+//   Link: Link,
+//   Currency: Currency,
+// }
 
 // const fieldMap = {
 //   Data: Text,

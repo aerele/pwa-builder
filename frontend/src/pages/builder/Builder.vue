@@ -1,26 +1,34 @@
 <template>
-  <div class="h-screen w-screen main flex flex-col">
-    <div class="sticky top-0 bg-white shadow-md z-10 flex justify-between">
-      <h1>{{ props.id }}</h1>
+  <div class="h-screen w-screen main flex flex-col main">
+    <div class="sticky top-0 bg-white shadow-md z-10 p-5 flex justify-between">
+      <!-- <h1>{{ props.id }}</h1>hgjbknlmjhvgchvjb -->
+      <h1 class="text-3xl">{{ projectDoc.doc.project_title }}</h1>
       <div>
         <Button variant="solid" theme="gray" size="md" @click="exportProject">Export</Button>
       </div>
     </div>
-    <div class="flex flex-row flex-grow overflow-hidden">
-      <div class="border-2 rounded-lg border-gray-400 h-full w-[20%] m-4 drop-shadow-lg overflow-y-auto">
+    <div class="flex flex-row h-[92vh] justify-between overflow-hidden">
+      <div class=" h-full w-[20%] m-4 drop-shadow-lg overflow-y-auto formList">
         <FormList :doctypeList="doctypeList" :pwaForm="pwaForm" @clicked="handleFormFields" />
       </div>
-      <div class="w-[60%] border-2 rounded-lg border-gray-400 mx-4 mt-4 drop-shadow-lg overflow-y-auto">
+      <div class="w-[30%] h-fit mx-4 mt-4 drop-shadow-lg rounded-lg formList">
         <div v-if="formData.doctype_name" class="flex justify-between items-center shadow-sm sticky top-0 bg-white border-b px-3 py-2 z-10">
           <h2 class="text-2xl">{{ formData.doctype_name }}</h2>
           <Button variant="solid" theme="gray" size="md" @click="handleSave">Save</Button>
         </div>
-        <BuilderCanvas class="h-44" :formName="formData.doctype_name" :fieldList="fieldList" @handleSave="setFieldList" />
-        <div v-if="!fieldList.length" class="border-2 relative h-44 drag flex justify-center items-center">
-          Drag Fields Here
-        </div>
+        <!-- <div class=""> -->
+          <div class=" min-h-[100px] max-h-[70vh] overflow-y-auto scrollBar">
+            <BuilderCanvas class="" :formName="formData.doctype_name" :fieldList="fieldList" @handleSave="setFieldList" />
+          </div>
+          <div v-if="!fieldList.length" class=" relative h-44 flex justify-center items-center">
+            Drag Fields Here
+          </div>
+        <!-- </div> -->
       </div>
-      <div class="border-2 rounded-lg border-gray-400 h-full w-[20%] m-4 drop-shadow-lg overflow-y-auto">
+      <div class=" h-full w-[20%] m-4 drop-shadow-lg overflow-y-auto formList">
+        <div v-if="spinner" class="h-full flex items-center justify-center">
+          <Spinner class="w-8" />
+        </div>
         <FieldList :fieldSource="fields.pwa_form_fields" />
       </div>
     </div>
@@ -33,11 +41,11 @@ import BuilderCanvas from './components/BuilderCanvas.vue'
 import Draggable from 'vuedraggable'
 import { ref } from 'vue'
 import { createListResource, createResource, createDocumentResource } from 'frappe-ui'
-import { Button } from 'frappe-ui'
+import { Button, Spinner } from 'frappe-ui'
 import FieldList from './components/FieldList.vue'
 
 let formList = ref([])
-
+let spinner = ref(false)
 let fieldList = ref([])
 
 const fields = ref({})
@@ -51,10 +59,18 @@ const props = defineProps({
   }
 })
 
+let projectDoc = createDocumentResource({
+  doctype: "PWA-Project",
+  name: props.id,
+  fields: ["*"],
+  onSuccess(data) {
+    console.log(data.project_title)
+  },
+});
 
 let doctypeList = createListResource({
 	doctype: "DocType",
-    fields: ["name"],
+  fields: ["name"],
 	pageLength: "*",
 	transform(data) {
 		return data.map(doc => {
@@ -84,6 +100,7 @@ let pwaForm = createListResource({
 pwaForm.reload()
 
 async function handleFormFields (doc) {
+  spinner.value = true
   console.log("================doc",doc)
   let formFields = createResource({
     url: "pwa_builder.api.get_doc",
@@ -115,15 +132,17 @@ async function handleFormFields (doc) {
     transform(data) {
       console.log(data, "data")
       let transformData;
+      let dataFields;
       if(data) {
         console.log("fiedlist +++++++++++++++++++++++++++++++++++++++", fieldList.value)
-        data = data.fields.filter((item) => !expectFields.includes(item.fieldtype))
-        data = data.filter((item) => !expectFields.includes(item.fieldname))
+        console.log("fiedlist +++++++++++++++++++++++++++++++++++++", data)
+        dataFields = data.fields.filter((item) => !expectFields.includes(item.fieldtype))
+        dataFields = dataFields.filter((item) => !expectFields.includes(item.fieldname))
         if(fieldList.value.length) {
-          transformData = data.filter((item1) => !fieldList.value.some(item2 => item2.fieldname === item1.fieldname))
+          transformData = dataFields.filter((item1) => !fieldList.value.some(item2 => item2.fieldname === item1.fieldname))
         }
         else {
-          transformData = data
+          transformData = dataFields
         }
         console.log(transformData, " +++++++++++++++++++++++++++++++++++++++", transformData)
         // return transformData
@@ -131,6 +150,7 @@ async function handleFormFields (doc) {
       formData.value = {form_name : doc.title, name : doc.name, doctype_name: doc.doctype_name, is_submittable: data.is_submittable, pwa_form_fields: fieldList.value}
       fields.value = { pwa_form_fields : transformData }
       console.log("fields  ========================= value",fields.value)
+      spinner.value = false
     }
   })
   // formDoc.reload()
@@ -160,6 +180,17 @@ function exportProject() {
 }
 </script>
 <style scoped>
+.main {
+  background-color: #f6f9fc;
+}
+.formList {
+  background-color: white;
+  /* height: auto; */
+  /* min-height: 44px; */
+}
+.hie {
+  min-height: 50px;
+}
 .scrollBar::-webkit-scrollbar{
   width: 5px;
   background-color: white;

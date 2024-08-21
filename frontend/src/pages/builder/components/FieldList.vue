@@ -1,7 +1,7 @@
 <template>
   <!-- <div class="border-2 rounded-lg border-gray-400 h-full m-4 drop-shadow-lg"> -->
     <div class=" px-4">
-    <div class="w-full py-6" placeholder="Search Here">
+    <div v-if="fieldSource" class="w-full py-6" placeholder="Search Here">
       <TextInput type="text" placeholder="Search Here">
         <template #prefix>
           <FeatherIcon class="w-4" name="search" />
@@ -36,19 +36,19 @@
         item-key="fieldname"
       >
         <template #item="{ element }">
-          <Button
-            class="w-full mb-3"
-            :variant="'subtle'"
-            theme="gray"
-            size="sm"
-            :label="element.label"
-            :loading="false"
-            :loadingText="null"
-            :disabled="false"
-            :link="null"
-          >
-            {{ element.label }}
-          </Button>
+          <div class="p-3 mb-2 rounded cursor-pointer border-b-2">
+            <h1 class="text-xl font-bold">
+              {{ element.label }}
+            </h1>
+            <div class="flex">
+              <h1>
+                {{ element.fieldtype }}
+              </h1>
+              <h1 class="ml-2" v-if="element.fieldtype == 'Link'">
+                - {{ element.options }}
+              </h1>
+            </div>
+          </div>
         </template>
       </Draggable>
     </div>
