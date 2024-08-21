@@ -6,7 +6,7 @@ We are improving on the addition of all the possible field types and routing abi
 
 This is a hobby project by the developers at Aerele Technologies. Feel free to reach out to us via issues.
 
-## Features
+## Steps
 
 - Start by creating a project in the PWA Builder.
 - Connect your Frappe site to the builder and give access to your Doctypes. 
