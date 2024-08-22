@@ -88,7 +88,7 @@ class PWAGitHubIntegration(Document):
 			new_branch.checkout()
 
 			repo.git.add(A=True)  # Stage all files
-			repo.index.commit('Automated commit from Frappe')  # Commit changes
+			repo.index.commit('Automated commit from PWA Builder')  # Commit changes
 
 			try:
 				origin.push(refspec=f'{branch_name}:{branch_name}')
