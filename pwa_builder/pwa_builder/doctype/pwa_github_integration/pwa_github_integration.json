@@ -1,0 +1,73 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-08-21 16:02:59.477979",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "github_username",
+  "push_repository_to_an_organization",
+  "organization_name",
+  "column_break_fcrv",
+  "access_token",
+  "is_private"
+ ],
+ "fields": [
+  {
+   "fieldname": "github_username",
+   "fieldtype": "Data",
+   "label": "GitHub Username"
+  },
+  {
+   "fieldname": "column_break_fcrv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "access_token",
+   "fieldtype": "Password",
+   "label": "Access Token"
+  },
+  {
+   "default": "0",
+   "fieldname": "push_repository_to_an_organization",
+   "fieldtype": "Check",
+   "label": "Push repository to an organization"
+  },
+  {
+   "depends_on": "eval:doc.push_repository_to_an_organization",
+   "fieldname": "organization_name",
+   "fieldtype": "Data",
+   "label": "Organization Name",
+   "mandatory_depends_on": "push_repository_to_an_organization"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_private",
+   "fieldtype": "Check",
+   "label": "Is Private"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2024-08-21 18:06:23.644533",
+ "modified_by": "Administrator",
+ "module": "PWA Builder",
+ "name": "PWA GitHub Integration",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
