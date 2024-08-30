@@ -5,22 +5,24 @@ import os
 import git
 import frappe
 import requests
+import shutil
+from git import Repo, InvalidGitRepositoryError
 from time import sleep
 from frappe import ValidationError, _, qb, scrub, throw
+from frappe.utils import get_site_path, scheduler, touch_file
 from frappe.model.document import Document
 
 
 class PWAGitHubIntegration(Document):
-	@frappe.whitelist()
-	def push_to_github(path, repo_name, organization=None, branch_name='master'):
-		
+	frappe.whitelist()
+	def push_to_github(path, repo_name, branch_name='master'):
 		pwa_github_integration = frappe.get_single('PWA GitHub Integration')
 		github_token = pwa_github_integration.get_password('access_token')
 		github_username = pwa_github_integration.github_username
 		push_to_org = pwa_github_integration.push_repository_to_an_organization
 		organization_name = pwa_github_integration.organization_name
 		is_private = pwa_github_integration.is_private
-  
+
 		repo_name = scrub(repo_name)
 		branch_name = scrub(branch_name)
 
@@ -34,7 +36,7 @@ class PWAGitHubIntegration(Document):
 		}
 
 		# Define repository URL
-		if organization and push_to_org and organization_name:
+		if push_to_org and organization_name:
 			repo_url = f'https://api.github.com/orgs/{organization_name}/repos'
 			repo_full_name = f'{organization_name}/{repo_name}'
 		else:
@@ -44,7 +46,7 @@ class PWAGitHubIntegration(Document):
 		repo_data = {
 			'name': repo_name,
 			'private': is_private,  # Change this if you need a private repository
-			'auto_init': True  # Initialize with a README
+			'auto_init': False  # Initialize with a README
 		}
 
 		try:
@@ -63,13 +65,10 @@ class PWAGitHubIntegration(Document):
 			else:
 				return {'success': False, 'error': f"Failed to check repository existence: {response.json().get('message')}"}
 
-			if not os.path.exists(os.path.join(repo_path, '.git')):
-				repo = git.Repo.init(repo_path)
-				repo.git.add(A=True)
-				repo.index.commit('Initial commit')
-			else:
-				repo = git.Repo(repo_path)
-
+			# Initialize a new Git repository in the directory
+			repo = git.Repo.init(repo_path)
+			repo.git.add(A=True)
+			repo.index.commit('Initial commit')
 			correct_url = f"https://{github_token}@github.com/{repo_full_name}.git"
 
 			try:
@@ -117,3 +116,28 @@ class PWAGitHubIntegration(Document):
 		except Exception as e:
 			frappe.log_error(frappe.get_traceback(), "Git Push Failed")
 			return {'success': False, 'error': str(e)}
+
+
+	def clone_pwa_template(project_name,repo_url="https://github.com/aerele/pwa_build.git"):
+		public_folder = os.path.join(get_site_path("public/files/"), project_name)
+		result = {'success': False, 'error': 'An error occurred.'}
+		# If the directory exists and is not empty, remove it
+		if os.path.exists(public_folder) and os.listdir(public_folder):
+			shutil.rmtree(public_folder)
+			print(f"Removed existing directory: {public_folder}")
+		
+		# Clone the repository into the public folder
+		try:
+			Repo.clone_from(repo_url, public_folder)
+			result['file_path'] = public_folder
+			result['success'] = True
+			result['error'] = "Repository cloned successfully."
+		except InvalidGitRepositoryError:
+			result['file_path'] = None
+			result['success'] = False
+			result['error'] = f"Directory {public_folder} exists but is not a valid Git repository."
+		except Exception as e:
+			result['file_path'] = None
+			result['success'] = False
+			result['error'] = f"{e}"
+		return result

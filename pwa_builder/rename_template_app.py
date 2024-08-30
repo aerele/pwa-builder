@@ -1,13 +1,14 @@
 import os
 import shutil
-from frappe import _, scrub
+import re
+from frappe import scrub
 
-
-def rename_template_app(app_path,new_app_name="Aerele",old_app_name="PWA Template",old_url="pwa",new_url="new_pwa"):
+def rename_template_app(app_path, new_app_name="Aerele", old_app_name="Pwa Build", old_url="pwa", new_url=None):
 	new_module_name = new_app_name
 	new_app_name = scrub(new_app_name)
 	old_module_name = old_app_name
 	old_app_name = scrub(old_app_name)
+	new_url = new_app_name
 
 	# Step 1: Rename the app directory and all subdirectories/files
 	new_app_path = os.path.join(os.path.dirname(app_path), new_app_name)
@@ -21,11 +22,11 @@ def rename_template_app(app_path,new_app_name="Aerele",old_app_name="PWA Templat
 
 	# Step 2: Recursively rename all subdirectories and files containing the old app name
 	print("Renaming all subdirectories and files")
-	rename_subdirectories_and_files(new_app_path, old_app_name, new_app_name,old_url,new_url)
+	rename_subdirectories_and_files(new_app_path, old_app_name, new_app_name, old_url, new_url)
 
 	# Step 3: Update all references in code files (including module names)
 	print("Updating all references in code files")
-	update_import_paths(new_app_path, old_app_name, new_app_name,old_module_name,new_module_name, old_url, new_url)
+	update_import_paths(new_app_path, old_app_name, new_app_name, old_module_name, new_module_name, old_url, new_url)
 
 	print("Renaming completed successfully!")
 
@@ -38,7 +39,7 @@ def rename_subdirectories_and_files(root_path, old_app_name, new_app_name, old_u
 
 		# Rename directories
 		for dirname in dirnames:
-			if old_app_name in dirname:
+			if re.search(rf'(\b|_|\.|/){old_app_name}(\b|_|\.|/)', dirname):
 				old_dir_path = os.path.join(dirpath, dirname)
 				new_dir_path = os.path.join(dirpath, dirname.replace(old_app_name, new_app_name))
 				print(f"Renaming directory '{old_dir_path}' to '{new_dir_path}'")
@@ -51,7 +52,7 @@ def rename_subdirectories_and_files(root_path, old_app_name, new_app_name, old_u
 		
 		# Rename files
 		for filename in filenames:
-			if old_app_name in filename:
+			if re.search(rf'(\b|_|\.|/){old_app_name}(\b|_|\.|/)', filename):
 				old_file_path = os.path.join(dirpath, filename)
 				new_file_path = os.path.join(dirpath, filename.replace(old_app_name, new_app_name))
 				print(f"Renaming file '{old_file_path}' to '{new_file_path}'")
@@ -66,17 +67,19 @@ def replace_in_file(file_path, old_string, new_string, old_module_name, new_modu
 		print(f"Skipping file due to encoding or permission issues: {file_path}")
 		return
 	
-	# Replace app name and module name
-	new_data = file_data.replace(old_string, new_string).replace(old_module_name, new_module_name).replace(old_url,new_url)
+	# Replace app name and module name only if preceded/followed by '/', '.', or '_'
+	new_data = re.sub(rf'(\b|_|\.|/){re.escape(old_string)}(\b|_|\.|/)', new_string, file_data)
+	new_data = re.sub(rf'(\b|_|\.|/){re.escape(old_module_name)}(\b|_|\.|/)', new_module_name, new_data)
+	new_data = re.sub(rf'(\b|_|\.|/){re.escape(old_url)}(\b|_|\.|/)', new_url, new_data)
+	
 	try:
 		with open(file_path, 'w', encoding='utf-8') as file:
 			file.write(new_data)
 	except PermissionError:
 		print(f"Skipping file due to write permission issues: {file_path}")
 
-def update_import_paths(root_path, old_app_name, new_app_name,old_module_name, new_module_name, old_url, new_url):
+def update_import_paths(root_path, old_app_name, new_app_name, old_module_name, new_module_name, old_url, new_url):
 	"""Recursively update import paths and module names in all files."""
-
 	for dirpath, _, filenames in os.walk(root_path):
 		# Skip .git directories and their contents
 		if '.git' in dirpath:

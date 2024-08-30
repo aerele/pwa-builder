@@ -3,6 +3,7 @@ import json
 import requests
 import os
 from urllib.parse import urlparse
+from pwa_builder.rename_template_app import rename_template_app
 from frappe.model.meta import Meta
 
 @frappe.whitelist(allow_guest=True)
@@ -123,26 +124,26 @@ def get_doc(doctype, docname):
 
 @frappe.whitelist(allow_guest=True)
 def export_project(project_name):
-	print("export_project")
-	# os.mkdir("sudharsanan")
-	print("export")
-	pwa_doctype = frappe.get_list("PWA DocType", {"project_name": project_name})
-	print(pwa_doctype)
-
-	# /home/scott007/frappe/pwa_builder/apps/pwa_builder/pwa_builder/api.py
-
-	for doctype in pwa_doctype:
-		doc = frappe.get_doc("PWA DocType", doctype.name)
-		json_data = doc.field_list
-		file_name = doc.title + ".json"
-		# path = os.path.join("pwa_builder", "pwa_template", "pwa_template", "pwa_template", "pwa_form", "employee.json")
-		cd = __file__
-		i, j , k = len(cd.split('/')[-1]) , len(cd.split('/')[-2]), len(cd.split('/')[-3])
-		pwd = cd[:-(i + j + k + 2)]
-		path = os.path.join(pwd, "pwa_template", "pwa_template", "pwa_template", "pwa_form", file_name.lower())
-		print(path)
-		os.makedirs(os.path.dirname(path), exist_ok=True)
-		with open(path, 'w') as json_file:
-			json_file.write(json_data)
-
-		print("json creation done")
+	from pwa_builder.pwa_builder.doctype.pwa_github_integration.pwa_github_integration import PWAGitHubIntegration
+	git_clone_response=PWAGitHubIntegration.clone_pwa_template(project_name)
+	if git_clone_response.get('success') and git_clone_response.get('file_path'):
+		file_path = git_clone_response.get('file_path')
+		pwa_doctype = frappe.get_list("PWA DocType", {"project_name": project_name})
+		for doctype in pwa_doctype:
+			doc = frappe.get_doc("PWA DocType", doctype.name)
+			json_data = doc.field_list
+			file_name = doc.title + ".json"
+			path = file_path+"/pwa_build/pwa_build/pwa_form/"+file_name.lower()
+			os.makedirs(os.path.dirname(path), exist_ok=True)
+			with open(path, 'w') as json_file:
+				json_file.write(json_data)
+		# rename the app
+		# rename_template_app(
+		# 	app_path=file_path+"/"+project_name,
+		# 	new_app_name=project_name
+		# )
+		# push to github
+		# PWAGitHubIntegration.push_to_github(
+		# 	path=file_path,
+		# 	repo_name=project_name
+		# )
