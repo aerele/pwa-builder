@@ -13,7 +13,8 @@
   "project_logo",
   "description",
   "column_break_kckg",
-  "github_repository_url"
+  "github_repository_url",
+  "github_default_branch"
  ],
  "fields": [
   {
@@ -59,11 +60,16 @@
    "fieldname": "github_repository_url",
    "fieldtype": "Small Text",
    "label": "GitHub Repository URL"
+  },
+  {
+   "fieldname": "github_default_branch",
+   "fieldtype": "Data",
+   "label": "Github Default Branch"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-21 16:14:42.277614",
+ "modified": "2024-09-05 18:08:51.871919",
  "modified_by": "Administrator",
  "module": "PWA Builder",
  "name": "PWA-Project",

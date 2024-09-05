@@ -15,7 +15,7 @@ from frappe.model.document import Document
 
 class PWAGitHubIntegration(Document):
 	frappe.whitelist()
-	def push_to_github(path, repo_name, branch_name='master'):
+	def push_to_github(path, repo_name, branch_name):
 		pwa_github_integration = frappe.get_single('PWA GitHub Integration')
 		github_token = pwa_github_integration.get_password('access_token')
 		github_username = pwa_github_integration.github_username
@@ -24,7 +24,6 @@ class PWAGitHubIntegration(Document):
 		is_private = pwa_github_integration.is_private
 
 		repo_name = scrub(repo_name)
-		branch_name = scrub(branch_name)
 
 		repo_path = path
 		if not os.path.exists(path):
@@ -106,7 +105,7 @@ class PWAGitHubIntegration(Document):
 				response = requests.patch(repo_api_url, json=repo_settings, headers=headers)
 				if response.status_code == 200:
 					print(f"Default branch set to '{branch_name}'.")
-					return {'success': True}
+					return {'success': True, "message":response.json()}
 				else:
 					return {'success': False, 'error': f"Failed to set default branch: {response.json().get('message')}"}
 			except Exception as e:
@@ -119,25 +118,30 @@ class PWAGitHubIntegration(Document):
 
 
 	def clone_pwa_template(project_name,repo_url="https://github.com/aerele/pwa_build.git"):
-		public_folder = os.path.join(get_site_path("public/files/"), project_name)
+		project_name = scrub(project_name)
+		public_folder = os.path.join(get_site_path("public/files/"), project_name,"pwa_build")
+		project_folder = os.path.join(get_site_path("public/files/"), project_name)
 		result = {'success': False, 'error': 'An error occurred.'}
 		# If the directory exists and is not empty, remove it
-		if os.path.exists(public_folder) and os.listdir(public_folder):
-			shutil.rmtree(public_folder)
+		if os.path.exists(project_folder) and os.listdir(project_folder):
+			shutil.rmtree(project_folder)
 			print(f"Removed existing directory: {public_folder}")
 		
 		# Clone the repository into the public folder
 		try:
 			Repo.clone_from(repo_url, public_folder)
-			result['file_path'] = public_folder
+			result['public_folder_path'] = public_folder
+			result['project_folder_path'] = project_folder
 			result['success'] = True
-			result['error'] = "Repository cloned successfully."
+			result['message'] = "Repository cloned successfully."
 		except InvalidGitRepositoryError:
-			result['file_path'] = None
+			result['public_folder_path'] = None
+			result['project_folder_path'] = None
 			result['success'] = False
 			result['error'] = f"Directory {public_folder} exists but is not a valid Git repository."
 		except Exception as e:
-			result['file_path'] = None
+			result['public_folder_path'] = None
+			result['project_folder_path'] = None
 			result['success'] = False
 			result['error'] = f"{e}"
 		return result
