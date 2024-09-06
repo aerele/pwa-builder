@@ -128,16 +128,17 @@ def export_project(project_name):
 	frappe.enqueue(
 		method="pwa_builder.api.schedule_export_project",
 		project_name=project_name,
-		queue="short"
+		queue="short",
+		job_name=frappe.utils.get_job_name("export_app_for", "PWA-Project", project_name)
 	)
 
 def schedule_export_project(project_name):
-	from pwa_builder.pwa_builder.doctype.pwa_github_integration.pwa_github_integration import PWAGitHubIntegration
+	from pwa_builder.pwa_builder.doctype.pwa_github_integration import pwa_github_integration
 	
 	#project doc
 	project_doc = frappe.get_doc("PWA-Project",project_name)
 	
-	git_clone_response=PWAGitHubIntegration.clone_pwa_template(project_name)
+	git_clone_response=pwa_github_integration.clone_pwa_template(project_name)
 	if git_clone_response.get('success') and git_clone_response.get('public_folder_path'):
 		file_path = git_clone_response.get('public_folder_path')
 		if pwa_doctype := frappe.get_list("PWA DocType", {"project_name": project_doc.name}):
@@ -156,20 +157,16 @@ def schedule_export_project(project_name):
 				new_url="frontend"
 			):
 				if renaming_result.get("success"):
-					if current_default_branch := project_doc.github_default_branch:
-						new_branch = f'''version-{eval(current_default_branch.split("-")[-1])+1}'''
-					else:
-						new_branch = "version-1"
-					# push to github
-					if push_repo_result := PWAGitHubIntegration.push_to_github(
+					if push_repo_result := pwa_github_integration.push_to_github(
 						path=git_clone_response.get('project_folder_path')+"/"+scrub(project_doc.project_title),
 						repo_name=project_doc.project_title,
-						branch_name=new_branch
+						current_default_branch=project_doc.github_default_branch,
+						last_push_commit=project_doc.last_push_commit
 					):
 						if push_repo_result.get('success'):
-							print(push_repo_result.get("message",{}).get('clone_url'))
 							project_doc.github_repository_url = push_repo_result.get("message",{}).get('clone_url',None)
 							project_doc.github_default_branch = push_repo_result.get("message",{}).get('default_branch',None)
+							project_doc.last_push_commit = push_repo_result.get('commit_msg')
 							project_doc.save(ignore_permissions=True)
 							return {"success":True, "message":"Project exported successfully"}
 						else:
