@@ -3,7 +3,7 @@
         <div class="navbar h-15 border-b-2 flex items-center">
             <div class="flex flex-row justify-between w-full px-4">
                 <div class="logo">
-                    <img src="" alt="Logo">
+                    <!-- <img src="/assets/frappe/images/frappe-framework-logo.svg" alt="Logo"> -->
                 </div>
                 <!-- <div class="flex flex-row items-center gap-2"> -->
                     <Avatar
@@ -22,12 +22,12 @@
                     <div class="w-24 h-24 bg-gray-400 flex items-center justify-center mt-4 ml-5 add-icon" @click="open = true">
                         <FeatherIcon name="plus" class="w-15 h-15 text-white" />
                     </div>
-                    
+
                     <div v-if="response.length" v-for="project in response" :key="project.name" >
                         <router-link :to="{ name:'BuilderEdit', params : { id : project.name } }">
                             <div class="w-24 h-24 flex items-center justify-center my-7 ml-5 add-icon">
                                 <div class="flex flex-col items-center">
-                                    <Avatar 
+                                    <Avatar
                                     :label="project.project_title"
                                     :image="project.project_logo"
                                     shape="square"
@@ -71,9 +71,9 @@
                          <div class="mb-2">
                              <Input type="text" label="Project Title" v-model="project.project_title" />
                          </div>
-                         <div class="mb-2">
+                         <!-- <div class="mb-2">
                              <Input type="text" label="Sub Title" v-model="project.sub_title"/>
-                         </div>
+                         </div> -->
                          <div class="mb-2">
                              <Input type="text" label="Site URL" v-model="project.site_url"/>
                          </div>
@@ -84,7 +84,7 @@
                              <Input type="password" label="Password" v-model="project.password"/>
                          </div>
                          <div class="mb-4">
-                            <FormControl 
+                            <FormControl
                         :type="'textarea'"
                         size="sm"
                         variant="subtle"
@@ -127,7 +127,6 @@ let response = ref([])
 
 let project = reactive({
     project_title: "",
-    sub_title: "",
     site_url: "",
     user_id: "",
     password: "",
@@ -139,6 +138,7 @@ let pwaProject = createResource({
     params: {data: project},
     transform(data) {
         console.log(data)
+		pwaProjectList.reload()
         return data
     }
 })

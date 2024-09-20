@@ -9,14 +9,10 @@ from frappe.model.meta import Meta
 
 @frappe.whitelist(allow_guest=True)
 def add_site(data, update=False):
-	print(data, "data=========================================")
 	if isinstance(data, str):
 		data = json.loads(data)
-	# data = frappe._dict(data)
 	url = urlparse(data.get("site_url"))
-	print(url, "url=========================================")
 	login_url = url.scheme + "://" + url.netloc + "/api/method/login"
-	print(login_url, "login_url=========================================")
 
 	response = requests.post(login_url, data={"usr": data.get("user_id"), "pwd": data.get("password")})
 
@@ -50,31 +46,6 @@ def add_site(data, update=False):
 			return "Updated"
 	else:
 		return "Invalid credentials"
-	
-# @frappe.whitelist(allow_guest=True)
-# def get_meta(doctype, project, cached=True) -> "Meta":
-# 	# cached = cached and isinstance(doctype, str)
-# 	# if cached and (meta := frappe.cache.hget("doctype_meta", doctype)):
-# 	# 	return meta
-
-# 	# meta = Meta(doctype)
-# 	# frappe.cache.hset("doctype_meta", meta.name, meta)
-# 	# print(meta)
-# 	# return meta
-# 	doc = frappe.get_doc("PWA-Project", project)
-# 	url = urlparse(doc.site_url)
-# 	meta_url = url.scheme + "://" + url.netloc + "/api/method/frappe.desk.form.load.getdoctype?doctype={0}&with_parent=1".format(doctype)
-# 	cookies = frappe.cache().hget(doc.site_url, doc.project_title) or []
-
-# 	if not cookies:
-# 		login_url = url.scheme + "://" + url.netloc + "/api/method/login"
-# 		response = requests.post(login_url, data={"usr": doc.user_id, "pwd": doc.password})
-
-# 	print(meta_url)
-# 	response = requests.post(meta_url)
-# 	print(response, "repons4e==================================================================================")
-	# if response.status_code == 200:
-		#  response.json()
 
 @frappe.whitelist(allow_guest=True)
 def get_meta(doctype, project, cached=True) -> "Meta":
@@ -88,16 +59,18 @@ def get_meta(doctype, project, cached=True) -> "Meta":
 		meta = response.json()
 		for doc in meta["docs"]:
 			if doc["name"] == doctype:
-				print(doc, "repons4e==================================================================================")
 				return doc
-	# if response.status_code == 200:
-		#  response.json()
+			else:
+				pass
+	else:
+		return "Validation Error"
 
 def call(url, end_point, username, password, project, force=False, count=1):
 	cookies = get_cookies(url, username, password, project, force=force)
 	response = requests.get(url+end_point, cookies=cookies)
-	if response.status_code == 403 and not count <= 3:
+	if response.status_code == 403 and count <= 3:
 		response = call(url, end_point, username, password, project, force=True, count=count+1)
+
 	return response
 
 
@@ -113,10 +86,9 @@ def get_cookies(url, username, password, project,  force=False):
 			frappe.cache().hset(url, project, cookies)
 	return cookies
 
-
 @frappe.whitelist(allow_guest=True)
 def set_value(doctype, docname, fieldname, value):
-	 
+
 	 frappe.set_value(doctype, docname, fieldname, json.dumps(value, indent=4))
 
 @frappe.whitelist(allow_guest=True)
