@@ -11,7 +11,11 @@
   "user_id",
   "password",
   "project_logo",
-  "description"
+  "description",
+  "column_break_kckg",
+  "github_repository_url",
+  "github_default_branch",
+  "last_push_commit"
  ],
  "fields": [
   {
@@ -48,11 +52,30 @@
    "fieldname": "project_logo",
    "fieldtype": "Attach",
    "label": "Project Logo"
+  },
+  {
+   "fieldname": "column_break_kckg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "github_repository_url",
+   "fieldtype": "Small Text",
+   "label": "GitHub Repository URL"
+  },
+  {
+   "fieldname": "github_default_branch",
+   "fieldtype": "Data",
+   "label": "Github Default Branch"
+  },
+  {
+   "fieldname": "last_push_commit",
+   "fieldtype": "Data",
+   "label": "Last Push Commit"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-07-29 19:52:54.207973",
+ "modified": "2024-09-06 11:14:53.752985",
  "modified_by": "Administrator",
  "module": "PWA Builder",
  "name": "PWA-Project",
