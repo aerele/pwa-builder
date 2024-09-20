@@ -1,20 +1,6 @@
 <template>
-  <!-- <div class="border-2 rounded-lg border-gray-400 h-full m-4 drop-shadow-lg"> -->
 	<div>
 	<div class="w-full px-4 py-6">
-	  <!-- <Button
-	class="w-full py-5"
-		:variant="'solid'"
-		theme="gray"
-		size="sm"
-		label="Add New Form"
-		:loading="false"
-		:loadingText="null"
-		:disabled="false"
-		:link="null"
-	  >
-		<span class="text-xl"> + </span> Add New Form
-	  </Button> -->
 	  <div class="mb-3">
 		  <TextInput type="text" placeholder="Search Here">
 			<template #prefix>
@@ -45,17 +31,6 @@
 			<div class="p-2 mt-2">
 				<Input type="text" label="Form Name" v-model="formModel.form_name"/>
 			</div>
-			<!-- <div class="p-2">
-				<FormControl
-					:type="'search'"
-					size="md"
-					variant="subtle"
-					placeholder="Placeholder"
-					:disabled="false"
-					label="Label"
-					v-model="inputValue"
-				/>
-			</div> -->
 			<div class="p-2">
 				<FormControl
 					type="autocomplete"
@@ -77,12 +52,10 @@
 		</template>
 	</Popover>
 	</div>
-	<!-- <div v-if="formList.length" class=""> -->
 		<div v-for="form in props.pwaForm.data" :key="form.doctype">
 			<div   @click="handleFormFields(form)">
 				<FormItem :item="form" />
 			</div>
-		<!-- </div> -->
 	</div>
   </div>
 </template>
@@ -96,7 +69,7 @@ import { computed, reactive, ref } from 'vue';
 let formList = ref([])
 
 const emit = defineEmits([
-  'clicked'
+  'clicked', 'create-form'
 ])
 
 function handleFormFields(doctype) {
@@ -113,6 +86,10 @@ let props = defineProps({
 	pwaForm: {
 		type: Object,
         required: true,
+	},
+	id: {
+		type: String,
+		required: true,
 	}
 })
 
@@ -161,13 +138,16 @@ let pwaForm = createListResource({
 
 
 let createForm = () => {
+	// emit('create-form', )
 	pwaForm.insert.submit({
 		title: formModel.form_name,
 		doctype_name: formModel.doctype_name.value,
+		project_name: props.id,
 	}).then(r => {
 	console.log(r)
 	window.location.reload()
 })
+
 }
 
 // let doctype = computed(() => {
@@ -179,37 +159,6 @@ let createForm = () => {
 // 		)
 // 	}
 // })
-const listOfForms = [
-	{
-		title: "Form 1",
-        status: "Active",
-		doctype: "Todo"
-	},
-	{
-		title: "Form 2",
-        status: "Active",
-		doctype: "Todo"
-	},
-	{
-		title: "Form 3",
-        status: "Active",
-		doctype: "Todo"
-	},
-	{
-		title: "Form 4",
-        status: "Active",
-		doctype: "Todo"
-	},
-	{
-		title: "Form 5",
-        status: "Active",
-		doctype: "Todo"
-	},
-	{
-		title: "Form 6",
-        status: "Active",
-		doctype: "Todo"
-	}
-]
+
 
 </script>

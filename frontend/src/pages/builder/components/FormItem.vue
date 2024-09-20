@@ -3,11 +3,10 @@
 
   <div class="px-4 py-2">
     <!-- {{ item }} -->
-    <div class="flex flex-row justify-between items-center cursor-pointer">
+    <div class="flex flex-row p-4 border-b justify-between items-center cursor-pointer">
       <div class="cursor-pointer">
         <div class="">{{ item.title }}</div>
         <!-- <div class="cursor-pointer">{{ item.status }}</div> -->
-         <div>{{ item.doctype_name }}</div>
       </div>
       <!-- <svg
         xmlns="http://www.w3.org/2000/svg"

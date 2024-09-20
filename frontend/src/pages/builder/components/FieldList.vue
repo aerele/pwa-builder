@@ -1,5 +1,4 @@
 <template>
-  <!-- <div class="border-2 rounded-lg border-gray-400 h-full m-4 drop-shadow-lg"> -->
     <div class=" px-4">
     <div v-if="fieldSource" class="w-full py-6" placeholder="Search Here">
       <TextInput type="text" placeholder="Search Here">
@@ -8,25 +7,7 @@
         </template>
       </TextInput>
     </div>
-    <!-- <div>
-		<div v-for="item in fieldList" :key="item.fieldname" class="px-6 py-2 w-full">
-
-        <Button
-			class="w-full"
-          :variant="'subtle'"
-          theme="gray"
-          size="sm"
-          :label="item.label"
-          :loading="false"
-          :loadingText="null"
-          :disabled="false"
-          :link="null"
-        >
-          {{ item.label }}
-        </Button>
-      </div>
-    </div> -->
-    <div class="w-full flex items-center">
+    <div class="w-full items-center">
       <Draggable
         :list="fieldSource"
 		    :group="{ name: 'listOfFields', pull: true, put: false }"
@@ -34,10 +15,11 @@
         drag-class="drag"
         ghost-class="ghost"
         item-key="fieldname"
+        :sort="false"
       >
         <template #item="{ element }">
-          <div class="p-3 mb-2 rounded cursor-pointer border-b-2">
-            <h1 class="text-xl font-bold">
+          <div class="p-3 mb-2 rounded cursor-pointer border-b-2 hover:bg-gray-200 w-full">
+            <h1 class="text-lg font-semibold">
               {{ element.label }}
             </h1>
             <div class="flex">
@@ -69,3 +51,4 @@ const log = function (evt) {
   border-radius: 5px;
 }
 </style>
+

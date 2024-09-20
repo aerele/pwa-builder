@@ -4,8 +4,7 @@
     :type="'date'"
     size="sm"
     variant="subtle"
-    placeholder="Placeholder"
-    :disabled="false"
+    :disabled="true"
     modelValue=""
   />
 </div>

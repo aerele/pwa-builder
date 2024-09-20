@@ -3,7 +3,6 @@
   <Checkbox
     size="sm"
     :value="false"
-    v-model="state.value"
     label="Enable feature"
   />
 </div>

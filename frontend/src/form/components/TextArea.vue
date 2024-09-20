@@ -1,14 +1,14 @@
 <template>
     <div class="p-2">
-  <TextInput
-    :type="'datetime-local'"
+  <FormControl
+    :type="'textarea'"
     size="sm"
     variant="subtle"
     :disabled="true"
-    modelValue=""
+    v-model="inputValue"
   />
 </div>
 </template>
 <script setup>
-import { TextInput } from 'frappe-ui';
+import { FormControl } from 'frappe-ui';
 </script>
