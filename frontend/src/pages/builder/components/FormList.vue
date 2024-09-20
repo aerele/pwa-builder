@@ -111,26 +111,6 @@ let doctypeList = createListResource({
 
 doctypeList.reload()
 
-// let pwaForm = createListResource({
-// 	doctype: "PWA-Form",
-// 	fields: ['form_name', 'doctype_name'],
-// 	transform(data) {
-// 		console.log(data)
-// 		let transformData = []
-// 		data.map(doc => {
-// 			transformData.push({
-// 				title: doc.form_name,
-//                 // status: doc.status,
-//                 doctype: doc.doctype_name,
-//                 // id: doc.name,
-//                 // ...doc
-// 			})
-// 		})
-// 		formList.value = transformData
-// 	}
-// })
-
-// pwaForm.reload()
 
 let pwaForm = createListResource({
 	doctype: "PWA DocType",
@@ -138,7 +118,6 @@ let pwaForm = createListResource({
 
 
 let createForm = () => {
-	// emit('create-form', )
 	pwaForm.insert.submit({
 		title: formModel.form_name,
 		doctype_name: formModel.doctype_name.value,
@@ -150,15 +129,6 @@ let createForm = () => {
 
 }
 
-// let doctype = computed(() => {
-// 	console.log(doctypeList.data)
-// 	if(doctypeList.lenght) {
-// 		return doctypeList.data.map(doc => {
-// 				return { label: doc.name, value: doc.name }
-// 			}
-// 		)
-// 	}
-// })
 
 
 </script>

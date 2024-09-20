@@ -3,7 +3,9 @@
     <div class="sticky top-0 bg-white shadow-md z-10 p-5 flex justify-between">
       <h1 class="text-3xl">{{ projectDoc.doc.project_title }}</h1>
       <div>
-        <Button variant="solid" theme="gray" size="md" @click="exportProject">Export</Button>
+        <Button variant="solid" theme="gray" size="md" @click="exportProject"
+          >Export</Button
+        >
       </div>
     </div>
     <div class="flex flex-row h-[92vh] justify-between overflow-hidden">
@@ -50,10 +52,10 @@ let childList = ref([])
 
 let expectFields = ['Section Break', 'Column Break', 'Tab Break', 'Geolocation', 'Button', 'rgt', 'lft', 'old_parent']
 const props = defineProps({
-  id : {
-    type : String,
-    required : true
-  }
+  id: {
+    type: String,
+    required: true,
+  },
 })
 
 let projectDoc = createDocumentResource({
@@ -101,32 +103,31 @@ async function handleFormFields (doc) {
   spinner.value = true
   console.log("================doc",doc)
   let formFields = createResource({
-    url: "pwa_builder.api.get_doc",
-    params: {doctype: "PWA DocType", docname: doc.name},
+    url: 'pwa_builder.api.get_doc',
+    params: { doctype: 'PWA DocType', docname: doc.name },
     transform(data) {
-      console.log("================data",data)
-      let transformData;
-      if(data.field_list) {
+      console.log('================data', data)
+      let transformData
+      if (data.field_list) {
         let transformData = JSON.parse(data.field_list)
-        console.log("================data",transformData)
+        console.log('================data', transformData)
         // demo.value = transformData.pwa_form_fields
         fieldList.value = transformData.pwa_form_fields
         // demo.value = data.field_list
-      }
-      else {
+      } else {
         fieldList.value = []
       }
       return transformData
-    }
+    },
   })
 
   await formFields.reload()
 
-  console.log(formFields, "000000000000000000000000000000000000000000")
-  
+  console.log(formFields, '000000000000000000000000000000000000000000')
+
   let getFields = createResource({
-    url: "pwa_builder.api.get_meta",
-    params: {doctype: doc.doctype_name, project : props.id},
+    url: 'pwa_builder.api.get_meta',
+    params: { doctype: doc.doctype_name, project: props.id },
     transform(data) {
       console.log(data, "data")
       let transformData;
@@ -147,7 +148,11 @@ async function handleFormFields (doc) {
         else {
           transformData = dataFields
         }
-        console.log(transformData, " +++++++++++++++++++++++++++++++++++++++", transformData)
+        console.log(
+          transformData,
+          ' +++++++++++++++++++++++++++++++++++++++',
+          transformData
+        )
         // return transformData
       }
       formData.value = {form_name : doc.title, name : doc.name, doctype_name: doc.doctype_name, is_submittable: data.is_submittable, pwa_form_fields: fieldList.value}
@@ -184,12 +189,17 @@ function deleteField(field) {
 
 function setFieldList() {
   console.log(fieldList.value)
-  if(fieldList.value) {
+  if (fieldList.value) {
     formData.value.pwa_form_fields = fieldList.value
   }
   let setValue = createResource({
-    url: "pwa_builder.api.set_value",
-    params: {doctype: "PWA DocType", docname: formData.value.name, fieldname: "field_list", value: formData.value}
+    url: 'pwa_builder.api.set_value',
+    params: {
+      doctype: 'PWA DocType',
+      docname: formData.value.name,
+      fieldname: 'field_list',
+      value: formData.value,
+    },
   })
   setValue.reload()
 }
@@ -217,12 +227,20 @@ async function getChildFields(element) {
 }
 
 function exportProject() {
-  console.log("Export Project");
+  console.log('Export Project')
   let exportProject = createResource({
-    url: "pwa_builder.api.export_project",
-    params: { project_name: props.id }
-  });
+    url: 'pwa_builder.api.export_project',
+    params: { project_name: props.id },
+  })
   exportProject.reload()
+//   const url = window.URL.createObjectURL(new Blob([response.data]))
+  const origin = window.location.origin
+  const file = "/files/PWA Demo.zip"
+  const link = document.createElement('a')
+  link.href = origin + file
+//   link.setAttribute('download', 'file.png') //or any other extension
+//   document.body.appendChild(link)
+  link.click()
 }
 </script>
 <style scoped>
@@ -237,19 +255,18 @@ function exportProject() {
   background-color: white;
 }
 
-.scrollBar::-webkit-scrollbar-thumb{
+.scrollBar::-webkit-scrollbar-thumb {
   background-color: #cfcdcd;
   width: 5px;
   border-radius: 5px;
 }
 
-.scrollBar::-webkit-scrollbar-thumb:hover{
+.scrollBar::-webkit-scrollbar-thumb:hover {
   background-color: rgb(180, 176, 176);
   width: 5px;
 }
 
-.drag{
+.drag {
   margin-top: -200px;
 }
 </style>
-
