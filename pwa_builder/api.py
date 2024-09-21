@@ -97,12 +97,8 @@ def get_doc(doctype, docname):
 @frappe.whitelist(allow_guest=True)
 def export_project(project_name):
 	print("export_project")
-	# os.mkdir("sudharsanan")
 	print("export")
 	pwa_doctype = frappe.get_list("PWA DocType", {"project_name": project_name})
-	print(pwa_doctype)
-
-	# /home/scott007/frappe/pwa_builder/apps/pwa_builder/pwa_builder/api.py
 
 	for doctype in pwa_doctype:
 		doc = frappe.get_doc("PWA DocType", doctype.name)
