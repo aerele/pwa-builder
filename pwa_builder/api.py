@@ -159,7 +159,10 @@ def schedule_export_project(project_name):
 # validate form mandatory fields
 @frappe.whitelist()
 def validate_form_fields(project_name):
-	result={"success":True}
+	result={
+		"success":True,
+		"forms_with_missing_fields":{}
+	}
 	if form_list := frappe.get_all(
 		"PWA DocType", {"project_name": project_name, "disable": 0},["name","doctype_name"]
 	):
@@ -192,9 +195,9 @@ def validate_form_fields(project_name):
 				)
 				if missing_fields_parent.values() or missing_fields_child.values():
 					result['success']=False
-					result[form.get("doctype_name")]={}
-					result[form.get("doctype_name")].update(missing_fields_parent)
-					result[form.get("doctype_name")].update(missing_fields_child)
+					result['forms_with_missing_fields'][form.get("doctype_name")]={}
+					result['forms_with_missing_fields'][form.get("doctype_name")].update(missing_fields_parent)
+					result['forms_with_missing_fields'][form.get("doctype_name")].update(missing_fields_child)
 		if not result.get('success'):
 			result['message']='Mandatory fields missing in the form/forms'
 	else:
