@@ -170,13 +170,13 @@ def validate_form_fields(project_name):
 			mandatory_fields_parent = {}
 			mandatory_fields_child = {}
 			child_table_list=[]
-			field_meta = frappe.db.get_value("PWA DocType", form.get("name"), "field_list")
+			field_meta = frappe.db.get_value("PWA DocType", form.get("name"), "field_list") or {}
 			field_meta = json.loads(field_meta)
-			for field in field_meta.get('pwa_form_fields'):
-				if field.get("reqd"):
+			for field in field_meta.get('pwa_form_fields',[]):
+				if field.get("reqd") and field.get("fieldtype") not in ["Column Break","Section Break","Tab Break"]:
 					mandatory_fields_parent[field.get("fieldname")] = field.get("label")
 				if field.get("fieldtype") == "Table":
-					if field.get("options"):
+					if field.get("options") and isinstance(field.get("options"),list):
 						for row in field.get("options"):
 							if row.get("reqd"):
 								mandatory_fields_child[row.get('parent')] = {}
@@ -184,7 +184,7 @@ def validate_form_fields(project_name):
 								if row.get('parent') not in child_table_list:
 									child_table_list.append(row.get('parent'))
 					else:
-						frappe.throw(_("Child table field {0} is missing options"))
+						child_table_list.append(field.get("options"))
 			if actual_field_meta := get_meta(doctype=form.get("doctype_name"), project=project_name,with_parent=True,cached=False):
 				missing_fields_parent, missing_fields_child = process_mandatory_fields(
 					form=form.get("doctype_name"),
