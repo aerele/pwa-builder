@@ -15,7 +15,7 @@ This is a hobby project by the developers at Aerele Technologies. Feel free to r
 - Install this `Frappe App` to your actual site.
 - Access your new pwa on `https://<your-site-name>/<your-pwa-project-name>`
 
-![PWA Builder Screen](https://insider.frappe.cloud/files/pwa-builder-screen.jpg)
+![PWA Builder Screen](https://insider.frappe.cloud/files/pwa_builder.png)
 
 #### License
 
