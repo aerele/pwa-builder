@@ -69,12 +69,10 @@ import { computed, reactive, ref } from 'vue';
 let formList = ref([])
 
 const emit = defineEmits([
-  'clicked', 'create-form'
+  'clicked', 'create-form', 'refresh-formlist'
 ])
 
 function handleFormFields(doctype) {
-  console.log("=======================================")
-  // isExpanded.value =!isExpanded.value\
   emit("clicked",doctype)
 }
 
@@ -122,8 +120,11 @@ let createForm = () => {
 		title: formModel.form_name,
 		doctype_name: formModel.doctype_name.value,
 		project_name: props.id,
+		field_list: {}
 	}).then(r => {
 	console.log(r)
+	// emit('refresh-formlist')
+	// pwaForm.reload()
 	window.location.reload()
 })
 

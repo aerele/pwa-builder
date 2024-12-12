@@ -90,11 +90,11 @@ def get_cookies(url, username, password, project,  force=False):
 @frappe.whitelist(allow_guest=True)
 def set_value(doctype, docname, fieldname, value):
 
-	 frappe.set_value(doctype, docname, fieldname, json.dumps(value, indent=4))
+	doc = frappe.get_doc(doctype, docname)
 
-@frappe.whitelist(allow_guest=True)
-def get_doc(doctype, docname):
-	 return frappe.get_doc(doctype, docname)
+	doc.field_list = json.dumps(value, indent=4)
+	doc.is_validated = 0
+	doc.save()
 
 @frappe.whitelist(allow_guest=True)
 def export_project(project_name):
@@ -104,6 +104,7 @@ def export_project(project_name):
 		queue="short",
 		job_name=frappe.utils.get_job_name("export_app_for", "PWA-Project", project_name)
 	)
+	# schedule_export_project(project_name)
 
 def schedule_export_project(project_name):
 	from pwa_builder.pwa_builder.doctype.pwa_github_integration import pwa_github_integration
@@ -117,7 +118,7 @@ def schedule_export_project(project_name):
 		if pwa_doctype := frappe.get_list("PWA DocType", {"project_name": project_doc.name}):
 			for doctype in pwa_doctype:
 				doc = frappe.get_doc("PWA DocType", doctype.name)
-				json_data = doc.field_list
+				json_data = doc.field_list or '{}'
 				file_name = doc.title + ".json"
 				path = file_path+"/pwa_build/pwa_build/pwa_form/"+file_name.lower()
 				os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -127,7 +128,7 @@ def schedule_export_project(project_name):
 			if renaming_result := rename_template_app(
 				app_path=file_path,
 				new_app_name=project_doc.project_title,
-				new_url="frontend"
+				new_url="pwa"
 			):
 				if renaming_result.get("success"):
 					if push_repo_result := pwa_github_integration.push_to_github(
@@ -170,21 +171,19 @@ def validate_form_fields(project_name):
 			mandatory_fields_parent = {}
 			mandatory_fields_child = {}
 			child_table_list=[]
-			field_meta = frappe.db.get_value("PWA DocType", form.get("name"), "field_list")
+			field_meta = frappe.db.get_value("PWA DocType", form.get("name"), "field_list") or '{}'
 			field_meta = json.loads(field_meta)
-			for field in field_meta.get('pwa_form_fields'):
+			for field in field_meta.get('pwa_form_fields', []):
 				if field.get("reqd"):
 					mandatory_fields_parent[field.get("fieldname")] = field.get("label")
 				if field.get("fieldtype") == "Table":
-					if field.get("options"):
+					if field.get("options") and isinstance(field.get("options"), list):
 						for row in field.get("options"):
 							if row.get("reqd"):
 								mandatory_fields_child[row.get('parent')] = {}
 								mandatory_fields_child[row.get('parent')][row.get("fieldname")]=row.get("label")
 								if row.get('parent') not in child_table_list:
 									child_table_list.append(row.get('parent'))
-					else:
-						frappe.throw(_("Child table field {0} is missing options"))
 			if actual_field_meta := get_meta(doctype=form.get("doctype_name"), project=project_name,with_parent=True,cached=False):
 				missing_fields_parent, missing_fields_child = process_mandatory_fields(
 					form=form.get("doctype_name"),

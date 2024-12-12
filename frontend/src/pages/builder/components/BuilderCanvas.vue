@@ -92,6 +92,7 @@ import Textarea from '../../../form/components/TextArea.vue';
 import Table from '../../../form/components/Table.vue';
 import FieldList from './FieldList.vue';
 import Input from 'frappe-ui/src/components/Input.vue';
+import TextArea from '../../../form/components/TextArea.vue';
 
 // const { fieldList, formName } = defineProps(['fieldList', 'formName']);
 let props = defineProps({
@@ -198,8 +199,11 @@ const fieldMap = {
   Check: Checkbox,
   Text: Text,
   Table: Table,
+  'Text Editor': TextArea,
   'Long Text': Textarea,
   'Small Text': Textarea,
+  'Currency': Text,
+  'Time': Text,
   Float: Int,
   Link: Text,
   Currency: Text,

@@ -20,7 +20,8 @@
         <template #item="{ element }">
           <div class="p-3 mb-2 rounded cursor-pointer border-b-2 hover:bg-gray-200 w-full">
             <h1 class="text-lg font-semibold">
-              {{ element.label }}
+              <span v-if="element.reqd == 1" class="after:content-['_*'] after:text-red-600 mb-2">{{ element.label }}</span>
+              <span v-else>{{ element.label }}</span>
             </h1>
             <div class="flex">
               <h1>
