@@ -1,31 +1,36 @@
 <template>
   <div class="h-screen w-screen main flex flex-col main">
-    <div class="sticky top-0 bg-white shadow-md z-10 p-5 flex justify-between">
-      <h1 class="text-3xl">{{ projectDoc.doc.project_title }}</h1>
-      <div>
-        <Button variant="solid" theme="gray" size="md" @click="exportProject"
-          >Export</Button
-        >
-      </div>
+    <div v-if="!projectDoc.doc?.project_title" class="h-full flex items-center justify-center"> 
+      <Spinner  class=" w-10"/>
     </div>
-    <div class="flex flex-row h-[92vh] justify-between overflow-hidden">
-      <div class=" h-full w-[20%] m-4 drop-shadow-lg overflow-y-auto bg-white mt-0 ml-0">
-        <FormList :doctypeList="doctypeList" :pwaForm="pwaForm" @clicked="handleFormFields" :id="props.id" />
-      </div>
-      <div class="w-[30%] h-fit mx-4 mt-4 drop-shadow-lg rounded-lg bg-white">
-        <div v-if="formData.doctype_name" class="flex justify-between items-center mt-2 shadow-sm sticky top-0 bg-white border-b px-3 py-2 z-10">
-          <h2 class="text-2xl">{{ formData.doctype_name }}</h2>
-          <Button variant="solid" theme="gray" size="md" @click="setFieldList">Save</Button>
-        </div> 
-          <div class=" min-h-[100px] max-h-[84vh] overflow-y-auto scrollBar">
-            <BuilderCanvas :formName="formData.doctype_name" :fieldList="fieldList" :childList="childData" @handleDelete="deleteField" @handleSave="setFieldList" />
-          </div>
-      </div>
-      <div class=" h-[92vh] w-[20%] drop-shadow-lg overflow-y-auto scrollBar bg-white">
-        <div v-if="spinner" class="h-full flex items-center justify-center">
-          <Spinner class="w-8" />
+    <div v-else>
+      <div class="sticky top-0 bg-white shadow-md z-10 p-5 flex justify-between">
+        <h1 class="text-3xl">{{ projectDoc.doc.project_title }}</h1>
+        <div>
+          <Button variant="solid" theme="gray" size="md" @click="exportProject"
+            >Export</Button
+          >
         </div>
-        <FieldList :fieldSource="fields" />
+      </div>
+      <div class="flex flex-row h-[92vh] justify-between overflow-hidden">
+        <div class=" h-full w-[20%] m-4 drop-shadow-lg overflow-y-auto bg-white mt-0 ml-0">
+          <FormList :doctypeList="doctypeList" :pwaForm="pwaForm" @clicked="handleFormFields" :id="props.id" />
+        </div>
+        <div class="w-[30%] h-fit mx-4 mt-4 drop-shadow-lg rounded-lg bg-white">
+          <div v-if="formData.doctype_name" class="flex justify-between items-center mt-2 shadow-sm sticky top-0 bg-white border-b px-3 py-2 z-10">
+            <h2 class="text-2xl">{{ formData.doctype_name }}</h2>
+            <Button variant="solid" theme="gray" size="md" @click="setFieldList">Save</Button>
+          </div> 
+            <div class=" min-h-[100px] max-h-[84vh] overflow-y-auto scrollBar">
+              <BuilderCanvas :formName="formData.doctype_name" :fieldList="fieldList" :childList="childData" @handleDelete="deleteField" @handleSave="setFieldList" />
+            </div>
+        </div>
+        <div class=" h-[92vh] w-[20%] drop-shadow-lg overflow-y-auto scrollBar bg-white">
+          <div v-if="spinner" class="h-full flex items-center justify-center">
+            <Spinner class="w-8" />
+          </div>
+          <FieldList :fieldSource="fields" />
+        </div>
       </div>
     </div>
   </div>
