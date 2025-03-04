@@ -73,7 +73,6 @@ const emit = defineEmits([
 ])
 
 function handleFormFields(doctype) {
-  console.log("=======================================")
   // isExpanded.value =!isExpanded.value\
   emit("clicked",doctype)
 }
@@ -123,7 +122,6 @@ let createForm = () => {
 		doctype_name: formModel.doctype_name.value,
 		project_name: props.id,
 	}).then(r => {
-	console.log(r)
 	window.location.reload()
 })
 

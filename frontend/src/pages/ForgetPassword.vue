@@ -129,10 +129,8 @@
           loading.value = false
           if (response.status === 200) {
             responsemessage.value = `Password reset instructions have been sent to your email`
-            console.log(result)
           } else if (response.status === 404) {
             responsemessage.value = `User Mail Not Found`
-            console.log(result)
           } else if (response.status === 501) {
             responsemessage.value =
               'Please setup default Email Account from Settings > Email Account'

@@ -1,6 +1,5 @@
 <template>
   <div class="w-full p-4">
-    <!-- Draggable Drop Area for Field List -->
     <Draggable
       :list="fieldList"
       group="listOfFields"
@@ -17,14 +16,14 @@
           <div>
             <div class="flex justify-between items-center px-1">
               <div class="ml-2 text-sm">{{ element.label }}</div>
-                <FeatherIcon
-                  name="x"
-                  :class="['text-white w-4 h-4 p-0.5',hoverIndex == element.idx ? 'text-black hover:bg-white rounded-full' : '']"
-                  @click="handleDelete(element)"
-                />
+              <FeatherIcon
+                name="x"
+                :class="['text-white w-4 h-4 p-0.5', hoverIndex == element.idx ? 'text-black hover:bg-white rounded-full' : '']"
+                @click="handleDelete(element)"
+              />
             </div>
             <div>
-              <component :is="fieldMap[element.fieldtype]" @click="element.fieldtype == 'Table' ? [childDialog(element), dialog = true] : ''" />
+              <component :is="fieldMap[element.fieldtype]" @click="element.fieldtype === 'Table' ? [childDialog(element), dialog = true] : ''" />
             </div>
           </div>
         </div>
@@ -41,35 +40,37 @@
 
     <Dialog v-model="dialog" group="listOfChildFields" class="list-group">
       <template #body-title>
-        <h3 class="font-semibold">Select Table Columns For <span class="font-bold">{{ childDetails.doctype }}</span></h3>
+        <h3 class="font-semibold">
+          Select Table Columns For <span class="font-bold">{{ childDetails.doctype }}</span>
+        </h3>
       </template>
       <template #body-content>
-        <div class=" max-h-[80vh] overflow-y-auto border-y scrollBar">
+        <div class="max-h-[80vh] overflow-y-auto border-y scrollBar">
           <Draggable :list="currentChildFields" item-key="fieldname">
-              <template #item="{ element }">
-                <div class="flex flex-row p-2 my-1 rounded-md hover:bg-gray-100 cursor-grab">
-                  <div class=" px-2">
-                    <svg fill="#b8bbbc" class="text-2xl" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="20" height="20">
-                      <path d="M10 13a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm0-4a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm-4 4a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm5-9a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM6 5a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path>
-                    </svg>
-                   </div>
-                  <div>
-                    <FormControl
-                      type="checkbox"
-                      size="md"
-                      variant="subtle"
-                      :disabled="false"
-                      :label="element.label"
-                      v-model="checkbox[element.fieldname]"
-                  />
-                  </div>
+            <template #item="{ element }">
+              <div class="flex flex-row p-2 my-1 rounded-md hover:bg-gray-100 cursor-grab">
+                <div class="px-2">
+                  <svg fill="#b8bbbc" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="20" height="20">
+                    <path d="M10 13a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm0-4a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm-4 4a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm5-9a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM6 5a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path>
+                  </svg>
                 </div>
-              </template>
-             </Draggable>
+                <div>
+                  <FormControl
+                    type="checkbox"
+                    size="md"
+                    variant="subtle"
+                    :disabled="false"
+                    :label="element.label"
+                    v-model="checkbox[element.fieldname]"
+                  />
+                </div>
+              </div>
+            </template>
+          </Draggable>
         </div>
-         <div class="flex justify-end mt-2">
-            <Button size="md" variant="solid" @click="[updateChildFields(),dialog = false]">Update</Button>
-          </div>
+        <div class="flex justify-end mt-2">
+          <Button size="md" variant="solid" @click="[updateChildFields(), dialog = false]">Update</Button>
+        </div>
       </template>
     </Dialog>
   </div>
@@ -77,9 +78,9 @@
 
 <script setup>
 import Draggable from 'vuedraggable';
-import { FeatherIcon, Dialog, FormControl } from 'frappe-ui';
-import { Button } from 'frappe-ui';
+import { FeatherIcon, Dialog, FormControl, Button } from 'frappe-ui';
 import { reactive, ref } from 'vue';
+
 import Text from '../../../form/components/Text.vue';
 import Select from '../../../form/components/Select.vue';
 import Int from '../../../form/components/Int.vue';
@@ -90,12 +91,8 @@ import Checkbox from '../../../form/components/Checkbox.vue';
 import Attach from '../../../form/components/FileUploader.vue';
 import Textarea from '../../../form/components/TextArea.vue';
 import Table from '../../../form/components/Table.vue';
-import FieldList from './FieldList.vue';
-import Input from 'frappe-ui/src/components/Input.vue';
-import TextArea from '../../../form/components/TextArea.vue';
 
-// const { fieldList, formName } = defineProps(['fieldList', 'formName']);
-let props = defineProps({
+const props = defineProps({
   fieldList: {
     type: Array,
   },
@@ -104,23 +101,20 @@ let props = defineProps({
   },
   childList: {
     type: Object,
-  }
-})
-let hoverIndex = ref(null);
-let checkbox = reactive({})
-let currentChildFields = ref([])
-let childDetails = reactive({
+  },
+});
+
+const hoverIndex = ref(null);
+const checkbox = reactive({});
+const currentChildFields = ref([]);
+const childDetails = reactive({
   fieldname: '',
   doctype: '',
   index: 0,
-})
-let dialog = ref(false)
-let emit = defineEmits(['handle-save', 'handle-delete']);
+});
+const dialog = ref(false);
 
-function handleSave() {
-  console.log('handleSave');
-  emit('handle-save');
-}
+const emit = defineEmits(['handle-save', 'handle-delete']);
 
 function handleDelete(item) {
   emit('handle-delete', item);
@@ -128,62 +122,35 @@ function handleDelete(item) {
 
 async function childDialog(element) {
   dialog.value = true;
-  console.log('childDialog', element);
 
-  console.log("childdata",props.childList[element.fieldname])
+  const index = props.fieldList.findIndex((item) => item.fieldname === element.fieldname);
 
-  console.log(props.fieldList)
+  childDetails.doctype = props.childList[element.fieldname][0].parent;
+  childDetails.fieldname = element.fieldname;
+  childDetails.index = index;
 
-  let index = props.fieldList.findIndex(item => item.fieldname === element.fieldname)
-
-  childDetails.doctype = props.childList[element.fieldname][0].parent
-  childDetails.fieldname = element.fieldname
-  childDetails.index = index
-
-  if(typeof(props.fieldList[index].options) != 'string'){
-    console.log(typeof(props.fieldList[index].options), "string==========================")
-    // checkbox[props.childList.fieldname] = false;
-    // props.fieldList[index].options.map((item) => {
-    //   checkbox[item.fieldname] = true;
-    // })
-    await props.fieldList[index].options.map((item1)  => {
+  if (typeof props.fieldList[index].options !== 'string') {
+    await props.fieldList[index].options.map((item1) => {
       props.childList[element.fieldname].map((item2) => {
-        if(item1.fieldname == item2.fieldname){
-          console.log("items111111111111111111111111111111111111111",item1)
+        if (item1.fieldname === item2.fieldname) {
           checkbox[item1.fieldname] = true;
+        } else if (!checkbox[item2.fieldname]) {
+          checkbox[item2.fieldname] = false;
         }
-        else{
-          if(!checkbox[item2.fieldname]){
-            checkbox[item2.fieldname] = false;
-          }
-        }
-      })
-    })
-
-  }
-  else{
-    console.log(typeof(props.fieldList[index].options), "typeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+      });
+    });
+  } else {
     await props.childList[element.fieldname].map((item) => {
       checkbox[item.fieldname] = false;
-    })
+    });
   }
 
-  currentChildFields.value = props.childList[element.fieldname]
-
-
-  // emit('child-dialog', element);
+  currentChildFields.value = props.childList[element.fieldname];
 }
 
-function updateChildFields(){
-  console.log("update Dialog")
-  let childList = []
-  currentChildFields.value.map((item) => {
-    if(checkbox[item.fieldname]){
-      childList.push(item)
-    }
-  })
-  props.fieldList[childDetails.index].options = childList
-  console.log(props.fieldList)
+function updateChildFields() {
+  const childList = currentChildFields.value.filter((item) => checkbox[item.fieldname]);
+  props.fieldList[childDetails.index].options = childList;
 }
 
 const fieldMap = {
@@ -192,26 +159,25 @@ const fieldMap = {
   'Attach Image': Attach,
   Select: Select,
   Int: Int,
-  Autocomplete: Select,
+  Autocomplete: Autocomplete,
   Dynamic_Link: Select,
   Datetime: DateTime,
   Date: Date,
   Check: Checkbox,
   Text: Text,
   Table: Table,
-  'Text Editor': TextArea,
+  'Text Editor': Textarea,
   'Long Text': Textarea,
   'Small Text': Textarea,
-  'Currency': Text,
-  'Time': Text,
+  Currency: Text,
+  Time: Text,
   Float: Int,
   Link: Text,
-  Currency: Text,
 };
 
-const log = function (evt) {
-  window.console.log('received', props.fieldList);
-};
+function log() {
+  // Placeholder for @change handler if needed in future
+}
 </script>
 
 <style scoped>
@@ -224,20 +190,18 @@ const log = function (evt) {
   background-color: #e0e7ff;
 }
 
-.scrollBar::-webkit-scrollbar{
+.scrollBar::-webkit-scrollbar {
   width: 5px;
   background-color: white;
-  /* overflow: auto; */
 }
 
-.scrollBar::-webkit-scrollbar-thumb{
+.scrollBar::-webkit-scrollbar-thumb {
   background-color: white;
   width: 5px;
   border-radius: 5px;
 }
 
-.scrollBar::-webkit-scrollbar-thumb:hover{
+.scrollBar::-webkit-scrollbar-thumb:hover {
   background-color: white;
-  width: 5px;
 }
 </style>

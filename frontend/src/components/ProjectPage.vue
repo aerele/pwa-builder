@@ -117,10 +117,8 @@
 <script setup>
 import { Avatar, FeatherIcon, Input, FormControl, Button } from 'frappe-ui'
 import { createListResource, createResource } from 'frappe-ui';
-import Drawer from './Drawer.vue';
 import { reactive, ref } from 'vue';
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
-import Project from './Project.vue';
 
 const open = ref(false)
 let response = ref([])
@@ -137,7 +135,6 @@ let pwaProject = createResource({
     url: "pwa_builder.api.add_site",
     params: {data: project},
     transform(data) {
-        console.log(data)
 		pwaProjectList.reload()
         return data
     }
@@ -151,7 +148,6 @@ const pwaProjectList = createListResource({
     doctype: "PWA-Project",
     fields: ['project_title', 'sub_title', 'site_url', 'user_id', "name", "project_logo"],
     transform(data) {
-        console.log(data)
         let transformData = []
         data.map((item) => {
             transformData.push(item)
