@@ -3,6 +3,7 @@
 
 import os
 import git
+import json
 import frappe
 import requests
 import shutil
@@ -126,7 +127,44 @@ def push_to_github(path, repo_name, current_default_branch=None, last_push_commi
 		return {'success': False, 'error': str(e)}
 
 
+def is_repository_present(repo_name):
+    """Check if a GitHub repository exists under the configured user/organization."""
+    pwa_github_integration = frappe.get_single('PWA GitHub Integration')
+    github_token = pwa_github_integration.get_password('access_token')
+    github_username = pwa_github_integration.github_username
+    push_to_org = pwa_github_integration.push_repository_to_an_organization
+    organization_name = pwa_github_integration.organization_name
+
+    repo_name = scrub(repo_name)
+
+    if push_to_org and organization_name:
+        repo_full_name = f'{organization_name}/{repo_name}'
+    else:
+        repo_full_name = f'{github_username}/{repo_name}'
+
+    headers = {
+        'Authorization': f'token {github_token}',
+        'Accept': 'application/vnd.github.v3+json'
+    }
+
+    try:
+        response = requests.get(f'https://api.github.com/repos/{repo_full_name}', headers=headers)
+
+        if response.status_code == 200:
+            response_dict = json.loads(response.text)
+            return {"status": True, "message": response_dict.get('html_url')}  
+        elif response.status_code == 404:
+            return {"status": False, "message": "Repository not found."}
+        else:
+            frappe.log_error(f"Failed to check repository existence: {response.json().get('message')}", "GitHub Repository Check Failed")
+            return {"status": False, "message": "Something went wrong"}
+
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "Exception in GitHub Repository Check")
+        return False
+
 def clone_pwa_template(project_name,repo_url="https://github.com/aerele/pwa_build.git"):
+    
 	project_name = scrub(project_name)
 	public_folder = os.path.join(get_site_path("public/files/"), project_name,"pwa_build")
 	project_folder = os.path.join(get_site_path("public/files/"), project_name)
