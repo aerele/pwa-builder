@@ -1,5 +1,5 @@
 <template>
-    <div class="p-8 border border-gray-400 rounded-md text-center">
+    <div class="p-8 border border-gray-400 mt-2 rounded-md text-center">
         <!-- <Button>Create Child Table</Button> -->
          Click Here To Update Columns
     </div>
