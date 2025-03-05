@@ -1,14 +1,11 @@
 <template>
-    <div class="p-2">
-  <FormControl
-    :type="'textarea'"
-    size="sm"
-    variant="subtle"
-    :disabled="true"
-    v-model="inputValue"
+    <Textarea
+      :variant="'subtle'"
+      size="sm"
+      :disabled="true"
+      modelValue=""
   />
-</div>
 </template>
-<script setup>
-import { FormControl } from 'frappe-ui';
+<script>
+import { Textarea } from 'frappe-ui'
 </script>
