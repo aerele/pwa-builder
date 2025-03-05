@@ -97,13 +97,6 @@ def set_value(doctype, docname, fieldname, value):
 def get_doc(doctype, docname):
 	 return frappe.get_doc(doctype, docname)
 
-
-@frappe.whitelist(allow_guest=True)
-def get_repo(repo_name):
-    from pwa_builder.pwa_builder.doctype.pwa_github_integration import pwa_github_integration
-    return  pwa_github_integration.is_repository_present(repo_name.lower())
-
-@frappe.whitelist(allow_guest=True)
 def export_project(project_name):
 	frappe.enqueue(
 		method="pwa_builder.api.schedule_export_project",
