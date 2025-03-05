@@ -4,19 +4,28 @@
             <div class="flex flex-row justify-between w-full px-4">
                 <div class="logo">
                     <!-- <img src="/assets/frappe/images/frappe-framework-logo.svg" alt="Logo"> -->
+                     <!-- <img class="w-13" src="pwa_builder/frontend/public/AER80b586.png"/> -->
+                      <!-- <Avatar
+                      :image="logo.file_url"
+                       /> -->
+                       <!-- <img class="w-13" src="http://test:8004/files/AER80b586.png" /> -->
+                        <!-- <img class="w-13" :src="file.logo" /> -->
+                        <!-- <Avatar :image="file.logo" class="w-12 h-12" shape="square" /> -->
+                         <p class=" text-xl text-gray-800 font-semibold">PWA - Builder</p>
+                     </div>
                 </div>
-                <!-- <div class="flex flex-row items-center gap-2"> -->
+                <div class="pr-5">
                     <Avatar
                     label="Aerele Technologies"
                     shape="square"
                     size="2xl"/>
-                <!-- </div> -->
+                </div>
             </div>
-        </div>
-        <div class="content-page px-10">
+        <div class="content-page px-4">
             <div class="mt-4">
-                <div class="">
-                    Projects
+                <div class=" font-medium flex">
+                    <FeatherIcon class="w-4" name="folder"/>
+                    <p class="text-gray-700 ml-2">Project's</p>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7">
                     <div class="w-24 h-24 bg-gray-400 flex items-center justify-center mt-4 ml-5 add-icon" @click="open = true">
@@ -69,28 +78,34 @@
                     <div class="relative mt-6 flex-1 px-4 sm:px-6">
                         <!-- <span>Project Name</span> -->
                          <div class="mb-2">
-                             <Input type="text" label="Project Title" v-model="project.project_title" />
-                         </div>
-                         <!-- <div class="mb-2">
-                             <Input type="text" label="Sub Title" v-model="project.sub_title"/>
-                         </div> -->
-                         <div class="mb-2">
-                             <Input type="text" label="Site URL" v-model="project.site_url"/>
+                            <div class=" after:content-['_*'] after:text-red-600 mb-2">Project Title</div>
+                             <Input type="text" class="" label="" placeholder="eg: Accounts" v-model="project.project_title" />
                          </div>
                          <div class="mb-2">
-                             <Input type="email" label="User ID" v-model="project.user_id"/>
+                            <div class=" after:content-['_*'] after:text-red-600 mb-2">Dashboard Name</div>
+                            <Input type="text" label="" placeholder="eg: /frontend" v-model="project.sub_title"/>
                          </div>
                          <div class="mb-2">
-                             <Input type="password" label="Password" v-model="project.password"/>
+                            <div class=" after:content-['_*'] after:text-red-600 mb-2">Site URL</div>
+                            <Input type="text" label="" placeholder="eg: https://sitename" v-model="project.site_url"/>
+                         </div>
+                         <div class="mb-2">
+                            <div class=" after:content-['_*'] after:text-red-600 mb-2">User ID</div>
+                            <Input type="email" label="" placeholder="eg: example@gmail.com" v-model="project.user_id"/>
+                         </div>
+                         <div class="mb-2">
+                            <div class=" after:content-['_*'] after:text-red-600 mb-2">Password</div>
+                            <Input type="password" label="" placeholder="" v-model="project.password"/>
                          </div>
                          <div class="mb-4">
+                            <div class=" mb-2">Description</div>
                             <FormControl
                         :type="'textarea'"
                         size="sm"
                         variant="subtle"
                         placeholder=""
                         :disabled="false"
-                        label="Description"
+                        label=""
                         v-model="project.description"
                         />
                          </div>
@@ -116,9 +131,11 @@
 </template>
 <script setup>
 import { Avatar, FeatherIcon, Input, FormControl, Button } from 'frappe-ui'
-import { createListResource, createResource } from 'frappe-ui';
+import { createListResource, createResource, createDocumentResource } from 'frappe-ui';
+import Drawer from './Drawer.vue';
 import { reactive, ref } from 'vue';
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
+import Project from './Project.vue';
 
 const open = ref(false)
 let response = ref([])
@@ -139,6 +156,19 @@ let pwaProject = createResource({
         return data
     }
 })
+
+let file = ref("")
+
+// let logo = createDocumentResource({
+//     doctype: "logo",
+//     name: "69o8gmuk2p",
+//     fields: ['logo'],
+//     transform(data) {
+//         file.value = data
+//     }
+// })
+
+// logo.reload()
 
 function createProject() {
     pwaProject.reload()
