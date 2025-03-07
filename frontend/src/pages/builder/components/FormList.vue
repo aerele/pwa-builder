@@ -10,22 +10,41 @@
 	  </div>
 	  <Popover>
 		<template #target="{ togglePopover }">
-			<Button
-			class="w-full py-5"
-			:variant="'solid'"
-			theme="gray"
-			size="sm"
-			label="Add New Form"
-			:loading="false"
-			:loadingText="null"
-			:disabled="false"
-			:link="null"
-			@click="togglePopover()">
-			<div class="flex items-center">
-				<FeatherIcon name="plus" class="w-5 h-5 mr-2" />
-				Add New Form
+			<div class=" w-full">
+				<Button
+				class="w-full py-5"
+				:variant="'solid'"
+				theme="gray"
+				size="sm"
+				label="Add New Form"
+				:loading="false"
+				:loadingText="null"
+				:disabled="false"
+				:link="null"
+				@click="togglePopover()">
+				<div class="flex items-center">
+					<FeatherIcon name="plus" class="w-5 h-5 mr-2" />
+					Add New Form
+				</div>
+				</Button>
+				<div v-if="!IsDashboard">
+					<Button
+						class="w-full py-5 mt-2"
+						:variant="'subtle'"
+						:ref_for="true"
+						theme="gray"
+						size="sm"
+						label="Button"
+						:loading="false"
+						:loadingText="null"
+						:disabled="false"
+						:link="null"
+						@click="addDashBoard()"
+					>
+						Add Dashboard
+					</Button>
+				</div>
 			</div>
-			</Button>
 		</template>
 		<template #body-main>
 			<div class="p-2 mt-2">
@@ -51,11 +70,20 @@
 			</div>
 		</template>
 	</Popover>
+	
 	</div>
-		<div v-for="form in props.pwaForm.data" :key="form.doctype">
-			<div   @click="handleFormFields(form)">
-				<FormItem :item="form" />
+	<div v-if="IsDashboard">
+		<div class=" w-full h-[3.5rem] hover:bg-gray-100 cursor-pointer flex item-center px-6 border-t" @click="handleFormFields('Dashboard')">
+			<div class="h-full flex items-center">
+				<FeatherIcon name="layout" class="w-5 h-5"/>
 			</div>
+			<p class="flex items-center px-2">Dashboard</p>
+		</div>
+	</div>
+	<div v-for="form in props.pwaForm.data" :key="form.doctype" >
+		<div v-if=" form.title != 'Dashboard'"   @click="handleFormFields(form)" class="hover:bg-gray-100">
+			<FormItem :item="form" />
+		</div>
 	</div>
   </div>
 </template>
@@ -66,15 +94,29 @@ import { createListResource } from 'frappe-ui';
 import FormItem from './FormItem.vue';
 import { computed, reactive, ref } from 'vue';
 
+
+let IsDashboard = ref(false)
+
 let formList = ref([])
 
 const emit = defineEmits([
-  'clicked', 'create-form'
+  'clicked', 'create-form', 'project_id'
 ])
+
+const addDashBoard = () => {
+	pwaForm.insert.submit({
+		title: "Dashboard",
+		doctype_name: "Number Card",
+		project_name: props.id,
+	}).then(r => {
+		window.location.reload()
+	})
+}
 
 function handleFormFields(doctype) {
   // isExpanded.value =!isExpanded.value\
   emit("clicked",doctype)
+  emit('project_id', props.id)
 }
 
 let props = defineProps({
@@ -108,6 +150,24 @@ let doctypeList = createListResource({
 	}
 })
 
+const get_dashBoard = async () => {
+	const doc = await createListResource(
+		{
+			doctype: "PWA DocType",
+			fields: ['name'],
+			filters: {
+				project_name: props.id,
+				title: "Dashboard",
+			}
+		}
+	)
+
+	await doc.reload()
+	IsDashboard.value = doc.data[0]?.name ? true : false
+
+}
+
+get_dashBoard()
 doctypeList.reload()
 
 
