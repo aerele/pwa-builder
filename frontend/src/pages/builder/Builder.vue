@@ -5,7 +5,7 @@
     </div>
     <div v-else>
       <div class="sticky top-0 bg-white shadow-md z-10 p-5 flex justify-between">
-        <h1 class="text-3xl">{{ projectDoc.doc.project_title }}</h1>
+        <h1 class="text-3xl font-semibold ">{{ projectDoc.doc.project_title }}</h1>
         <div class="flex">
           <div v-if="formList.length && !is_validated" class="pr-2">
             <Button variant="solid" theme="gray" size="md" @click="validateForms"
@@ -27,7 +27,7 @@
       </div>
       <div class="flex flex-row h-[92vh] justify-between overflow-hidden">
         <div class=" h-full w-[20%] m-4 drop-shadow-lg overflow-y-auto bg-white mt-0 ml-0">
-          <FormList :doctypeList="doctypeList" :pwaForm="pwaForm" @clicked="handleFormFields" :id="props.id" />
+          <FormList :doctypeList="doctypeList" :pwaForm="pwaForm" @project_id="handleProjectId" @clicked="handleFormFields" :id="props.id" />
         </div>
         <div class="w-[30%] h-fit mx-4 mt-4 drop-shadow-lg rounded-lg bg-white">
           <div v-if="formData.doctype_name" class="flex justify-between items-center mt-2 shadow-sm sticky top-0 bg-white border-b px-3 py-2 z-10">
@@ -94,6 +94,7 @@ let childList = ref([])
 const toastMessage = ref("") 
 let projectdoc = ref({github_repository_url: ''})
 let docvalue = ref("")
+let project_id = ref('')
 
 let expectFields = ['Section Break', 'Column Break', 'Tab Break', 'Geolocation', 'Button', 'rgt', 'lft', 'old_parent']
 const props = defineProps({
@@ -102,6 +103,16 @@ const props = defineProps({
     required: true,
   },
 })
+
+const get_number_card = async () => {
+  const docs = await  createListResource({
+    doctype: "Number Card",
+    fields: ["name"],
+  })
+  await docs.reload()  
+  return docs.data
+}
+
 
 async function check() {
   await  projectDoc.reload()
@@ -152,7 +163,56 @@ let pwaForm = createListResource({
 
 pwaForm.reload()
 
+
+async function handleProjectId(projectid) {
+    project_id.value = projectid
+}
 async function handleFormFields (doc) {
+  if (doc === "Dashboard") {
+
+    const field_list = []
+    const data = await get_number_card_data();
+    const fieldLists = data?.[0]?.field_list ? JSON.parse(data[0].field_list) : null;
+    const existingFields = fieldLists?.pwa_form_fields ?? [];
+    fieldList.value = fieldLists?.pwa_form_fields ?? [];
+
+    const existingFieldNames = new Set(existingFields.map(field => field.fieldname));
+
+    const docs = await get_number_card();
+
+    
+    docs.forEach(element => {
+        if (!existingFieldNames.has(element.name)) {
+            let field = {
+                fieldtype: "Number Card",
+                fieldname: element.name,
+                label: element.name,
+            };
+            field_list.push(field);
+        }
+    });
+
+    const transformData = {
+        doctype_name: "Dashboard",
+        form_name: "Dashboard",
+        is_submittable: 0,
+        pwa_form_fields: field_list,
+    };
+
+
+    formData.value = {
+        form_name: "Number Card",
+        name: "Number Card",
+        doctype_name: "Dashboard",
+        is_submittable: 0,
+        pwa_form_fields: existingFields,
+    };
+
+
+    fields.value = transformData.pwa_form_fields;
+
+    return transformData;
+  }
   if(doc.doctype_name == formData.value.doctype_name){
     return
   }
@@ -209,7 +269,6 @@ async function handleFormFields (doc) {
   getFields.reload()
 }
 
-
 function sort_fieldlist(data){
   let temp = []
     for(let i = 1; i <= fields.value.length; i++){
@@ -226,16 +285,36 @@ function deleteField(field) {
   sort_fieldlist(field)
 }
 
+async function get_number_card_data () {
+  let get_dashboard_name =  await createListResource(
+        {
+          doctype: 'PWA DocType',
+          fields: ['name', 'field_list'],
+          filters : {
+            title: "Dashboard", 
+            project_name: project_id
+          }
+        }
+      )
+      await get_dashboard_name.reload()
+      return  get_dashboard_name.data ? get_dashboard_name.data : null
+}
 
 async function setFieldList() {
   if (fieldList.value) {
     formData.value.pwa_form_fields = fieldList.value
   }
+  let name = null
+  if (formData.value?.doctype_name == "Dashboard"){
+      let get_name = await get_number_card_data()
+      name = get_name ?  get_name[0]?.name : null
+  }
+
   let setValue = createResource({
     url: 'pwa_builder.api.set_value',
     params: {
       doctype: 'PWA DocType',
-      docname: formData.value.name,
+      docname: name ? name :  formData.value.name,
       fieldname: 'field_list',
       value: formData.value,
     },
@@ -243,7 +322,7 @@ async function setFieldList() {
       toast({
 				title: "Success",
 				text: `Form Saved successfully!`,
-				icon: "check-circle",
+				icon: "check-circle",     
 				position: "bottom-right",
 				iconClasses: "text-green-500",
 			})
