@@ -55,13 +55,14 @@
    "default": "0",
    "fieldname": "is_validated",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Is Validated",
    "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-05 16:15:19.263330",
+ "modified": "2025-03-07 17:18:17.584011",
  "modified_by": "Administrator",
  "module": "PWA Builder",
  "name": "PWA DocType",
