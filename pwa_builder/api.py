@@ -97,6 +97,7 @@ def set_value(doctype, docname, fieldname, value):
 def get_doc(doctype, docname):
 	 return frappe.get_doc(doctype, docname)
 
+@frappe.whitelist(allow_guest=True)
 def export_project(project_name):
 	frappe.enqueue(
 		method="pwa_builder.api.schedule_export_project",
@@ -104,7 +105,6 @@ def export_project(project_name):
 		queue="short",
 		job_id=frappe.utils.get_job_name("export_app_for", "PWA-Project", project_name)
 	)
-@frappe.whitelist(allow_guest=True)
 def schedule_export_project(project_name):
 	from pwa_builder.pwa_builder.doctype.pwa_github_integration import pwa_github_integration
 	
@@ -169,39 +169,46 @@ def validate_form_fields(project_name):
 		"PWA DocType", {"project_name": project_name, "disable": 0},["name","doctype_name"]
 	):
 		for form in form_list:
+				
 			mandatory_fields_parent = {}
 			mandatory_fields_child = {}
 			child_table_list=[]
 			field_meta = frappe.db.get_value("PWA DocType", form.get("name"), "field_list") or {}
 			field_meta = json.loads(field_meta)
 			for field in field_meta.get('pwa_form_fields',[]):
-				if field.get("reqd") and field.get("fieldtype") not in ["Column Break","Section Break","Tab Break"]:
-					mandatory_fields_parent[field.get("fieldname")] = field.get("label")
-				if field.get("fieldtype") == "Table":
-					if field.get("options") and isinstance(field.get("options"),list):
-						for row in field.get("options"):
-							if row.get("reqd"):
-								mandatory_fields_child[row.get('parent')] = {}
-								mandatory_fields_child[row.get('parent')][row.get("fieldname")]=row.get("label")
-								if row.get('parent') not in child_table_list:
-									child_table_list.append(row.get('parent'))
-					else:
-						child_table_list.append(field.get("options"))
-			if actual_field_meta := get_meta(doctype=form.get("doctype_name"), project=project_name,with_parent=True,cached=False):
-				missing_fields_parent, missing_fields_child = process_mandatory_fields(
-					form=form.get("doctype_name"),
-					actual_field_meta=actual_field_meta,
-					mandatory_fields_parent=mandatory_fields_parent,
-					mandatory_fields_child=mandatory_fields_child,
-					child_table_list=child_table_list
-				)
-				if missing_fields_parent.values() or missing_fields_child.values():
-					result['success']=False
-					result['forms_with_missing_fields'][form.get("doctype_name")]={}
-					result['forms_with_missing_fields'][form.get("doctype_name")].update(missing_fields_parent)
-					result['forms_with_missing_fields'][form.get("doctype_name")].update(missing_fields_child)
-		if not result.get('success'):
-			result['message']='Mandatory fields missing in the form/forms'
+				if form.get('doctype_name') and form.get('doctype_name') == 'Number Card':
+					if not (doc := frappe.get_doc(field['fieldtype'], field['fieldname'])):
+						field = field.get('fieldtype')
+						result['success']=False
+						result['message']=f'The Number Card Doctype {field} not found'
+				else:
+					if field.get("reqd") and field.get("fieldtype") not in ["Column Break","Section Break","Tab Break"]:
+						mandatory_fields_parent[field.get("fieldname")] = field.get("label")
+					if field.get("fieldtype") == "Table":
+						if field.get("options") and isinstance(field.get("options"),list):
+							for row in field.get("options"):
+								if row.get("reqd"):
+									mandatory_fields_child[row.get('parent')] = {}
+									mandatory_fields_child[row.get('parent')][row.get("fieldname")]=row.get("label")
+									if row.get('parent') not in child_table_list:
+										child_table_list.append(row.get('parent'))
+						else:
+							child_table_list.append(field.get("options"))
+					if actual_field_meta := get_meta(doctype=form.get("doctype_name"), project=project_name,with_parent=True,cached=False):
+						missing_fields_parent, missing_fields_child = process_mandatory_fields(
+							form=form.get("doctype_name"),
+							actual_field_meta=actual_field_meta,
+							mandatory_fields_parent=mandatory_fields_parent,
+							mandatory_fields_child=mandatory_fields_child,
+							child_table_list=child_table_list
+						)
+						if missing_fields_parent.values() or missing_fields_child.values():
+							result['success']=False
+							result['forms_with_missing_fields'][form.get("doctype_name")]={}
+							result['forms_with_missing_fields'][form.get("doctype_name")].update(missing_fields_parent)
+							result['forms_with_missing_fields'][form.get("doctype_name")].update(missing_fields_child)
+				if not result.get('success'):
+					result['message']='Mandatory fields missing in the form/forms'
 	else:
 		result['success']=False
 		result['message']='No PWA DocType found for this project'
