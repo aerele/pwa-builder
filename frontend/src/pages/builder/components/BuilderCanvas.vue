@@ -91,6 +91,7 @@ import Checkbox from '../../../form/components/Checkbox.vue';
 import Attach from '../../../form/components/FileUploader.vue';
 import Textarea from '../../../form/components/TextArea.vue';
 import Table from '../../../form/components/Table.vue';
+import NumberCard from '../../../form/components/NumberCard.vue'
 
 const props = defineProps({
   fieldList: {
@@ -173,6 +174,7 @@ const fieldMap = {
   Time: Text,
   Float: Int,
   Link: Text,
+  "Number Card": NumberCard,
 };
 
 function log() {
