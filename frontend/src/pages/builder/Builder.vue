@@ -5,23 +5,46 @@
     </div>
     <div v-else>
       <div class="sticky top-0 bg-white shadow-md z-10 p-5 flex justify-between">
-        <h1 class="text-3xl font-semibold ">{{ projectDoc.doc.project_title }}</h1>
+        <div class=" flex items-center">
+          <h1 class="text-3xl font-semibold ">{{ projectDoc.doc.project_title }}</h1>
+          <FeatherIcon name="folder" class=" w-6 h-6 ml-2 font-semibold"/>
+        </div>
         <div class="flex">
           <div v-if="formList.length && !is_validated" class="pr-2">
             <Button variant="solid" theme="gray" size="md" @click="validateForms"
-            >Validate</Button>
+            >
+              <div class="flex items-center">
+                <FeatherIcon name="check-square" class="w-4 h-4 mr-2" />
+                Validate
+              </div>
+            </Button>
           </div>
           <div v-if="is_validated && !checkNow" class="pr-2">
             <Button variant="solid" theme="gray" size="md" @click="exportProject"
-              >Export</Button>
+              >
+              <div class="flex items-center">
+                Export
+                <FeatherIcon name="chevrons-right" class="w-4 h-4 ml-2" />
+              </div>
+              </Button>
           </div>
           <div class="pr-2" v-if="projectdoc.github_repository_url == '' && checkNow">
             <Button variant="solid" theme="gray" size="md" @click="check()"
-            >Check Now</Button>
+            >
+            <div class="flex items-center">
+              <FeatherIcon name="repeat" class="w-4 h-4 mr-2" />
+              Check Now
+            </div>
+            </Button>
           </div>
           <div v-if="projectdoc.github_repository_url != '' && repo">
             <Button variant="solid" theme="gray" size="md"
-            ><a :href="projectdoc.github_repository_url" target="_blank">Go to Repo</a></Button>
+            >
+              <div class="flex items-center">
+                <a :href="projectdoc.github_repository_url" target="_blank">Go to Repo</a>
+                <FeatherIcon name="arrow-right" class="w-4 h-4 ml-2" />
+              </div>
+            </Button>
           </div>
         </div>
       </div>
@@ -52,8 +75,9 @@
         <template #body-content>
           <div>
             <div v-for="form in formList" :key="form.doctype">
-              <div v-if="validate.success == true">
-                <span class="">{{ form.doctype }} - </span> <Badge :variant="'subtle'" theme="green" size="lg" label="Badge">Success</Badge>
+              <div v-if="validate.success == true" class="mb-4 flex justify-between">
+                <span class=" font-medium text-gray-700">{{ form.doctype }}</span> 
+                <Badge :variant="'subtle'" theme="green" size="lg" label="Badge">Success</Badge>
               </div>
               <div v-else>
                 <div v-if="validate.forms_with_missing_fields[form.doctype]">{{ form.doctype }} - Some Mandatory Fields are missing{{ validate.forms_with_missing_fields[form.doctype][form.doctype] }}</div>
@@ -62,9 +86,6 @@
           </div>
         </template>
       </Dialog>
-      <div v-if="toastMessage" class="fixed bottom-4 right-4 bg-gray-800 text-white py-2 px-4 rounded-lg shadow-lg z-50">
-        <span v-html="toastMessage"></span>
-      </div>
     </div>
   </div>
 </template>
@@ -75,7 +96,7 @@ import BuilderCanvas from './components/BuilderCanvas.vue'
 import Draggable from 'vuedraggable'
 import { ref } from 'vue'
 import { createListResource, createResource, createDocumentResource } from 'frappe-ui'
-import { Button, Spinner, Dialog, toast, Badge } from 'frappe-ui'
+import { Button, Spinner, Dialog, toast, Badge, FeatherIcon } from 'frappe-ui'
 import FieldList from './components/FieldList.vue'
 
 let formList = ref([])
@@ -91,7 +112,6 @@ let fieldSearch = ref([])
 let validate = ref()
 let formData = ref({})
 let childList = ref([])
-const toastMessage = ref("") 
 let projectdoc = ref({github_repository_url: ''})
 let docvalue = ref("")
 let project_id = ref('')
@@ -180,14 +200,16 @@ async function handleFormFields (doc) {
 
     const docs = await get_number_card();
 
-    
+    let idx = fieldList.value.length
     docs.forEach(element => {
         if (!existingFieldNames.has(element.name)) {
             let field = {
                 fieldtype: "Number Card",
                 fieldname: element.name,
                 label: element.name,
+                idx: idx
             };
+            idx++
             field_list.push(field);
         }
     });
@@ -210,7 +232,7 @@ async function handleFormFields (doc) {
 
 
     fields.value = transformData.pwa_form_fields;
-
+    Dash
     return transformData;
   }
   if(doc.doctype_name == formData.value.doctype_name){
@@ -373,15 +395,17 @@ function exportProject() {
   })
   
   export_project.reload()
-  showToast(`Exported! Check Scheduler and PWA-Project for more details.`)
+  toast({
+				title: "Success",
+				text: `Exported! Check Scheduler and PWA-Project for more details.`,
+				icon: "check-circle",     
+				position: "bottom-right",
+				iconClasses: "text-green-500",
+  })
   checkNow.value = true
   projectdoc.value = {github_repository_url: ''}
 }
 
-function showToast(message) {
-  toastMessage.value = message
-  setTimeout(() => toastMessage.value = "", 8000) 
-}
 
 </script>
 <style scoped>
