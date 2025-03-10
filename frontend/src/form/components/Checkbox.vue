@@ -8,5 +8,5 @@
 </div>
 </template>
 <script setup>
-import { TextInput } from 'frappe-ui';
+import { Checkbox } from 'frappe-ui';
 </script>

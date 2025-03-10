@@ -11,6 +11,7 @@
   "column_break_mvoq",
   "project_name",
   "disable",
+  "is_validated",
   "section_break_iong",
   "field_list"
  ],
@@ -49,11 +50,19 @@
    "fieldtype": "Link",
    "label": "Project Name",
    "options": "PWA-Project"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_validated",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Is Validated",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-07-31 15:29:46.247070",
+ "modified": "2025-03-07 17:18:17.584011",
  "modified_by": "Administrator",
  "module": "PWA Builder",
  "name": "PWA DocType",

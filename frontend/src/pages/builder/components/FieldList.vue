@@ -11,7 +11,6 @@
       <Draggable
         :list="fieldSource"
 		    :group="{ name: 'listOfFields', pull: true, put: false }"
-        @change="log"
         drag-class="drag"
         ghost-class="ghost"
         item-key="fieldname"
@@ -41,9 +40,6 @@
 import Draggable from 'vuedraggable';
 import { Button, TextInput, FeatherIcon } from 'frappe-ui'
 const { fieldSource } = defineProps(['fieldSource'])
-const log = function (evt) {
-  window.console.log("Cloned", evt)
-}
 </script>
 <style>
 .ghost > template {
@@ -51,4 +47,3 @@ const log = function (evt) {
   border-radius: 5px;
 }
 </style>
-
