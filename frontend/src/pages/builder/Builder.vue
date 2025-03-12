@@ -128,6 +128,7 @@ const get_number_card = async () => {
   const docs = await  createListResource({
     doctype: "Number Card",
     fields: ["name"],
+    pageLength: "*",
   })
   await docs.reload()  
   return docs.data
