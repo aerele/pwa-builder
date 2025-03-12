@@ -73,9 +73,10 @@
    "label": "Last Push Commit"
   }
  ],
+ "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-09-06 11:14:53.752985",
+ "modified": "2025-03-12 15:53:58.944067",
  "modified_by": "Administrator",
  "module": "PWA Builder",
  "name": "PWA-Project",

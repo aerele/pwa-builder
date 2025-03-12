@@ -60,9 +60,10 @@
    "read_only": 1
   }
  ],
+ "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-07 17:18:17.584011",
+ "modified": "2025-03-12 15:54:47.040976",
  "modified_by": "Administrator",
  "module": "PWA Builder",
  "name": "PWA DocType",
