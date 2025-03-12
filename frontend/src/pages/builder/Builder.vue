@@ -61,11 +61,11 @@
               <BuilderCanvas :formName="formData.doctype_name" :fieldList="fieldList" :childList="childData" @handleDelete="deleteField" @handleSave="setFieldList" />
             </div>
         </div>
-        <div class=" h-[92vh] w-[20%] drop-shadow-lg overflow-y-auto scrollBar bg-white">
+        <div class=" h-[92vh] w-[20%] drop-shadow-lg overflow-y-auto scrollBar bg-white" >
           <div v-if="spinner" class="h-full flex items-center justify-center">
             <Spinner class="w-8" />
           </div>
-          <FieldList :fieldSource="fields" />
+          <FieldList :fieldSource="fields" @handle_field_search="fieldSearchHandler"/>
         </div>
       </div>
       <Dialog v-model="dialog">
@@ -115,6 +115,8 @@ let childList = ref([])
 let projectdoc = ref({github_repository_url: ''})
 let docvalue = ref("")
 let project_id = ref('')
+let secondfields = ref([])
+
 
 let expectFields = ['Section Break', 'Column Break', 'Tab Break', 'Geolocation', 'Button', 'rgt', 'lft', 'old_parent']
 const props = defineProps({
@@ -139,6 +141,9 @@ async function check() {
   await  projectDoc.reload()
   repo.value = true
 }
+
+
+
 
 let projectDoc = createDocumentResource({
   doctype: "PWA-Project",
@@ -188,6 +193,21 @@ pwaForm.reload()
 async function handleProjectId(projectid) {
     project_id.value = projectid
 }
+
+async function fieldSearchHandler(value) {
+    fields.value = secondfields.value
+    if (!value) return; 
+    const searchValue = value.toLowerCase();
+    const filteredFields = fields.value.filter(element => 
+        element.label.toLowerCase().includes(searchValue)
+    );
+    fields.value = filteredFields;
+
+}
+
+
+
+
 async function handleFormFields (doc) {
   if (doc === "Dashboard") {
 
@@ -233,7 +253,7 @@ async function handleFormFields (doc) {
 
 
     fields.value = transformData.pwa_form_fields;
-    Dash
+    secondfields.value = fields.value
     return transformData;
   }
   if(doc.doctype_name == formData.value.doctype_name){
@@ -287,6 +307,7 @@ async function handleFormFields (doc) {
       fields.value = transformData
       fieldSearch.value = transformData
       spinner.value = false
+      secondfields.value = fields.value
     }
   })
   getFields.reload()

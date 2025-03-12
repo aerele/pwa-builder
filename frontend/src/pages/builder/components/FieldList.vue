@@ -1,7 +1,12 @@
 <template>
-    <div class=" px-4">
-    <div v-if="fieldSource" class="w-full py-6" placeholder="Search Here">
-      <TextInput type="text" placeholder="Search Here">
+  <div class="px-4">
+    <div v-if="fieldSource" class="w-full py-6">
+      <TextInput 
+        v-model="searchQuery" 
+        type="text" 
+        placeholder="Search Here"
+        @input="handleInput"
+      >
         <template #prefix>
           <FeatherIcon class="w-4" name="search" />
         </template>
@@ -10,7 +15,7 @@
     <div class="w-full items-center">
       <Draggable
         :list="fieldSource"
-		    :group="{ name: 'listOfFields', pull: true, put: false }"
+        :group="{ name: 'listOfFields', pull: true, put: false }"
         drag-class="drag"
         ghost-class="ghost"
         item-key="fieldname"
@@ -37,10 +42,20 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import Draggable from 'vuedraggable';
-import { Button, TextInput, FeatherIcon } from 'frappe-ui'
-const { fieldSource } = defineProps(['fieldSource'])
+import { Button, TextInput, FeatherIcon } from 'frappe-ui';
+
+const { fieldSource } = defineProps(['fieldSource']);
+const searchQuery = ref('');
+const emit = defineEmits(['handle_field_search']);
+const handleInput = () => {
+  // console.log(searchQuery.value)
+  emit('handle_field_search', searchQuery.value);
+};
+
 </script>
+
 <style>
 .ghost > template {
   background-color: gray;
