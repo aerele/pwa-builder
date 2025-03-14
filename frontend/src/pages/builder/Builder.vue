@@ -269,7 +269,7 @@ async function handleFormFields (doc) {
         if(data[0].field_list != '{}'){
           transformData = JSON.parse(data[0].field_list)
           fieldList.value = []
-          if ("pwa_form_fields" in transformData)
+          if (transformData && "pwa_form_fields" in transformData)
           fieldList.value = transformData.pwa_form_fields
         }
       }
@@ -406,8 +406,20 @@ async function validateForms(){
   })
 
  await validateForms.reload()
- dialog.value = true
- is_validated.value = true
+ if(validateForms && validateForms?.data){
+    if(validateForms.data.success){
+      dialog.value = true
+      is_validated.value = true
+    } else {
+      toast({
+				title: "Error",
+				text: validateForms.data.message,
+				icon: "x",     
+				position: "bottom-right",
+				iconClasses: "text-red-500",
+			})
+    }
+ }
 }
 
 function exportProject() {
