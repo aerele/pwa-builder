@@ -179,7 +179,7 @@ def validate_form_fields(project_name):
 			mandatory_fields_child = {}
 			child_table_list=[]
 			field_meta = frappe.db.get_value("PWA DocType", form.get("name"), "field_list") or {}
-			field_meta = json.loads(field_meta) if type(field_meta) != dict else field_meta
+			field_meta = json.loads(field_meta) if not isinstance(field_meta, dict) else field_meta
 			for field in field_meta.get('pwa_form_fields',[]):
 				if form.get('doctype_name') and form.get('doctype_name') == 'Number Card':
 					if not (doc := frappe.get_doc(field['fieldtype'], field['fieldname'])):
