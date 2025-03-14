@@ -53,8 +53,8 @@ def push_to_github(path, repo_name, current_default_branch=None, last_push_commi
 
 	repo_data = {
 		'name': repo_name,
-		'private': is_private,  # Change this if you need a private repository
-		'auto_init': False  # Initialize with a README
+		'private': bool(is_private), 
+		'auto_init': False  
 	}
 
 	try:
