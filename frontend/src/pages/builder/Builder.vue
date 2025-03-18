@@ -112,10 +112,11 @@ let fieldSearch = ref([])
 let validate = ref()
 let formData = ref({})
 let childList = ref([])
-let projectdoc = ref({github_repository_url: ''})
+let projectdoc = ref({github_repository_url:''})
 let docvalue = ref("")
 let project_id = ref('')
 let secondfields = ref([])
+let no_of_checks = ref(0)
 
 
 let expectFields = ['Section Break', 'Column Break', 'Tab Break', 'Geolocation', 'Button', 'rgt', 'lft', 'old_parent']
@@ -138,8 +139,24 @@ const get_number_card = async () => {
 
 
 async function check() {
+  no_of_checks.value++
+  if(no_of_checks.value == 5){
+    checkNow.value = false
+    no_of_checks.value = 0
+    toast({
+				title: "Error",
+				text: "Something went wrong...!, please try again",
+				icon: "x",     
+				position: "bottom-right",
+				iconClasses: "text-red-500",
+			})
+  }
   await  projectDoc.reload()
-  repo.value = true
+  if (projectDoc.doc?.github_repository_url){
+    repo.value = true
+  }else{
+    checkNow.value = true
+  }
 }
 
 
@@ -149,8 +166,9 @@ let projectDoc = createDocumentResource({
   doctype: "PWA-Project",
   name: props.id,
   fields: ["*"],
-  onSuccess(data) {
+  onSuccess(data) {  
     projectdoc.value = data
+    projectdoc.value.github_repository_url = data.github_repository_url ? data.github_repository_url : ''
   },
 });
 
@@ -429,17 +447,21 @@ function exportProject() {
   })
   
   export_project.reload()
+  
   toast({
-				title: "Success",
-				text: `Exported! Check Scheduler and PWA-Project for more details.`,
-				icon: "check-circle",     
-				position: "bottom-right",
-				iconClasses: "text-green-500",
+    title: "Success",
+    text: `Exported! Check Scheduler and PWA-Project for more details. Even though "Check Now" appears, repo creation may take some time—be`,
+    icon: "check-circle",     
+    position: "bottom-right",
+    iconClasses: "text-green-500",
   })
-  checkNow.value = true
-  projectdoc.value = {github_repository_url: ''}
+  
+  setTimeout(() => {
+    checkNow.value = true
+  }, 2000) 
+  
+  projectdoc.value = { github_repository_url: '' }
 }
-
 
 </script>
 <style scoped>
