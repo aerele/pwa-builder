@@ -77,6 +77,22 @@
               <span class="nw__label">Screen title</span>
               <input v-model="newTitle" class="nw__in" :placeholder="newDoctype || 'Optional'" @keyup.enter="createScreen" />
             </label>
+            <div class="nw__group">
+              <span class="nw__label">Start from</span>
+              <div class="nw__tpls">
+                <button
+                  v-for="t in SCREEN_TEMPLATES"
+                  :key="t.id"
+                  class="nw__tpl"
+                  :class="{ 'nw__tpl--on': template === t.id }"
+                  @click="template = t.id"
+                >
+                  <FeatherIcon :name="t.icon" class="w-4 h-4" />
+                  <span class="nw__tpl-label">{{ t.label }}</span>
+                  <span class="nw__tpl-desc">{{ t.description }}</span>
+                </button>
+              </div>
+            </div>
           </template>
           <p v-else class="nw__hint">A dashboard screen shows Number Cards from this site.</p>
 
@@ -98,6 +114,7 @@ import { useRouter } from 'vue-router'
 import { Dialog, FeatherIcon, createListResource, createResource } from 'frappe-ui'
 import PhoneFrame from '@/components/PhoneFrame.vue'
 import PreviewField from '@/pages/builder/components/PreviewField.vue'
+import { SCREEN_TEMPLATES, applyScreenTemplate } from '@/pages/builder/composables/screenTemplates'
 
 const props = defineProps({ projectId: { type: String, required: true } })
 const router = useRouter()
@@ -107,13 +124,14 @@ const showNew = ref(false)
 const kind = ref('form')
 const newDoctype = ref('')
 const newTitle = ref('')
+const template = ref('essentials')
 const creating = ref(false)
 
 const rows = createListResource({
   doctype: 'PWA DocType',
   fields: ['name', 'title', 'doctype_name', 'field_list', 'is_validated'],
   filters: { project_name: props.projectId },
-  orderBy: 'creation asc',
+  orderBy: 'nav_order asc, creation asc',
   pageLength: 99,
   auto: true,
 })
@@ -146,6 +164,7 @@ function openNew() {
   kind.value = 'form'
   newDoctype.value = ''
   newTitle.value = ''
+  template.value = 'essentials'
   showNew.value = true
 }
 
@@ -164,6 +183,13 @@ async function createScreen() {
         field_list: '{}',
       },
     })
+    if (!isDash) {
+      try {
+        await applyScreenTemplate(props.projectId, doc, template.value)
+      } catch (e) {
+        /* template prefill is best effort; the screen opens blank instead */
+      }
+    }
     showNew.value = false
     router.push({ name: 'ProjectBuilder', params: { projectId: props.projectId, screenId: doc.name } })
   } catch (e) {
@@ -226,6 +252,12 @@ async function removeScreen(s) {
 .nw__in:focus { border-color: var(--brand-500); box-shadow: 0 0 0 3px var(--brand-ring); }
 .nw__hint { font-size: 13px; color: var(--text-muted); }
 .nw__actions { display: flex; justify-content: flex-end; }
+
+.nw__tpls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.nw__tpl { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px; text-align: left; color: var(--text-muted); border: 1px solid var(--border-strong); border-radius: var(--radius-control); }
+.nw__tpl--on { color: var(--brand); border-color: var(--brand-500); background: var(--brand-subtle); }
+.nw__tpl-label { font-size: 12.5px; font-weight: 600; color: var(--text); }
+.nw__tpl-desc { font-size: 11px; line-height: 1.35; }
 
 .btn-primary { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; font-size: 13px; font-weight: 550; color: var(--brand-fg); background: var(--brand-950); border-radius: var(--radius-control); }
 .btn-primary:hover { background: var(--brand-800); }

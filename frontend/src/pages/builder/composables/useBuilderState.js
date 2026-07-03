@@ -6,7 +6,7 @@ import { createResource } from 'frappe-ui'
 const EXCLUDED_TYPES = ['Section Break', 'Column Break', 'Tab Break', 'Geolocation', 'Button']
 const EXCLUDED_NAMES = ['rgt', 'lft', 'old_parent']
 
-function usableField(f) {
+export function usableField(f) {
   return !EXCLUDED_TYPES.includes(f.fieldtype) && !EXCLUDED_NAMES.includes(f.fieldname)
 }
 
@@ -87,7 +87,7 @@ export function useBuilderState(projectId) {
         filters: { project_name: projectId },
         fields: ['name', 'title', 'doctype_name', 'field_list', 'is_validated'],
         limit_page_length: 0,
-        order_by: 'creation asc',
+        order_by: 'nav_order asc, creation asc',
       })
       screens.value = rows || []
     } catch (e) {
