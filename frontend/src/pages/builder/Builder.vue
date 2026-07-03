@@ -1,493 +1,381 @@
 <template>
-  <div class="h-screen w-screen main flex flex-col main">
-    <div v-if="!projectDoc.doc?.project_title" class="h-full flex items-center justify-center">
-      <Spinner class="w-10" />
+  <div class="bld">
+    <!-- Loading / empty states -->
+    <div v-if="state.screensLoading.value" class="bld__center"><Spinner class="w-8" /></div>
+
+    <div v-else-if="!state.screens.value.length" class="bld__center bld__none">
+      <FeatherIcon name="layers" class="w-8 h-8" />
+      <h2>No screens yet</h2>
+      <p>Create your first screen, then come back to design it.</p>
+      <router-link class="bld__cta" :to="{ name: 'ProjectScreens', params: { projectId } }">
+        Go to Screens
+      </router-link>
     </div>
-    <div v-else>
-      <div class="sticky top-0 bg-white shadow-md z-10 p-5 flex justify-between">
-        <div class=" flex items-center">
-          <h1 class="text-3xl font-semibold ">{{ projectDoc.doc.project_title }}</h1>
-          <FeatherIcon name="folder" class=" w-6 h-6 ml-2 font-semibold"/>
+
+    <template v-else-if="state.screen.value">
+      <!-- Builder toolbar -->
+      <div class="bld__bar">
+        <router-link class="bld__back" :to="{ name: 'ProjectScreens', params: { projectId } }" title="Back to screens">
+          <FeatherIcon name="arrow-left" class="w-4 h-4" />
+        </router-link>
+
+        <select class="bld__switch" :value="state.screen.value.name" @change="switchScreen($event.target.value)">
+          <option v-for="s in state.screens.value" :key="s.name" :value="s.name">{{ s.title }}</option>
+        </select>
+        <span v-if="state.dirty.value" class="bld__dirty" title="Unsaved changes"></span>
+
+        <div class="bld__bar-mid">
+          <button class="bld__tool" :disabled="!state.canUndo.value" title="Undo (Ctrl+Z)" @click="state.undo">
+            <FeatherIcon name="corner-up-left" class="w-4 h-4" />
+          </button>
+          <button class="bld__tool" :disabled="!state.canRedo.value" title="Redo (Ctrl+Shift+Z)" @click="state.redo">
+            <FeatherIcon name="corner-up-right" class="w-4 h-4" />
+          </button>
         </div>
-        <div class="flex">
-          <div v-if="formList.length && !is_validated" class="pr-2">
-            <Button variant="solid" theme="gray" size="md" @click="validateForms"
-            >
-              <div class="flex items-center">
-                <FeatherIcon name="check-square" class="w-4 h-4 mr-2" />
-                Validate
-              </div>
-            </Button>
-          </div>
-          <div v-if="is_validated && !checkNow" class="pr-2">
-            <Button variant="solid" theme="gray" size="md" @click="exportProject"
-              >
-              <div class="flex items-center">
-                Export
-                <FeatherIcon name="chevrons-right" class="w-4 h-4 ml-2" />
-              </div>
-              </Button>
-          </div>
-          <div class="pr-2" v-if="projectdoc.github_repository_url == '' && checkNow">
-            <Button variant="solid" theme="gray" size="md" @click="check()"
-            >
-            <div class="flex items-center">
-              <FeatherIcon name="repeat" class="w-4 h-4 mr-2" />
-              Check Now
-            </div>
-            </Button>
-          </div>
-          <div v-if="projectdoc.github_repository_url != '' && repo">
-            <Button variant="solid" theme="gray" size="md"
-            >
-              <div class="flex items-center">
-                <a :href="projectdoc.github_repository_url" target="_blank">Go to Repo</a>
-                <FeatherIcon name="arrow-right" class="w-4 h-4 ml-2" />
-              </div>
-            </Button>
-          </div>
+
+        <div class="bld__bar-right">
+          <button class="bld__btn" :disabled="!state.screens.value.length || validating" @click="validateForms">
+            <FeatherIcon :name="validating ? 'loader' : 'check-square'" class="w-3.5 h-3.5" :class="{ spin: validating }" />
+            Validate
+          </button>
+          <button v-if="validated" class="bld__btn" :disabled="exporting" @click="exportProject">
+            <FeatherIcon name="upload-cloud" class="w-3.5 h-3.5" /> Export
+          </button>
+          <a
+            v-if="repoUrl"
+            class="bld__btn"
+            :href="repoUrl"
+            target="_blank"
+            rel="noopener"
+          >
+            <FeatherIcon name="github" class="w-3.5 h-3.5" /> Repo
+          </a>
+          <button class="bld__btn bld__btn--primary" :disabled="!state.dirty.value || state.saving.value" @click="saveScreen">
+            <FeatherIcon :name="state.saving.value ? 'loader' : 'save'" class="w-3.5 h-3.5" :class="{ spin: state.saving.value }" />
+            Save
+          </button>
         </div>
       </div>
-      <div class="flex flex-row h-[92vh] justify-between overflow-hidden">
-        <div class=" h-full w-[20%] m-4 drop-shadow-lg overflow-y-auto bg-white mt-0 ml-0">
-          <FormList :doctypeList="doctypeList" :pwaForm="pwaForm" @project_id="handleProjectId" @clicked="handleFormFields" :id="props.id" />
-        </div>
-        <div class="w-[30%] h-fit mx-4 mt-4 drop-shadow-lg rounded-lg bg-white">
-          <div v-if="formData.doctype_name" class="flex justify-between items-center mt-2 shadow-sm sticky top-0 bg-white border-b px-3 py-2 z-10">
-            <h2 class="text-2xl">{{ formData.doctype_name }}</h2>
-            <Button variant="solid" theme="gray" size="md" @click="setFieldList">Save</Button>
-          </div> 
-            <div class=" min-h-[100px] max-h-[84vh] overflow-y-auto scrollBar">
-              <BuilderCanvas :formName="formData.doctype_name" :fieldList="fieldList" :childList="childData" @handleDelete="deleteField" @handleSave="setFieldList" />
-            </div>
-        </div>
-        <div class=" h-[92vh] w-[20%] drop-shadow-lg overflow-y-auto scrollBar bg-white" >
-          <div v-if="spinner" class="h-full flex items-center justify-center">
-            <Spinner class="w-8" />
+
+      <p v-if="state.loadError.value" class="bld__err">
+        <FeatherIcon name="alert-circle" class="w-4 h-4" /> {{ state.loadError.value }}
+      </p>
+
+      <!-- 3 panes: palette/inspector · canvas · live preview -->
+      <div class="bld__panes">
+        <aside class="bld__left">
+          <div class="bld__tabs">
+            <button class="bld__tab" :class="{ 'bld__tab--on': tab === 'insert' }" @click="tab = 'insert'">Insert</button>
+            <button
+              class="bld__tab"
+              :class="{ 'bld__tab--on': tab === 'inspect' }"
+              :disabled="!state.selectedField.value"
+              @click="tab = 'inspect'"
+            >
+              Inspect
+            </button>
           </div>
-          <FieldList :fieldSource="fields" @handle_field_search="fieldSearchHandler"/>
-        </div>
+          <PalettePane
+            v-if="tab === 'insert'"
+            :palette="state.palette.value"
+            :loading="state.metaLoading.value"
+            :is-dashboard="state.isDashboard.value"
+            @add="state.addField"
+          />
+          <InspectorPane
+            v-else
+            :field="state.selectedField.value"
+            :child-meta="state.childMeta.value"
+            :is-advanced="isAdvanced"
+            @commit="state.commit"
+            @remove="state.removeField"
+          />
+        </aside>
+
+        <section class="bld__mid">
+          <CanvasPane
+            :fields="state.canvasFields.value"
+            :selected="state.selected.value"
+            :missing-required="state.missingRequired.value"
+            @select="onSelect"
+            @remove="state.removeField"
+            @add="state.addField"
+            @changed="onCanvasChanged"
+          />
+        </section>
+
+        <aside class="bld__right">
+          <PreviewPane
+            :fields="state.canvasFields.value"
+            :title="state.screen.value.title"
+            :selected="state.selected.value"
+            :is-dashboard="state.isDashboard.value"
+            :is-submittable="state.isSubmittable.value"
+            @select="onSelect"
+          />
+        </aside>
       </div>
-      <Dialog v-model="dialog">
-        <template #body-title>
-          <h3 class="font-bold">Form Status</h3>
-        </template>
-        <template #body-content>
-          <div>
-            <div v-for="form in formList" :key="form.doctype">
-              <div v-if="validate.success == true" class="mb-4 flex justify-between">
-                <span class=" font-medium text-gray-700">{{ form.doctype }}</span> 
-                <Badge :variant="'subtle'" theme="green" size="lg" label="Badge">Success</Badge>
-              </div>
-              <div v-else>
-                <div v-if="validate.forms_with_missing_fields[form.doctype]">{{ form.doctype }} - Some Mandatory Fields are missing{{ validate.forms_with_missing_fields[form.doctype][form.doctype] }}</div>
-              </div>
-            </div>
+    </template>
+
+    <!-- Validation results -->
+    <Dialog v-model="showValidation">
+      <template #body-title><h3 class="font-semibold">Validation results</h3></template>
+      <template #body-content>
+        <div class="bld__val">
+          <div v-for="r in validationRows" :key="r.form" class="bld__val-row">
+            <span>{{ r.form }}</span>
+            <Badge v-if="r.ok" theme="green" variant="subtle">Ready</Badge>
+            <span v-else class="bld__val-missing">Missing: {{ r.missing.join(', ') }}</span>
           </div>
-        </template>
-      </Dialog>
-    </div>
+        </div>
+      </template>
+    </Dialog>
   </div>
 </template>
 
 <script setup>
-import FormList from './components/FormList.vue'
-import BuilderCanvas from './components/BuilderCanvas.vue'
-import Draggable from 'vuedraggable'
-import { ref } from 'vue'
-import { createListResource, createResource, createDocumentResource } from 'frappe-ui'
-import { Button, Spinner, Dialog, toast, Badge, FeatherIcon } from 'frappe-ui'
-import FieldList from './components/FieldList.vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onBeforeRouteLeave, useRouter } from 'vue-router'
+import { Badge, Dialog, FeatherIcon, Spinner, createDocumentResource, createResource, toast } from 'frappe-ui'
+import { useMode } from '@/composables/useMode'
+import { useBuilderState } from './composables/useBuilderState'
+import PalettePane from './components/PalettePane.vue'
+import CanvasPane from './components/CanvasPane.vue'
+import InspectorPane from './components/InspectorPane.vue'
+import PreviewPane from './components/PreviewPane.vue'
 
-let formList = ref([])
-let spinner = ref(false)
-let fieldList = ref([])
-let childData = ref({})
-let checkNow = ref(false)
-let repo = ref(false)
-const fields = ref([])
-let is_validated = ref(false)
-let dialog = ref(false)
-let fieldSearch = ref([])
-let validate = ref()
-let formData = ref({})
-let childList = ref([])
-let projectdoc = ref({github_repository_url:''})
-let docvalue = ref("")
-let project_id = ref('')
-let secondfields = ref([])
-let no_of_checks = ref(0)
-
-
-let expectFields = ['Section Break', 'Column Break', 'Tab Break', 'Geolocation', 'Button', 'rgt', 'lft', 'old_parent']
 const props = defineProps({
-  id: {
-    type: String,
-    required: true,
+  projectId: { type: String, required: true },
+  screenId: { type: String, default: '' },
+})
+
+const router = useRouter()
+const { isAdvanced } = useMode(props.projectId)
+const state = useBuilderState(props.projectId)
+
+const tab = ref('insert')
+const validating = ref(false)
+const validated = ref(false)
+const exporting = ref(false)
+const showValidation = ref(false)
+const validationRows = ref([])
+const repoUrl = ref('')
+
+const projectDoc = createDocumentResource({
+  doctype: 'PWA-Project',
+  name: props.projectId,
+  onSuccess(doc) {
+    repoUrl.value = doc.github_repository_url || ''
   },
 })
 
-const get_number_card = async () => {
-  const docs = await  createListResource({
-    doctype: "Number Card",
-    fields: ["name"],
-    pageLength: "*",
-  })
-  await docs.reload()  
-  return docs.data
+onMounted(async () => {
+  await state.loadScreens()
+  if (!state.screens.value.length) return
+  const target = state.screens.value.find((s) => s.name === props.screenId) || state.screens.value[0]
+  await state.openScreen(target.name)
+  if (target.name !== props.screenId) {
+    router.replace({ name: 'ProjectBuilder', params: { projectId: props.projectId, screenId: target.name } })
+  }
+})
+
+// Route-driven screen changes (switcher, back/forward).
+watch(
+  () => props.screenId,
+  async (name) => {
+    if (name && state.screens.value.some((s) => s.name === name) && state.screen.value?.name !== name) {
+      await state.openScreen(name)
+      tab.value = 'insert'
+    }
+  }
+)
+
+function switchScreen(name) {
+  if (name === state.screen.value?.name) return
+  if (state.dirty.value && !confirm('You have unsaved changes. Switch screens anyway?')) return
+  router.push({ name: 'ProjectBuilder', params: { projectId: props.projectId, screenId: name } })
 }
 
+function onSelect(fieldname) {
+  state.select(fieldname)
+  tab.value = fieldname ? 'inspect' : 'insert'
+}
 
-async function check() {
-  no_of_checks.value++
-  if(no_of_checks.value == 5){
-    checkNow.value = false
-    no_of_checks.value = 0
+// Drag mutates the canvas array directly; snapshot it, and select drops.
+function onCanvasChanged() {
+  state.commit()
+}
+
+async function saveScreen() {
+  const ok = await state.save()
+  if (ok) {
+    validated.value = false
     toast({
-				title: "Error",
-				text: "Something went wrong...!, please try again",
-				icon: "x",     
-				position: "bottom-right",
-				iconClasses: "text-red-500",
-			})
-  }
-  await  projectDoc.reload()
-  if (projectDoc.doc?.github_repository_url){
-    repo.value = true
-  }else{
-    checkNow.value = true
+      title: 'Saved',
+      text: `${state.screen.value.title} saved.`,
+      icon: 'check-circle',
+      position: 'bottom-right',
+      iconClasses: 'text-green-500',
+    })
   }
 }
 
-
-
-
-let projectDoc = createDocumentResource({
-  doctype: "PWA-Project",
-  name: props.id,
-  fields: ["*"],
-  onSuccess(data) {  
-    projectdoc.value = data
-    projectdoc.value.github_repository_url = data.github_repository_url ? data.github_repository_url : ''
-  },
-});
-
-
-let doctypeList = createListResource({
-	doctype: "DocType",
-  fields: ["name"],
-	pageLength: "*",
-	transform(data) {
-		return data.map(doc => {
-			return { label: doc.name, value: doc.name }
-		})
-	}
-})
-
-doctypeList.reload()
-
-let pwaForm = createListResource({
-	doctype: "PWA DocType",
-	fields: ['title', 'doctype_name', "name", "is_validated"],
-  filters: {'project_name': props.id},
-	transform(data) {
-		let transformData = []
-		data.map(doc => {
-			transformData.push({
-				      title: doc.title,
-              doctype: doc.doctype_name,
-			})
-      if (doc.is_validated == 0){
-        is_validated.value = false
+async function validateForms() {
+  if (state.dirty.value && !(await state.save())) return
+  validating.value = true
+  try {
+    const res = await createResource({ url: 'pwa_builder.api.validate_form_fields' }).submit({
+      project_name: props.projectId,
+    })
+    if (res?.success) {
+      validated.value = true
+      validationRows.value = state.screens.value.map((s) => ({ form: s.title, ok: true, missing: [] }))
+    } else {
+      validated.value = false
+      const missing = res?.forms_with_missing_fields || {}
+      // Values are labels, nested one level deeper for child-table fields.
+      validationRows.value = Object.entries(missing).map(([form, fields]) => ({
+        form,
+        ok: false,
+        missing: Object.values(fields || {}).flatMap((v) =>
+          v && typeof v === 'object' ? Object.values(v) : [v]
+        ),
+      }))
+      if (!validationRows.value.length) {
+        toast({
+          title: 'Validation failed',
+          text: res?.message || 'Some screens are not ready.',
+          icon: 'x',
+          position: 'bottom-right',
+          iconClasses: 'text-red-500',
+        })
+        return
       }
-		})
-		formList.value = transformData
-	}
-})
-
-pwaForm.reload()
-
-
-async function handleProjectId(projectid) {
-    project_id.value = projectid
-}
-
-async function fieldSearchHandler(value) {
-    fields.value = secondfields.value
-    if (!value) return; 
-    const searchValue = value.toLowerCase();
-    const filteredFields = fields.value.filter(element => 
-        element.label.toLowerCase().includes(searchValue)
-    );
-    fields.value = filteredFields;
-
-}
-
-
-
-
-async function handleFormFields (doc) {
-  if (doc === "Dashboard") {
-
-    const field_list = []
-    const data = await get_number_card_data();
-    const fieldLists = data?.[0]?.field_list ? JSON.parse(data[0].field_list) : null;
-    const existingFields = fieldLists?.pwa_form_fields ?? [];
-    fieldList.value = fieldLists?.pwa_form_fields ?? [];
-
-    const existingFieldNames = new Set(existingFields.map(field => field.fieldname));
-
-    const docs = await get_number_card();
-
-    let idx = fieldList.value.length
-    docs.forEach(element => {
-        if (!existingFieldNames.has(element.name)) {
-            let field = {
-                fieldtype: "Number Card",
-                fieldname: element.name,
-                label: element.name,
-                idx: idx
-            };
-            idx++
-            field_list.push(field);
-        }
-    });
-
-    const transformData = {
-        doctype_name: "Dashboard",
-        form_name: "Dashboard",
-        is_submittable: 0,
-        pwa_form_fields: field_list,
-    };
-
-
-    formData.value = {
-        form_name: "Number Card",
-        name: "Number Card",
-        doctype_name: "Dashboard",
-        is_submittable: 0,
-        pwa_form_fields: existingFields,
-    };
-
-
-    fields.value = transformData.pwa_form_fields;
-    secondfields.value = fields.value
-    return transformData;
+    }
+    showValidation.value = true
+  } catch (e) {
+    toast({
+      title: 'Error',
+      text: (e && e.messages && e.messages[0]) || 'Validation failed.',
+      icon: 'x',
+      position: 'bottom-right',
+      iconClasses: 'text-red-500',
+    })
+  } finally {
+    validating.value = false
   }
-  if(doc.doctype_name == formData.value.doctype_name){
+}
+
+async function exportProject() {
+  exporting.value = true
+  try {
+    await createResource({ url: 'pwa_builder.api.export_project' }).submit({ project_name: props.projectId })
+    toast({
+      title: 'Export queued',
+      text: 'The app is being generated — the repo link appears here when ready.',
+      icon: 'check-circle',
+      position: 'bottom-right',
+      iconClasses: 'text-green-500',
+    })
+    // The repo URL lands on the project doc once the scheduler finishes.
+    setTimeout(() => projectDoc.reload(), 15000)
+  } finally {
+    exporting.value = false
+  }
+}
+
+// --- keyboard shortcuts ---
+function isTyping(e) {
+  return ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName) || e.target.isContentEditable
+}
+
+function onKeydown(e) {
+  const mod = e.ctrlKey || e.metaKey
+  if (mod && e.key.toLowerCase() === 's') {
+    e.preventDefault()
+    if (state.dirty.value) saveScreen()
     return
   }
-  spinner.value = true
-  let formFields = createResource({
-    url: "frappe.client.get_list",
-    params: { doctype: "PWA DocType", filters: {"name": doc.name}, fields: ["name","field_list"]},
-    transform(data) {
-      let transformData;
-      if(data.length) {
-        if(data[0].field_list != '{}'){
-          transformData = JSON.parse(data[0].field_list)
-          fieldList.value = []
-          if (transformData && "pwa_form_fields" in transformData)
-          fieldList.value = transformData.pwa_form_fields
-        }
-      }
-      else{
-        fieldList.value = []
-      }
-      return transformData
-    }
-  })
-
-  await formFields.reload()
-
-  let getFields = createResource({
-    url: 'pwa_builder.api.get_meta',
-    params: { doctype: doc.doctype_name, project: props.id },
-    transform(data) {
-      let transformData;
-      let dataFields;
-      if(data) {
-        dataFields = data.fields.filter((item) => !expectFields.includes(item.fieldtype))
-        dataFields = dataFields.filter((item) => !expectFields.includes(item.fieldname))
-        dataFields.map(async(item) => {
-          if(item.fieldtype == 'Table'){
-            await getChildFields(item)
-          }
-        })
-        if(fieldList.value) {
-          transformData = dataFields.filter((item1) => !fieldList.value.some(item2 => item2.fieldname === item1.fieldname))
-        }
-        else {
-          transformData = dataFields
-        }
-      }
-      formData.value = {form_name : doc.title, name : doc.name, doctype_name: doc.doctype_name, is_submittable: data.is_submittable, pwa_form_fields: fieldList.value}
-      fields.value = transformData
-      fieldSearch.value = transformData
-      spinner.value = false
-      secondfields.value = fields.value
-    }
-  })
-  getFields.reload()
-}
-
-function sort_fieldlist(data){
-  let temp = []
-    for(let i = 1; i <= fields.value.length; i++){
-      if(data.idx < fields.value[i].idx){
-        fields.value.splice(i - 1, 0, data)
-        break
-      }
-    }
-}
-
-function deleteField(field) {
-  let index = fieldList.value.findIndex(item => item.fieldname === field.fieldname)
-  fieldList.value.splice(index, 1)
-  sort_fieldlist(field)
-}
-
-async function get_number_card_data () {
-  let get_dashboard_name =  await createListResource(
-        {
-          doctype: 'PWA DocType',
-          fields: ['name', 'field_list'],
-          filters : {
-            title: "Dashboard", 
-            project_name: project_id
-          }
-        }
-      )
-      await get_dashboard_name.reload()
-      return  get_dashboard_name.data ? get_dashboard_name.data : null
-}
-
-async function setFieldList() {
-  if (fieldList.value) {
-    formData.value.pwa_form_fields = fieldList.value
+  if (isTyping(e)) return
+  if (mod && e.key.toLowerCase() === 'z') {
+    e.preventDefault()
+    e.shiftKey ? state.redo() : state.undo()
+  } else if (mod && e.key.toLowerCase() === 'y') {
+    e.preventDefault()
+    state.redo()
+  } else if ((e.key === 'Delete' || e.key === 'Backspace') && state.selected.value) {
+    e.preventDefault()
+    state.removeField(state.selected.value)
   }
-  let name = null
-  if (formData.value?.doctype_name == "Dashboard"){
-      let get_name = await get_number_card_data()
-      name = get_name ?  get_name[0]?.name : null
+}
+
+function onBeforeUnload(e) {
+  if (state.dirty.value) {
+    e.preventDefault()
+    e.returnValue = ''
   }
-
-  let setValue = createResource({
-    url: 'pwa_builder.api.set_value',
-    params: {
-      doctype: 'PWA DocType',
-      docname: name ? name :  formData.value.name,
-      fieldname: 'field_list',
-      value: formData.value,
-    },
-    onSuccess(){
-      toast({
-				title: "Success",
-				text: `Form Saved successfully!`,
-				icon: "check-circle",     
-				position: "bottom-right",
-				iconClasses: "text-green-500",
-			})
-    },
-  })
-  await setValue.reload()
 }
 
-async function getChildFields(element) {
-  let getfields = createResource({
-    url: "pwa_builder.api.get_meta",
-    params: {doctype: element.options, project : props.id},
-    transform(data) {
-      let transformData = []
-      let dataFields;
-      dataFields = data.fields.filter((item) => !expectFields.includes(item.fieldtype))
-      dataFields = dataFields.filter((item) => !expectFields.includes(item.fieldname))
-      if(childData.value){
-        childData.value = {...childData.value, [element['fieldname']]: dataFields}
-      }
-      else{
-        childData.value = {[element['fieldname']]: dataFields}
-      }
-    }
-  })
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown)
+  window.addEventListener('beforeunload', onBeforeUnload)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKeydown)
+  window.removeEventListener('beforeunload', onBeforeUnload)
+})
 
-  await getfields.reload()
-}
-
-async function validateForms(){
-  let validateForms = createResource({
-    url: 'pwa_builder.api.validate_form_fields',
-    params: { project_name: props.id },
-    transform(data){
-      validate.value = data
-    }
-  })
-
- await validateForms.reload()
- if(validateForms && validateForms?.data){
-    if(validateForms.data.success){
-      dialog.value = true
-      is_validated.value = true
-    } else {
-      toast({
-				title: "Error",
-				text: validateForms.data.message,
-				icon: "x",     
-				position: "bottom-right",
-				iconClasses: "text-red-500",
-			})
-    }
- }
-}
-
-function exportProject() {
-  let export_project = createResource({
-    url: 'pwa_builder.api.export_project',
-    params: { project_name: props.id },
-  })
-  
-  export_project.reload()
-  
-  toast({
-    title: "Success",
-    text: `Exported! Check Scheduler and PWA-Project for more details. Even though "Check Now" appears, repo creation may take some time—be`,
-    icon: "check-circle",     
-    position: "bottom-right",
-    iconClasses: "text-green-500",
-  })
-  
-  setTimeout(() => {
-    checkNow.value = true
-  }, 2000) 
-  
-  projectdoc.value = { github_repository_url: '' }
-}
-
+onBeforeRouteLeave((to) => {
+  // Screen switches inside the builder are guarded in switchScreen already.
+  if (to.name === 'ProjectBuilder') return true
+  if (state.dirty.value && !confirm('You have unsaved changes. Leave the builder anyway?')) return false
+  return true
+})
 </script>
+
 <style scoped>
-.main {
-  background-color: #f6f9fc;
-}
-.hie {
-  min-height: 50px;
-}
-.scrollBar::-webkit-scrollbar{
-  width: 5px;
-  background-color: white;
-}
+.bld { height: 100%; display: flex; flex-direction: column; }
+.bld__center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+.bld__none { color: var(--text-subtle); }
+.bld__none h2 { font-size: 16px; font-weight: 650; color: var(--text); }
+.bld__none p { font-size: 13px; color: var(--text-muted); }
+.bld__cta { margin-top: 6px; padding: 8px 16px; font-size: 13px; font-weight: 550; color: var(--brand-fg); background: var(--brand-950); border-radius: var(--radius-control); }
+.bld__cta:hover { background: var(--brand-800); }
 
-.scrollBar::-webkit-scrollbar-thumb {
-  background-color: #cfcdcd;
-  width: 5px;
-  border-radius: 5px;
-}
+.bld__bar { display: flex; align-items: center; gap: 10px; height: 50px; padding: 0 14px; background: var(--surface); border-bottom: 1px solid var(--border); flex: none; }
+.bld__back { display: grid; place-items: center; width: 30px; height: 30px; color: var(--text-muted); border-radius: var(--radius-control); }
+.bld__back:hover { color: var(--text); background: var(--surface-muted); }
+.bld__switch { max-width: 220px; padding: 6px 8px; font-size: 13px; font-weight: 600; color: var(--text); background: transparent; border: 1px solid transparent; border-radius: var(--radius-control); outline: none; cursor: pointer; }
+.bld__switch:hover { border-color: var(--border-strong); background: var(--surface); }
+.bld__dirty { width: 8px; height: 8px; border-radius: 50%; background: var(--warn); flex: none; }
 
-.scrollBar::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(180, 176, 176);
-  width: 5px;
-}
+.bld__bar-mid { display: flex; gap: 2px; margin-left: 8px; }
+.bld__tool { display: grid; place-items: center; width: 30px; height: 30px; color: var(--text-muted); border-radius: var(--radius-control); }
+.bld__tool:hover:not(:disabled) { color: var(--text); background: var(--surface-muted); }
+.bld__tool:disabled { opacity: 0.35; cursor: not-allowed; }
 
-.drag {
-  margin-top: -200px;
-}
+.bld__bar-right { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.bld__btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; font-size: 12.5px; font-weight: 550; color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-control); }
+.bld__btn:hover:not(:disabled) { background: var(--surface-muted); }
+.bld__btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.bld__btn--primary { color: var(--brand-fg); background: var(--brand-950); border-color: var(--brand-950); }
+.bld__btn--primary:hover:not(:disabled) { background: var(--brand-800); }
+
+.bld__err { display: flex; align-items: center; gap: 6px; padding: 8px 14px; font-size: 12.5px; color: var(--danger); background: rgba(220, 38, 38, 0.06); border-bottom: 1px solid rgba(220, 38, 38, 0.15); }
+
+.bld__panes { flex: 1; min-height: 0; display: grid; grid-template-columns: 280px minmax(0, 1fr) minmax(300px, 380px); }
+.bld__left { display: flex; flex-direction: column; min-height: 0; background: var(--surface); border-right: 1px solid var(--border); }
+.bld__tabs { display: flex; gap: 4px; padding: 10px 12px 0; border-bottom: 1px solid var(--border); }
+.bld__tab { padding: 7px 12px; font-size: 12.5px; font-weight: 550; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.bld__tab--on { color: var(--text); border-bottom-color: var(--brand-950); }
+.bld__tab:disabled { opacity: 0.4; cursor: not-allowed; }
+.bld__mid { min-height: 0; }
+.bld__right { min-height: 0; border-left: 1px solid var(--border); padding: 12px; }
+
+.bld__val { display: flex; flex-direction: column; gap: 10px; }
+.bld__val-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13.5px; color: var(--text); }
+.bld__val-missing { font-size: 12px; color: var(--danger); text-align: right; }
+
+.spin { animation: sp 0.8s linear infinite; }
+@keyframes sp { to { transform: rotate(360deg); } }
 </style>
