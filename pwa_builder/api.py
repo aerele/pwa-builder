@@ -12,6 +12,22 @@ from frappe.model.meta import Meta
 def add_site(data, update=False):
 	if isinstance(data, str):
 		data = json.loads(data)
+
+	connection_type = data.get("connection_type") or "Another Site"
+
+	# "This Site" — build a PWA for the current site. The backend already runs
+	# here as the logged-in user, so no remote login or credentials are needed.
+	if connection_type == "This Site":
+		frappe.get_doc({
+			"doctype": "PWA-Project",
+			"project_title": data.get("project_title"),
+			"connection_type": "This Site",
+			"sub_title": data.get("sub_title"),
+			"site_url": frappe.utils.get_url(),
+			"description": data.get("description"),
+		}).insert(ignore_permissions=True)
+		return "Created"
+
 	url = urlparse(data.get("site_url"))
 	login_url = url.scheme + "://" + url.netloc + "/api/method/login"
 
@@ -23,6 +39,7 @@ def add_site(data, update=False):
 			frappe.get_doc({
 				"doctype": "PWA-Project",
 				"project_title": data.get("project_title"),
+				"connection_type": "Another Site",
 				"sub_title": data.get("sub_title"),
 				"site_url": data.get("site_url"),
 				"user_id": data.get("user_id"),
@@ -51,6 +68,19 @@ def add_site(data, update=False):
 @frappe.whitelist(allow_guest=True)
 def get_meta(doctype, project,with_parent=False,cached=True) -> "Meta":
 	doc = frappe.get_doc("PWA-Project", project)
+
+	# "This Site" — read doctype metadata locally instead of proxying over REST.
+	if (doc.connection_type or "Another Site") == "This Site":
+		from frappe.desk.form.load import get_meta_bundle
+
+		meta = {"docs": [d.as_dict() for d in get_meta_bundle(doctype)]}
+		if with_parent == True:
+			return meta
+		for d in meta["docs"]:
+			if d.get("name") == doctype:
+				return d
+		return None
+
 	url = urlparse(doc.site_url)
 	site_url = url.scheme + "://" + url.netloc
 	end_point = "/api/method/frappe.desk.form.load.getdoctype?doctype={0}&with_parent=1".format(doctype)

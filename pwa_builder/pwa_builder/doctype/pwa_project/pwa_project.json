@@ -6,6 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "project_title",
+  "connection_type",
   "sub_title",
   "site_url",
   "user_id",
@@ -24,11 +25,19 @@
    "label": "Project title"
   },
   {
+   "default": "Another Site",
+   "fieldname": "connection_type",
+   "fieldtype": "Select",
+   "label": "Connection Type",
+   "options": "This Site\nAnother Site"
+  },
+  {
    "fieldname": "sub_title",
    "fieldtype": "Data",
    "label": "Sub title"
   },
   {
+   "depends_on": "eval:doc.connection_type=='Another Site'",
    "fieldname": "site_url",
    "fieldtype": "Data",
    "label": "Site URL"
@@ -39,11 +48,13 @@
    "label": "Description"
   },
   {
+   "depends_on": "eval:doc.connection_type=='Another Site'",
    "fieldname": "user_id",
    "fieldtype": "Data",
    "label": "User ID"
   },
   {
+   "depends_on": "eval:doc.connection_type=='Another Site'",
    "fieldname": "password",
    "fieldtype": "Password",
    "label": "Password"
@@ -76,7 +87,7 @@
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-12 15:53:58.944067",
+ "modified": "2026-07-03 19:13:24.723527",
  "modified_by": "Administrator",
  "module": "PWA Builder",
  "name": "PWA-Project",
