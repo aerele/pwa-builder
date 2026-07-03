@@ -228,4 +228,8 @@ app_license = "mit"
 # }
 
 
-website_route_rules = [{'from_route': '/frontend/<path:app_path>', 'to_route': 'frontend'}, {'from_route': '/frontend/<path:app_path>', 'to_route': 'frontend'},]
+website_route_rules = [
+	# Bare route needs its own rule: <path:app_path> does not match an empty path.
+	{'from_route': '/pwa-builder', 'to_route': 'frontend'},
+	{'from_route': '/pwa-builder/<path:app_path>', 'to_route': 'frontend'},
+]
