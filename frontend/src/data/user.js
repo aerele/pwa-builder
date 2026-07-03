@@ -6,7 +6,7 @@ export const userResource = createResource({
   cache: 'User',
   onError(error) {
     if (error && error.exc_type === 'AuthenticationError') {
-      router.push({ name: 'LoginPage' })
+      router.push({ name: 'Login' })
     }
   },
 })
