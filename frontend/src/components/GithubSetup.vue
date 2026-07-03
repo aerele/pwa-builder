@@ -145,8 +145,8 @@ load()
 .gh__err { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--danger); }
 
 .gh__actions { display: flex; justify-content: flex-end; gap: 8px; }
-.gh__save { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; font-size: 13px; font-weight: 550; color: var(--brand-fg); background: var(--brand-950); border-radius: var(--radius-control); }
-.gh__save:hover:not(:disabled) { background: var(--brand-800); }
+.gh__save { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; font-size: 13px; font-weight: 550; color: var(--brand-fg); background: var(--brand); border-radius: var(--radius-control); }
+.gh__save:hover:not(:disabled) { background: var(--brand-hover); }
 .gh__save:disabled { opacity: 0.5; cursor: not-allowed; }
 .gh__ghost { font-size: 13px; font-weight: 550; color: var(--text-muted); padding: 8px 12px; border-radius: var(--radius-control); }
 .gh__ghost:hover { color: var(--text); background: var(--surface-muted); }

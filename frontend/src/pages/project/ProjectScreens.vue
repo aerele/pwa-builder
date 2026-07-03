@@ -20,7 +20,7 @@
       <div v-for="s in list" :key="s.name" class="card" @click="openBuilder(s)">
         <div class="card__thumb">
           <PhoneFrame :width="340" :height="640" :scale="0.36" :device-frame="true">
-            <div class="card__mini">
+            <div class="card__mini theme-light">
               <div class="card__mini-bar">{{ s.title }}</div>
               <div class="card__mini-body">
                 <template v-if="fieldsOf(s).length">
@@ -225,7 +225,7 @@ async function removeScreen(s) {
 .card:hover { border-color: var(--border-strong); box-shadow: var(--shadow-md); }
 .card__thumb { display: flex; justify-content: center; padding: 16px 16px 0; background: var(--surface-muted); }
 .card__mini { display: flex; flex-direction: column; height: 100%; background: var(--surface); pointer-events: none; }
-.card__mini-bar { padding: 26px 12px 10px; font-size: 13px; font-weight: 600; color: #fff; background: var(--brand-950); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card__mini-bar { padding: 26px 12px 10px; font-size: 13px; font-weight: 600; color: #fff; background: var(--brand); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .card__mini-body { flex: 1; overflow: hidden; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
 .card__mini-empty { margin: auto; font-size: 13px; color: var(--text-subtle); }
 
@@ -259,8 +259,8 @@ async function removeScreen(s) {
 .nw__tpl-label { font-size: 12.5px; font-weight: 600; color: var(--text); }
 .nw__tpl-desc { font-size: 11px; line-height: 1.35; }
 
-.btn-primary { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; font-size: 13px; font-weight: 550; color: var(--brand-fg); background: var(--brand-950); border-radius: var(--radius-control); }
-.btn-primary:hover { background: var(--brand-800); }
+.btn-primary { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; font-size: 13px; font-weight: 550; color: var(--brand-fg); background: var(--brand); border-radius: var(--radius-control); }
+.btn-primary:hover { background: var(--brand-hover); }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 .spin { animation: sp 0.8s linear infinite; }
 @keyframes sp { to { transform: rotate(360deg); } }

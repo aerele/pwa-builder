@@ -1,7 +1,8 @@
 <template>
   <div ref="wrap" class="pv">
     <PhoneFrame :width="W" :height="H" :scale="scale">
-      <div class="pv__screen">
+      <!-- theme-light: the generated app is light regardless of builder theme -->
+      <div class="pv__screen theme-light">
         <div class="pv__appbar">
           <FeatherIcon name="menu" class="w-4 h-4" />
           <span class="pv__appbar-title">{{ title }}</span>
@@ -70,7 +71,7 @@ onBeforeUnmount(() => ro && ro.disconnect())
 .pv { height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 
 .pv__screen { display: flex; flex-direction: column; height: 100%; background: var(--surface); }
-.pv__appbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 26px 14px 12px; background: var(--brand-950); color: #fff; }
+.pv__appbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 26px 14px 12px; background: var(--brand); color: #fff; }
 .pv__appbar-title { flex: 1; text-align: center; font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .pv__body { flex: 1; overflow-y: auto; padding: 14px 14px 18px; display: flex; flex-direction: column; gap: 12px; }
@@ -78,5 +79,5 @@ onBeforeUnmount(() => ro && ro.disconnect())
 
 .pv__empty { display: flex; flex-direction: column; align-items: center; gap: 10px; margin: auto; color: var(--text-subtle); font-size: 12.5px; text-align: center; }
 
-.pv__submit { margin: 0 14px 16px; padding: 11px; text-align: center; font-size: 13px; font-weight: 600; color: var(--brand-fg); background: var(--brand-950); border-radius: 10px; flex: none; }
+.pv__submit { margin: 0 14px 16px; padding: 11px; text-align: center; font-size: 13px; font-weight: 600; color: var(--brand-fg); background: var(--brand); border-radius: 10px; flex: none; }
 </style>

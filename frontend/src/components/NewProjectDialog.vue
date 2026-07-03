@@ -202,10 +202,10 @@ function close() {
 .btn-primary {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 8px 14px; font-size: 13px; font-weight: 550;
-  color: var(--brand-fg); background: var(--brand-950);
+  color: var(--brand-fg); background: var(--brand);
   border-radius: var(--radius-control); transition: background 0.12s ease;
 }
-.btn-primary:hover { background: var(--brand-800); }
+.btn-primary:hover { background: var(--brand-hover); }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-ghost { font-size: 13px; font-weight: 550; color: var(--text-muted); padding: 8px 12px; border-radius: var(--radius-control); }
 .btn-ghost:hover { background: var(--surface); color: var(--text); }

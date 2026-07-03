@@ -253,7 +253,7 @@ loadStatus()
 .tl__step:not(:last-child)::before { content: ''; position: absolute; left: 11px; top: 24px; bottom: 2px; width: 2px; background: var(--border); }
 .tl__dot { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; flex: none; background: var(--surface-muted); color: var(--text-subtle); border: 1px solid var(--border); z-index: 1; }
 .tl__step--done .tl__dot { background: var(--ok); border-color: var(--ok); color: #fff; }
-.tl__step--active .tl__dot { background: var(--brand-950); border-color: var(--brand-950); color: #fff; }
+.tl__step--active .tl__dot { background: var(--brand); border-color: var(--brand); color: var(--brand-fg); }
 .tl__step--error .tl__dot { background: var(--danger); border-color: var(--danger); color: #fff; }
 .tl__label { font-size: 13.5px; font-weight: 550; color: var(--text); padding-top: 3px; }
 .tl__step--pending .tl__label { color: var(--text-subtle); font-weight: 450; }
@@ -266,8 +266,8 @@ loadStatus()
 .pub__repo-link { font-size: 13.5px; font-weight: 550; color: var(--brand-500); text-decoration: underline; text-underline-offset: 2px; word-break: break-all; }
 .pub__repo-meta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; font-size: 12px; font-family: ui-monospace, monospace; color: var(--text-muted); }
 
-.btn-primary { display: inline-flex; align-items: center; gap: 7px; padding: 10px 18px; font-size: 13.5px; font-weight: 600; color: var(--brand-fg); background: var(--brand-950); border-radius: var(--radius-control); flex: none; }
-.btn-primary:hover:not(:disabled) { background: var(--brand-800); }
+.btn-primary { display: inline-flex; align-items: center; gap: 7px; padding: 10px 18px; font-size: 13.5px; font-weight: 600; color: var(--brand-fg); background: var(--brand); border-radius: var(--radius-control); flex: none; }
+.btn-primary:hover:not(:disabled) { background: var(--brand-hover); }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 .spin { animation: sp 0.8s linear infinite; }
 @keyframes sp { to { transform: rotate(360deg); } }

@@ -128,7 +128,7 @@ const published = computed(() => !!doc.value?.github_repository_url)
 .action:hover { border-color: var(--brand-300); color: var(--brand); box-shadow: var(--shadow-sm); }
 .ov__edited { margin-left: auto; font-size: 12px; color: var(--text-subtle); }
 
-.btn-primary { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; font-size: 13px; font-weight: 550; color: var(--brand-fg); background: var(--brand-950); border-radius: var(--radius-control); }
-.btn-primary:hover { background: var(--brand-800); }
+.btn-primary { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; font-size: 13px; font-weight: 550; color: var(--brand-fg); background: var(--brand); border-radius: var(--radius-control); }
+.btn-primary:hover { background: var(--brand-hover); }
 .btn-ghost { font-size: 12.5px; font-weight: 550; color: var(--brand); margin-top: 4px; }
 </style>

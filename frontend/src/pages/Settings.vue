@@ -16,6 +16,28 @@
       </div>
     </div>
 
+    <!-- Appearance -->
+    <div class="card">
+      <div class="card__row">
+        <div>
+          <div class="card__label">Appearance</div>
+          <div class="card__hint">System follows your OS preference.</div>
+        </div>
+        <div class="seg">
+          <button
+            v-for="t in ['light', 'system', 'dark']"
+            :key="t"
+            class="seg__btn"
+            :class="{ 'seg__btn--on': theme === t }"
+            @click="setTheme(t)"
+          >
+            <FeatherIcon :name="t === 'light' ? 'sun' : t === 'dark' ? 'moon' : 'monitor'" class="w-3.5 h-3.5" />
+            {{ t[0].toUpperCase() + t.slice(1) }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- GitHub integration (advanced) -->
     <div v-if="isAdvanced" class="card">
       <div class="card__label">GitHub integration</div>
@@ -37,12 +59,15 @@
 
 <script setup>
 import { computed } from 'vue'
+import { FeatherIcon } from 'frappe-ui'
 import ModeToggle from '@/shell/ModeToggle.vue'
 import GithubSetup from '@/components/GithubSetup.vue'
 import { useMode } from '@/composables/useMode'
+import { useTheme } from '@/composables/useTheme'
 import { session } from '@/data/session'
 
 const { isAdvanced } = useMode()
+const { theme, setTheme } = useTheme()
 const user = computed(() => session.user || 'Guest')
 </script>
 
@@ -58,4 +83,7 @@ const user = computed(() => session.user || 'Guest')
 .badge { font-size: 11px; font-weight: 600; color: var(--brand); background: var(--brand-subtle); padding: 4px 10px; border-radius: 999px; }
 .btn-ghost { font-size: 13px; font-weight: 550; color: var(--danger); padding: 7px 12px; border-radius: var(--radius-control); }
 .btn-ghost:hover { background: var(--surface-muted); }
+.seg { display: flex; gap: 2px; padding: 3px; background: var(--surface-muted); border: 1px solid var(--border); border-radius: var(--radius-control); }
+.seg__btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 12.5px; font-weight: 550; color: var(--text-muted); border-radius: calc(var(--radius-control) - 2px); }
+.seg__btn--on { color: var(--text); background: var(--surface); box-shadow: var(--shadow-sm); }
 </style>

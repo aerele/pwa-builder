@@ -18,11 +18,19 @@
 
       <div class="shell__actions">
         <ModeToggle :project-id="projectId" />
+        <button class="shell__theme" :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'" @click="toggleTheme">
+          <FeatherIcon :name="isDark ? 'sun' : 'moon'" class="w-4 h-4" />
+        </button>
         <button class="shell__avatar" :title="user">
           {{ initials }}
         </button>
       </div>
     </header>
+
+    <div v-if="!online" class="shell__offline">
+      <FeatherIcon name="wifi-off" class="w-3.5 h-3.5" />
+      You're offline — changes can't be saved until the connection is back.
+    </div>
 
     <div class="shell__body">
       <ProjectRail v-if="projectId" :project-id="projectId" />
@@ -35,13 +43,28 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { FeatherIcon, createResource } from 'frappe-ui'
 import GlobalRail from './GlobalRail.vue'
 import ProjectRail from './ProjectRail.vue'
 import ModeToggle from './ModeToggle.vue'
 import { session } from '@/data/session'
+import { useTheme } from '@/composables/useTheme'
+
+const { isDark, toggle: toggleTheme } = useTheme()
+
+const online = ref(navigator.onLine)
+const setOnline = () => (online.value = true)
+const setOffline = () => (online.value = false)
+onMounted(() => {
+  window.addEventListener('online', setOnline)
+  window.addEventListener('offline', setOffline)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('online', setOnline)
+  window.removeEventListener('offline', setOffline)
+})
 
 const route = useRoute()
 const projectId = computed(() => route.params.projectId || null)
@@ -96,7 +119,7 @@ const initials = computed(() => {
   height: 28px;
   display: grid;
   place-items: center;
-  background: var(--brand-950);
+  background: var(--brand);
   color: #fff;
   font-weight: 700;
   border-radius: var(--radius-control);
@@ -121,6 +144,9 @@ const initials = computed(() => {
 .shell__status--live { color: var(--ok); }
 .shell__status--live .shell__status-dot { background: var(--ok); }
 .shell__actions { display: flex; align-items: center; gap: 12px; }
+.shell__theme { display: grid; place-items: center; width: 30px; height: 30px; color: var(--text-muted); border-radius: var(--radius-control); }
+.shell__theme:hover { color: var(--text); background: var(--surface-muted); }
+.shell__offline { display: flex; align-items: center; justify-content: center; gap: 7px; padding: 7px 12px; font-size: 12.5px; font-weight: 550; color: #fff; background: var(--warn); flex-shrink: 0; }
 .shell__avatar {
   width: 30px;
   height: 30px;

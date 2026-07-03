@@ -52,6 +52,9 @@
   /* Elevation */
   --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
   --shadow-md: 0 4px 16px rgba(16, 24, 40, 0.10);
+
+  /* Skeleton shimmer */
+  --sheen: rgba(255, 255, 255, 0.6);
 }
 
 /* Dark mode overrides — toggle ships in Phase 5, vars ready now */
@@ -69,6 +72,22 @@
   --brand-fg: #05102a;
   --brand-subtle: #15233f;
   --dot: rgba(255, 255, 255, 0.05);
+  --sheen: rgba(255, 255, 255, 0.08);
+}
+
+/* Force-light scope for phone previews: the generated PWA is light, so its
+ * mocks should not follow the builder's dark theme. Mirrors :root values. */
+.theme-light {
+  --surface: #ffffff;
+  --surface-muted: #eef1f6;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --text-subtle: #9ca3af;
+  --brand: var(--brand-950);
+  --brand-fg: #ffffff;
+  --brand-subtle: var(--brand-50);
 }
 
 /* App background applied by the shell — soft tint + subtle dot grid + a

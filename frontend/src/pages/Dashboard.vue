@@ -216,10 +216,10 @@ function startFromTemplate(_t) {
   background: var(--surface-muted); color: var(--text-muted);
   border: 1px solid var(--border);
 }
-.gs__step--done .gs__num { background: var(--brand-950); color: #fff; border-color: var(--brand-950); }
+.gs__step--done .gs__num { background: var(--brand); color: var(--brand-fg); border-color: var(--brand); }
 .gs__foot { display: flex; align-items: center; gap: 12px; }
 .gs__bar { flex: 1; height: 6px; background: var(--surface-muted); border-radius: 999px; overflow: hidden; }
-.gs__bar span { display: block; height: 100%; background: var(--brand-950); border-radius: 999px; transition: width 0.3s ease; }
+.gs__bar span { display: block; height: 100%; background: var(--brand); border-radius: 999px; transition: width 0.3s ease; }
 .gs__count { font-size: 12px; color: var(--text-muted); }
 
 /* Sections */
@@ -265,7 +265,7 @@ function startFromTemplate(_t) {
 .skeleton { position: relative; overflow: hidden; background: var(--surface-muted); }
 .skeleton::after {
   content: ''; position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+  background: linear-gradient(90deg, transparent, var(--sheen), transparent);
   transform: translateX(-100%); animation: sk 1.3s infinite;
 }
 @keyframes sk { 100% { transform: translateX(100%); } }
@@ -282,8 +282,8 @@ function startFromTemplate(_t) {
 .btn-primary {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 7px 13px; font-size: 13px; font-weight: 550;
-  color: var(--brand-fg); background: var(--brand-950);
+  color: var(--brand-fg); background: var(--brand);
   border-radius: var(--radius-control); transition: background 0.12s ease;
 }
-.btn-primary:hover { background: var(--brand-800); }
+.btn-primary:hover { background: var(--brand-hover); }
 </style>
