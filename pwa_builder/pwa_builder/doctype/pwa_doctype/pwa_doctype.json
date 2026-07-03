@@ -12,6 +12,7 @@
   "project_name",
   "disable",
   "is_validated",
+  "nav_order",
   "section_break_iong",
   "field_list"
  ],
@@ -58,12 +59,18 @@
    "hidden": 1,
    "label": "Is Validated",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "nav_order",
+   "fieldtype": "Int",
+   "label": "Nav Order"
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-12 15:54:47.040976",
+ "modified": "2026-07-03 19:26:23.660865",
  "modified_by": "Administrator",
  "module": "PWA Builder",
  "name": "PWA DocType",
