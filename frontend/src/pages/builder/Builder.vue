@@ -38,18 +38,9 @@
             <FeatherIcon :name="validating ? 'loader' : 'check-square'" class="w-3.5 h-3.5" :class="{ spin: validating }" />
             Validate
           </button>
-          <button v-if="validated" class="bld__btn" :disabled="exporting" @click="exportProject">
-            <FeatherIcon name="upload-cloud" class="w-3.5 h-3.5" /> Export
-          </button>
-          <a
-            v-if="repoUrl"
-            class="bld__btn"
-            :href="repoUrl"
-            target="_blank"
-            rel="noopener"
-          >
-            <FeatherIcon name="github" class="w-3.5 h-3.5" /> Repo
-          </a>
+          <router-link class="bld__btn" :to="{ name: 'ProjectPublish', params: { projectId } }">
+            <FeatherIcon name="upload-cloud" class="w-3.5 h-3.5" /> Publish
+          </router-link>
           <button class="bld__btn bld__btn--primary" :disabled="!state.dirty.value || state.saving.value" @click="saveScreen">
             <FeatherIcon :name="state.saving.value ? 'loader' : 'save'" class="w-3.5 h-3.5" :class="{ spin: state.saving.value }" />
             Save
@@ -136,7 +127,7 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
-import { Badge, Dialog, FeatherIcon, Spinner, createDocumentResource, createResource, toast } from 'frappe-ui'
+import { Badge, Dialog, FeatherIcon, Spinner, createResource, toast } from 'frappe-ui'
 import { useMode } from '@/composables/useMode'
 import { useBuilderState } from './composables/useBuilderState'
 import PalettePane from './components/PalettePane.vue'
@@ -155,19 +146,8 @@ const state = useBuilderState(props.projectId)
 
 const tab = ref('insert')
 const validating = ref(false)
-const validated = ref(false)
-const exporting = ref(false)
 const showValidation = ref(false)
 const validationRows = ref([])
-const repoUrl = ref('')
-
-const projectDoc = createDocumentResource({
-  doctype: 'PWA-Project',
-  name: props.projectId,
-  onSuccess(doc) {
-    repoUrl.value = doc.github_repository_url || ''
-  },
-})
 
 onMounted(async () => {
   await state.loadScreens()
@@ -209,7 +189,6 @@ function onCanvasChanged() {
 async function saveScreen() {
   const ok = await state.save()
   if (ok) {
-    validated.value = false
     toast({
       title: 'Saved',
       text: `${state.screen.value.title} saved.`,
@@ -228,10 +207,8 @@ async function validateForms() {
       project_name: props.projectId,
     })
     if (res?.success) {
-      validated.value = true
       validationRows.value = state.screens.value.map((s) => ({ form: s.title, ok: true, missing: [] }))
     } else {
-      validated.value = false
       const missing = res?.forms_with_missing_fields || {}
       // Values are labels, nested one level deeper for child-table fields.
       validationRows.value = Object.entries(missing).map(([form, fields]) => ({
@@ -263,24 +240,6 @@ async function validateForms() {
     })
   } finally {
     validating.value = false
-  }
-}
-
-async function exportProject() {
-  exporting.value = true
-  try {
-    await createResource({ url: 'pwa_builder.api.export_project' }).submit({ project_name: props.projectId })
-    toast({
-      title: 'Export queued',
-      text: 'The app is being generated — the repo link appears here when ready.',
-      icon: 'check-circle',
-      position: 'bottom-right',
-      iconClasses: 'text-green-500',
-    })
-    // The repo URL lands on the project doc once the scheduler finishes.
-    setTimeout(() => projectDoc.reload(), 15000)
-  } finally {
-    exporting.value = false
   }
 }
 

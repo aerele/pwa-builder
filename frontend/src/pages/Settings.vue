@@ -16,15 +16,11 @@
       </div>
     </div>
 
-    <!-- GitHub integration (advanced; wired in Phase 4) -->
+    <!-- GitHub integration (advanced) -->
     <div v-if="isAdvanced" class="card">
-      <div class="card__row">
-        <div>
-          <div class="card__label">GitHub integration</div>
-          <div class="card__hint">Used to publish exported apps. Configured in Phase 4.</div>
-        </div>
-        <span class="badge">Phase 4</span>
-      </div>
+      <div class="card__label">GitHub integration</div>
+      <div class="card__hint" style="margin-bottom: 12px">Used to publish exported apps.</div>
+      <GithubSetup />
     </div>
 
     <div class="card">
@@ -42,6 +38,7 @@
 <script setup>
 import { computed } from 'vue'
 import ModeToggle from '@/shell/ModeToggle.vue'
+import GithubSetup from '@/components/GithubSetup.vue'
 import { useMode } from '@/composables/useMode'
 import { session } from '@/data/session'
 
