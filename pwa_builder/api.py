@@ -127,6 +127,30 @@ def set_value(doctype, docname, fieldname, value):
 def get_doc(doctype, docname):
 	 return frappe.get_doc(doctype, docname)
 
+@frappe.whitelist()
+def export_status(project_name):
+	"""Status of the queued export job plus the project's publish fields."""
+	doc = frappe.get_doc("PWA-Project", project_name)
+	job_status = result = None
+	try:
+		from frappe.utils.background_jobs import get_job
+
+		job = get_job(frappe.utils.get_job_name("export_app_for", "PWA-Project", project_name))
+		if job:
+			job_status = str(job.get_status())
+			latest = job.latest_result()
+			if latest is not None:
+				result = latest.return_value
+	except Exception:
+		pass
+	return {
+		"job_status": job_status,
+		"result": result,
+		"repository_url": doc.github_repository_url,
+		"default_branch": doc.github_default_branch,
+		"last_commit": doc.last_push_commit,
+	}
+
 @frappe.whitelist(allow_guest=True)
 def export_project(project_name):
 	frappe.enqueue(
