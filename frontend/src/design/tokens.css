@@ -1,0 +1,103 @@
+/* PWA Builder — design tokens (Phase 0)
+ * Single source of truth for brand, surface, radius and elevation.
+ * Exposed as CSS variables so dark mode (Phase 5) and visual theming
+ * (Phase 4) can retune at runtime without touching components.
+ */
+
+:root {
+  /* Brand — deep navy #05102a anchors the 950 step */
+  --brand-50: #eef1f6;
+  --brand-100: #d8dfeb;
+  --brand-200: #b1bfd6;
+  --brand-300: #8499bd;
+  --brand-400: #5470a0;
+  --brand-500: #345086;
+  --brand-600: #25406f;
+  --brand-700: #1c3158;
+  --brand-800: #15233f;
+  --brand-900: #0c1730;
+  --brand-950: #05102a;
+
+  /* Semantic brand roles */
+  --brand: var(--brand-950);
+  --brand-hover: var(--brand-800);
+  --brand-active: #02091a;
+  --brand-fg: #ffffff;          /* text/icon on a brand fill */
+  --brand-subtle: var(--brand-50);
+  --brand-ring: rgba(5, 16, 42, 0.28);
+
+  /* Surfaces (light) */
+  --surface: #ffffff;           /* cards, panels */
+  --surface-muted: #eef1f6;     /* app background tint */
+  --surface-rail: #ffffff;      /* nav rails */
+  --dot: rgba(5, 16, 42, 0.06); /* app-background dot grid */
+  --border: #e5e7eb;            /* gray-200 */
+  --border-strong: #d1d5db;     /* gray-300 */
+
+  /* Text */
+  --text: #111827;             /* gray-900 */
+  --text-muted: #6b7280;       /* gray-500 */
+  --text-subtle: #9ca3af;      /* gray-400 */
+
+  /* Status */
+  --ok: #16a34a;
+  --warn: #d97706;
+  --danger: #dc2626;
+
+  /* Radius */
+  --radius-control: 6px;       /* buttons, inputs */
+  --radius-card: 12px;         /* cards, panels */
+  --radius-phone: 2rem;        /* device bezel */
+
+  /* Elevation */
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --shadow-md: 0 4px 16px rgba(16, 24, 40, 0.10);
+
+  /* Skeleton shimmer */
+  --sheen: rgba(255, 255, 255, 0.6);
+}
+
+/* Dark mode overrides — toggle ships in Phase 5, vars ready now */
+.dark {
+  --surface: #0b1220;
+  --surface-muted: #070c16;
+  --surface-rail: #0b1220;
+  --border: #1f2937;
+  --border-strong: #374151;
+  --text: #f3f4f6;
+  --text-muted: #9ca3af;
+  --text-subtle: #6b7280;
+  --brand: var(--brand-400);
+  --brand-hover: var(--brand-300);
+  --brand-fg: #05102a;
+  --brand-subtle: #15233f;
+  --dot: rgba(255, 255, 255, 0.05);
+  --sheen: rgba(255, 255, 255, 0.08);
+}
+
+/* Force-light scope for phone previews: the generated PWA is light, so its
+ * mocks should not follow the builder's dark theme. Mirrors :root values. */
+.theme-light {
+  --surface: #ffffff;
+  --surface-muted: #eef1f6;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --text-subtle: #9ca3af;
+  --brand: var(--brand-950);
+  --brand-fg: #ffffff;
+  --brand-subtle: var(--brand-50);
+}
+
+/* App background applied by the shell — soft tint + subtle dot grid + a
+ * faint brand wash at the top for depth. */
+.pwa-app-bg {
+  background-color: var(--surface-muted);
+  background-image:
+    radial-gradient(circle at top left, rgba(5, 16, 42, 0.05), transparent 60%),
+    radial-gradient(var(--dot) 1px, transparent 1.5px);
+  background-size: 100% 320px, 22px 22px;
+  background-position: 0 0, -1px -1px;
+  background-repeat: no-repeat, repeat;
+}

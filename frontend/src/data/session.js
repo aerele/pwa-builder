@@ -1,4 +1,3 @@
-import router from '@/router'
 import { computed, reactive } from 'vue'
 import { createResource } from 'frappe-ui'
 
@@ -22,19 +21,21 @@ export const session = reactive({
         pwd: password,
       }
     },
-    onSuccess(data) {
-      userResource.reload()
+    onSuccess() {
       session.user = sessionUser()
       session.login.reset()
-      router.replace(data.default_route || '/')
+      // Full reload so the page re-renders with the authenticated session's
+      // CSRF token (window.csrf_token). Without this, the first POST after an
+      // in-page login fails CSRF validation ("Invalid Request").
+      window.location.href = '/pwa-builder/'
     },
   }),
   logout: createResource({
     url: 'logout',
     onSuccess() {
-      userResource.reset()
       session.user = sessionUser()
-      router.replace({ name: 'Login' })
+      // Full reload to drop all in-memory state and refresh the token.
+      window.location.href = '/pwa-builder/login'
     },
   }),
   user: sessionUser(),

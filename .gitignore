@@ -5,3 +5,5 @@
 tags
 node_modules
 __pycache__
+pwa_builder/public/frontend
+pwa_builder/www/frontend.html
