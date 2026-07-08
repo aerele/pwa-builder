@@ -8,8 +8,9 @@ from frappe import ValidationError, _, qb, scrub, throw
 from pwa_builder.rename_template_app import rename_template_app
 from frappe.model.meta import Meta
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def add_site(data, update=False):
+	frappe.has_permission("PWA-Project", ptype="create", throw=True)
 	if isinstance(data, str):
 		data = json.loads(data)
 
@@ -25,7 +26,7 @@ def add_site(data, update=False):
 			"sub_title": data.get("sub_title"),
 			"site_url": frappe.utils.get_url(),
 			"description": data.get("description"),
-		}).insert(ignore_permissions=True)
+		}).insert()
 		return "Created"
 
 	url = urlparse(data.get("site_url"))
@@ -45,14 +46,13 @@ def add_site(data, update=False):
 				"user_id": data.get("user_id"),
 				"password": data.get("password"),
 				"description": data.get("description"),
-			}).insert(ignore_permissions=True)
+			}).insert()
 
 			return "Created"
 		else:
-			doc = frappe.get_doc("PW-Project", url.scheme + "://" + url.netloc)
+			doc = frappe.get_doc("PWA-Project", data.get("name"))
 
 			doc.update({
-				"doctype": "PWA-Project",
 				"project_title": data.get("project_title"),
 				"sub_title": data.get("sub_title"),
 				"site_url": data.get("site_url"),
@@ -60,14 +60,15 @@ def add_site(data, update=False):
 				"password": data.get("password"),
 				"description": data.get("description"),
 				})
-			data.save()
+			doc.save()
 			return "Updated"
 	else:
 		return "Invalid credentials"
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def get_meta(doctype, project,with_parent=False,cached=True) -> "Meta":
 	doc = frappe.get_doc("PWA-Project", project)
+	doc.check_permission("read")
 
 	# "This Site" — read doctype metadata locally instead of proxying over REST.
 	if (doc.connection_type or "Another Site") == "This Site":
@@ -118,19 +119,18 @@ def get_cookies(url, username, password, project,  force=False):
 			frappe.cache().hset(url, project, cookies)
 	return cookies
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def set_value(doctype, docname, fieldname, value):
-
-	 frappe.set_value(doctype, docname, fieldname, json.dumps(value, indent=4))
-
-@frappe.whitelist(allow_guest=True)
-def get_doc(doctype, docname):
-	 return frappe.get_doc(doctype, docname)
+	# only screen definitions are writable through this endpoint
+	if doctype != "PWA DocType" or fieldname != "field_list":
+		frappe.throw(_("Only field_list of PWA DocType can be updated here"), frappe.PermissionError)
+	frappe.set_value(doctype, docname, fieldname, json.dumps(value, indent=4))
 
 @frappe.whitelist()
 def export_status(project_name):
 	"""Status of the queued export job plus the project's publish fields."""
 	doc = frappe.get_doc("PWA-Project", project_name)
+	doc.check_permission("read")
 	job_status = result = None
 	try:
 		from frappe.utils.background_jobs import get_job
@@ -151,8 +151,9 @@ def export_status(project_name):
 		"last_commit": doc.last_push_commit,
 	}
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def export_project(project_name):
+	frappe.has_permission("PWA-Project", ptype="write", doc=project_name, throw=True)
 	frappe.enqueue(
 		method="pwa_builder.api.schedule_export_project",
 		project_name=project_name,
@@ -215,6 +216,7 @@ def schedule_export_project(project_name):
 # validate form mandatory fields
 @frappe.whitelist()
 def validate_form_fields(project_name):
+	frappe.has_permission("PWA-Project", ptype="read", doc=project_name, throw=True)
 	result={
 		"success":True,
 		"forms_with_missing_fields":{}

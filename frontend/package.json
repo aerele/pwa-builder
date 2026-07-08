@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "vite build --base=/assets/pwa_builder/frontend/ && yarn copy-html-entry",
     "preview": "vite preview",
-    "copy-html-entry": "cp ../pwa_builder/public/frontend/index.html ../pwa_builder/www/frontend.html"
+    "copy-html-entry": "mkdir -p ../pwa_builder/www && cp ../pwa_builder/public/frontend/index.html ../pwa_builder/www/frontend.html"
   },
   "dependencies": {
     "feather-icons": "^4.28.0",

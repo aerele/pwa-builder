@@ -4,6 +4,7 @@
 import os
 import git
 import json
+import base64
 import frappe
 import requests
 import shutil
@@ -18,7 +19,6 @@ class PWAGitHubIntegration(Document):
 	pass
 
 
-frappe.whitelist()
 def push_to_github(path, repo_name, current_default_branch=None, last_push_commit=None):
 	pwa_github_integration = frappe.get_single('PWA GitHub Integration')
 	github_token = pwa_github_integration.get_password('access_token')
@@ -77,7 +77,8 @@ def push_to_github(path, repo_name, current_default_branch=None, last_push_commi
 		repo = git.Repo.init(repo_path)
 		repo.git.add(A=True)
 		repo.index.commit('Initial commit')
-		correct_url = f"https://{github_token}@github.com/{repo_full_name}.git"
+		# keep the remote url credential-free; the token must never land in .git/config
+		correct_url = f"https://github.com/{repo_full_name}.git"
 
 		try:
 			origin = repo.remote(name='origin')
@@ -97,9 +98,16 @@ def push_to_github(path, repo_name, current_default_branch=None, last_push_commi
 		repo.git.add(A=True)  # Stage all files
 		repo.index.commit(commit_msg)  # Commit changes
 
-		# Force Push
+		# Force Push, authenticating via environment so the token stays out of
+		# .git/config and the git command line
+		auth = base64.b64encode(f"x-access-token:{github_token}".encode()).decode()
 		try:
-			origin.push(refspec=f'{branch_name}:{branch_name}', force=True)
+			with repo.git.custom_environment(
+				GIT_CONFIG_COUNT="1",
+				GIT_CONFIG_KEY_0="http.https://github.com/.extraheader",
+				GIT_CONFIG_VALUE_0=f"AUTHORIZATION: basic {auth}",
+			):
+				origin.push(refspec=f'{branch_name}:{branch_name}', force=True)
 			print("Force push successful.")
 		except git.exc.GitCommandError as e:
 			frappe.log_error(frappe.get_traceback(), "Git Force Push Failed")
@@ -129,9 +137,15 @@ def push_to_github(path, repo_name, current_default_branch=None, last_push_commi
 def clone_pwa_template(project_name,repo_url="https://github.com/aerele/pwa_build.git"):
     
 	project_name = scrub(project_name)
-	public_folder = os.path.join(get_site_path("public/files/"), project_name,"pwa_build")
-	project_folder = os.path.join(get_site_path("public/files/"), project_name)
+	# clone under private files: the export workdir holds a .git dir and must
+	# not be reachable over http like public/files is
+	public_folder = os.path.join(get_site_path("private", "files"), project_name,"pwa_build")
+	project_folder = os.path.join(get_site_path("private", "files"), project_name)
 	result = {'success': False, 'error': 'An error occurred.'}
+	# clean up exports left in the web-served public dir by older versions
+	legacy_folder = os.path.join(get_site_path("public", "files"), project_name)
+	if os.path.exists(legacy_folder):
+		shutil.rmtree(legacy_folder)
 	# If the directory exists and is not empty, remove it
 	if os.path.exists(project_folder) and os.listdir(project_folder):
 		shutil.rmtree(project_folder)
@@ -156,6 +170,13 @@ def clone_pwa_template(project_name,repo_url="https://github.com/aerele/pwa_buil
 		result['error'] = f"{e}"
 	return result
 
+def next_version(label):
+	# "version-3" -> "version-4"; anything unparsable restarts at version-1
+	try:
+		return f"version-{int(str(label).split('-')[-1]) + 1}"
+	except ValueError:
+		return "version-1"
+
 def get_branch_name(get_exports_on,current_default_branch):
 	branch_name=current_default_branch
 	if get_exports_on == "New Commit":
@@ -165,7 +186,7 @@ def get_branch_name(get_exports_on,current_default_branch):
 		if not current_default_branch:
 			branch_name = "version-1"
 		else:
-			branch_name = f'''version-{eval(branch_name.split("-")[-1])+1}'''
+			branch_name = next_version(branch_name)
 	return branch_name
 
 def get_commit_message(get_exports_on,last_push_commit):
@@ -174,7 +195,7 @@ def get_commit_message(get_exports_on,last_push_commit):
 		if not last_push_commit:
 			commit_msg = "version-1"
 		else:
-			commit_msg = f'''version-{eval(commit_msg.split("-")[-1])+1}'''
+			commit_msg = next_version(commit_msg)
 	elif get_exports_on == "New Branch":
 		if not last_push_commit:
 			commit_msg = "version-1"
