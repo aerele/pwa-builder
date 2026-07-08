@@ -1,168 +1,110 @@
 <template>
-    <div class="min-h-screen bg-[#f4f5f7] flex justify-center items-center">
-      <div class="w-full max-w-lg sm:w-96 bg-white rounded-lg p-6 shadow-md">
-        <div class="w-full flex justify-center mb-4">
-          <img :src="imageSrc" class="w-16 h-16 object-cover rounded-lg" />
-        </div>
-        <div class="text-center mb-4">
-          <p class="font-medium text-xl">Forget Password</p>
-        </div>
-        <div>
-          <FormControl
-            required
-            type="text"
-            label="Email"
-            name="email"
-            v-model="email"
-            placeholder="johndoe@email.com"
-            class="mb-4"
-          >
-            <template #prefix>
-              <FeatherIcon class="w-4" name="mail" />
-            </template>
-          </FormControl>
-          <div v-if="formSubmitted && !emailValid" class="text-red-500 text-xs mb-4">
-            Enter email!
-          </div>
-          <div>
-            <Button
-              :loading="loading"
-              variant="solid"
-              class="w-full mb-4"
-              @click="resetPassword"
-            >
-              Reset Password
-            </Button>
-          </div>
-          <div class="text-center">
-            <router-link
-              to="/"
-              class="text-sm font-medium text-black hover:underline"
-            >
-              Back to Login
-            </router-link>
-          </div>
-        </div>
-      </div>
-      <div class="fixed bottom-0 w-full max-w-lg sm:w-96 p-3">
-        <transition name="fade">
-          <div
-            v-if="responsemessage"
-            class="w-full p-2 text-sm leading-5 text-white bg-blue-500 rounded-lg opacity-100 animate-slide-in-right animate-fade-out"
-          >
-            {{ responsemessage }}
-          </div>
-        </transition>
-      </div>
-    </div>
-  </template>
-  
-  <script setup>
-  import { ref, computed } from 'vue'
-  import { FormControl, Button, FeatherIcon } from 'frappe-ui'
-  
-  const imageSrc = ref('')
-  const email = ref('')
-  const responsemessage = ref('')
-  const formSubmitted = ref(false)
-  const loading = ref(false)
-  const emailValid = computed(() => !!email.value)
-  
-  const currentURL = ref(window.location.href)
-  const baseURL = computed(() => {
-    const url = new URL(currentURL.value)
-    return `${url.protocol}//${url.hostname}`
-  })
-  baseURL.value = baseURL.value + ':8003/assets'
-  const modifiedLogoURL = ref(`${baseURL.value}:8003/assets`)
-  const modifiedForgetPasswordURL = ref(`${baseURL.value}:8003/`)
-  
-  const fetchLogo = () => {
-    const myHeaders = new Headers()
-    myHeaders.append(
-      'Cookie',
-      'full_name=Guest; sid=Guest; system_user=no; user_id=Guest; user_image='
-    )
-  
-    const requestOptions = {
-      method: 'GET',
-      headers: myHeaders,
-      redirect: 'follow',
-    }
-  
-    fetch(modifiedLogoURL.value, requestOptions)
-      .then((response) => response.text())
-      .then((result) => {
-        const parser = new DOMParser()
-        const doc = parser.parseFromString(result, 'text/html')
-        const link = doc.querySelector('link[rel="shortcut icon"]')
-        if (link) {
-          imageSrc.value = link.href
-        }
-      })
-      .catch((error) => console.error(error))
-  }
-  
-  const resetPassword = () => {
-    formSubmitted.value = true
-    if (!emailValid.value) return
-  
-    loading.value = true // Set loading to true
-    const Header = new Headers()
-    Header.append('Content-Type', 'application/json')
-  
-    const raw = JSON.stringify({
-      cmd: 'frappe.core.doctype.user.user.reset_password',
-      user: email.value,
+  <AuthLayout
+    title="Reset your password"
+    subtitle="We'll email you instructions to reset it."
+  >
+    <form @submit.prevent="resetPassword" class="space-y-4">
+      <FormControl
+        required
+        type="text"
+        label="Email"
+        v-model="email"
+        placeholder="johndoe@email.com"
+      >
+        <template #prefix><FeatherIcon class="w-4" name="mail" /></template>
+      </FormControl>
+      <p v-if="formSubmitted && !emailValid" class="auth-error">Enter your email</p>
+
+      <p v-if="message" class="auth-alert" :class="`auth-alert--${messageType}`">{{ message }}</p>
+
+      <button type="submit" class="btn-primary" :disabled="loading">
+        {{ loading ? 'Sending…' : 'Reset Password' }}
+      </button>
+    </form>
+
+    <template #footer>
+      <router-link to="/login" class="auth-link">Back to login</router-link>
+    </template>
+  </AuthLayout>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue'
+import { FormControl, FeatherIcon, createResource } from 'frappe-ui'
+import AuthLayout from '@/components/AuthLayout.vue'
+
+const email = ref('')
+const message = ref('')
+const messageType = ref('ok')
+const formSubmitted = ref(false)
+const loading = ref(false)
+
+const emailValid = computed(() => !!email.value)
+
+// Same-origin call — the whitelisted (guest) reset endpoint on this site.
+const reset = createResource({ url: 'frappe.core.doctype.user.user.reset_password' })
+
+function resetPassword() {
+  formSubmitted.value = true
+  message.value = ''
+  if (!emailValid.value) return
+
+  loading.value = true
+  reset
+    .submit({ user: email.value })
+    .then(() => {
+      messageType.value = 'ok'
+      message.value = 'Password reset instructions have been sent to your email.'
     })
-  
-    const request = {
-      method: 'POST',
-      headers: Header,
-      body: raw,
-      redirect: 'follow',
-    }
-  
-    fetch(modifiedForgetPasswordURL.value, request)
-      .then((response) => {
-        response.text().then((result) => {
-          loading.value = false
-          if (response.status === 200) {
-            responsemessage.value = `Password reset instructions have been sent to your email`
-          } else if (response.status === 404) {
-            responsemessage.value = `User Mail Not Found`
-          } else if (response.status === 501) {
-            responsemessage.value =
-              'Please setup default Email Account from Settings > Email Account'
-          } else {
-            responsemessage.value =
-              'You hit the rate limit because of too many requests. Please try after sometime.'
-          }
-          setTimeout(() => {
-            responsemessage.value = ''
-          }, 1000)
-        })
-      })
-      .catch((error) => {
-        loading.value = false
-        console.error(error)
-      })
-  }
-  
-  fetchLogo()
-  </script>
-  
-  <style scoped>
-  @media (min-width: 640px) {
-    .sm\:w-96 {
-      width: 24rem;
-    }
-  }
-  
-  @media (max-width: 640px) {
-    .sm\:w-96 {
-      width: 100%;
-    }
-  }
-  </style>
-  
+    .catch((error) => {
+      messageType.value = 'error'
+      const status = error?.response?.status
+      if (status === 404) message.value = 'No user found with that email.'
+      else if (status === 501) message.value = 'Email is not configured on this site yet.'
+      else message.value = 'Too many requests. Please try again later.'
+    })
+    .finally(() => {
+      loading.value = false
+    })
+}
+</script>
+
+<style scoped>
+.auth-link {
+  color: var(--brand);
+  font-weight: 500;
+}
+.auth-link:hover { text-decoration: underline; }
+.btn-primary {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--brand-fg);
+  background: var(--brand);
+  border-radius: var(--radius-control);
+}
+.btn-primary:hover:not(:disabled) { background: var(--brand-hover); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.auth-error {
+  margin-top: -8px;
+  font-size: 12px;
+  color: var(--danger);
+}
+.auth-alert {
+  padding: 8px 12px;
+  border-radius: var(--radius-control);
+  font-size: 13px;
+}
+.auth-alert--error {
+  color: var(--danger);
+  background: rgba(220, 38, 38, 0.08);
+}
+.auth-alert--ok {
+  color: var(--ok);
+  background: rgba(22, 163, 74, 0.08);
+}
+</style>

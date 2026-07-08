@@ -1,227 +1,162 @@
 <template>
-    <div class="min-h-screen bg-[#f4f5f7] flex justify-center items-center">
-      <div class="w-full max-w-lg sm:w-96 bg-white rounded-lg p-6 shadow-md">
-        <div class="w-full flex justify-center mb-4">
-          <img :src="imageSrc" class="w-16 h-16 object-cover rounded-lg" />
-        </div>
-        <div class="text-center mb-4">
-          <p class="font-medium text-xl">Sign Up</p>
-        </div>
-        <div>
-          <FormControl
-            required
-            type="text"
-            label="Username"
-            name="username"
-            v-model="username"
-            placeholder="johndoe"
-            class="mb-4"
-          >
-            <template #prefix>
-              <FeatherIcon class="w-4" name="user" />
-            </template>
-          </FormControl>
-          <FormControl
-            required
-            type="email"
-            label="Email"
-            name="email"
-            v-model="email"
-            placeholder="johndoe@email.com"
-            class="mb-4"
-          >
-            <template #prefix>
-              <FeatherIcon class="w-4" name="mail" />
-            </template>
-          </FormControl>
-          <div class="relative mb-4">
-            <FormControl
-              required
-              label="Password"
-              name="password"
-              v-model="password"
-              :type="passwordFieldType"
-              placeholder="••••••"
-              class="w-full"
-            >
-              <template #prefix>
-                <FeatherIcon class="w-4" name="lock" />
-              </template>
-            </FormControl>
-            <span
-              @click="togglePasswordVisibility"
-              class="absolute right-2 top-5 cursor-pointer text-gray-600 text-sm p-2"
-            >
-              {{ passwordToggleText }}
-            </span>
-          </div>
-          <div class="relative mb-4">
-            <FormControl
-              required
-              label="Confirm Password"
-              name="confirmPassword"
-              v-model="confirmPassword"
-              :type="confirmPasswordFieldType"
-              placeholder="••••••"
-              class="w-full"
-            >
-              <template #prefix>
-                <FeatherIcon class="w-4" name="lock" />
-              </template>
-            </FormControl>
-            <span
-              @click="toggleConfirmPasswordVisibility"
-              class="absolute right-2 top-5 cursor-pointer text-gray-600 text-sm p-2"
-            >
-              {{ confirmPasswordToggleText }}
-            </span>
-          </div>
-          <div v-if="formSubmitted && !emailValid" class="text-red-500 text-xs mb-4">
-            Enter a valid email!
-          </div>
-          <div v-if="formSubmitted && !passwordsMatch" class="text-red-500 text-xs mb-4">
-            Passwords do not match!
-          </div>
-          <div>
-            <Button
-              :loading="loading"
-              variant="solid"
-              class="w-full mb-4"
-              @click="signUp"
-            >
-              Sign Up
-            </Button>
-          </div>
-          <div class="text-center">
-            <router-link
-              to="/login"
-              class="text-sm font-medium text-black hover:underline"
-            >
-              Back to Login
-            </router-link>
-          </div>
-        </div>
+  <AuthLayout title="Create your account" subtitle="Start building PWAs in minutes.">
+    <form @submit.prevent="signUp" class="space-y-4">
+      <FormControl
+        required
+        type="text"
+        label="Username"
+        v-model="username"
+        placeholder="johndoe"
+      >
+        <template #prefix><FeatherIcon class="w-4" name="user" /></template>
+      </FormControl>
+
+      <FormControl
+        required
+        type="email"
+        label="Email"
+        v-model="email"
+        placeholder="johndoe@email.com"
+      >
+        <template #prefix><FeatherIcon class="w-4" name="mail" /></template>
+      </FormControl>
+
+      <div class="relative">
+        <FormControl
+          required
+          label="Password"
+          v-model="password"
+          :type="showPassword ? 'text' : 'password'"
+          placeholder="••••••"
+        >
+          <template #prefix><FeatherIcon class="w-4" name="lock" /></template>
+        </FormControl>
+        <button type="button" @click="showPassword = !showPassword" class="pw-toggle">
+          {{ showPassword ? 'Hide' : 'Show' }}
+        </button>
       </div>
-      <div class="fixed bottom-0 w-full max-w-lg sm:w-96 p-3">
-        <transition name="fade">
-          <div
-            v-if="responseMessage"
-            class="w-full p-2 text-sm leading-5 text-white bg-blue-500 rounded-lg opacity-100 animate-slide-in-right animate-fade-out"
-          >
-            {{ responseMessage }}
-          </div>
-        </transition>
+
+      <div class="relative">
+        <FormControl
+          required
+          label="Confirm Password"
+          v-model="confirmPassword"
+          :type="showConfirm ? 'text' : 'password'"
+          placeholder="••••••"
+        >
+          <template #prefix><FeatherIcon class="w-4" name="lock" /></template>
+        </FormControl>
+        <button type="button" @click="showConfirm = !showConfirm" class="pw-toggle">
+          {{ showConfirm ? 'Hide' : 'Show' }}
+        </button>
       </div>
-    </div>
-  </template>
-  
-  <script setup>
-  import { ref, computed } from 'vue'
-  import { FormControl, Button, FeatherIcon, createListResource } from 'frappe-ui'
-  
-  const imageSrc = ref('')
-  const username = ref('')
-  const email = ref('')
-  const password = ref('')
-  const confirmPassword = ref('')
-  const responseMessage = ref('')
-  const formSubmitted = ref(false)
-  const loading = ref(false)
-  
-  const showPassword = ref(false)
-  const showConfirmPassword = ref(false)
-  
-  const emailValid = computed(() => /\S+@\S+\.\S+/.test(email.value))
-  const passwordsMatch = computed(() => password.value === confirmPassword.value)
-  
-  const passwordFieldType = computed(() => showPassword.value ? 'text' : 'password')
-  const confirmPasswordFieldType = computed(() => showConfirmPassword.value ? 'text' : 'password')
-  const passwordToggleText = computed(() => showPassword.value ? 'Hide' : 'Show')
-  const confirmPasswordToggleText = computed(() => showConfirmPassword.value ? 'Hide' : 'Show')
-  
-  const togglePasswordVisibility = () => {
-    showPassword.value = !showPassword.value
-  }
-  
-  const toggleConfirmPasswordVisibility = () => {
-    showConfirmPassword.value = !showConfirmPassword.value
-  }
-  
-  const currentURL = ref(window.location.href)
-  const baseURL = computed(() => {
-    const url = new URL(currentURL.value)
-    return `${url.protocol}//${url.hostname}:8003`
-  })
-  const modifiedLogoURL = ref(`${baseURL.value}/assets`)
-  
-  const fetchLogo = () => {
-    const myHeaders = new Headers()
-    myHeaders.append('Cookie', 'full_name=Guest; sid=Guest; system_user=no; user_id=Guest; user_image=')
-  
-    const requestOptions = {
-      method: 'GET',
-      headers: myHeaders,
-      redirect: 'follow',
-    }
-  
-    fetch(modifiedLogoURL.value, requestOptions)
-      .then((response) => response.text())
-      .then((result) => {
-        const parser = new DOMParser()
-        const doc = parser.parseFromString(result, 'text/html')
-        const link = doc.querySelector('link[rel="shortcut icon"]')
-        if (link) {
-          imageSrc.value = link.href
-        }
-      })
-      .catch((error) => console.error(error))
-  }
-  
-  const signUp = () => {
-    loading.value = true
-    formSubmitted.value = true
-  
-    const NewUser = createListResource({
-      doctype: 'User',
+
+      <p v-if="formSubmitted && !emailValid" class="auth-error">Enter a valid email</p>
+      <p v-if="formSubmitted && !passwordsMatch" class="auth-error">Passwords do not match</p>
+
+      <p v-if="message" class="auth-alert" :class="`auth-alert--${messageType}`">{{ message }}</p>
+
+      <button type="submit" class="btn-primary" :disabled="loading">
+        {{ loading ? 'Creating…' : 'Sign Up' }}
+      </button>
+    </form>
+
+    <template #footer>
+      Already have an account?
+      <router-link to="/login" class="auth-link">Back to login</router-link>
+    </template>
+  </AuthLayout>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue'
+import { FormControl, FeatherIcon, createListResource } from 'frappe-ui'
+import AuthLayout from '@/components/AuthLayout.vue'
+
+const username = ref('')
+const email = ref('')
+const password = ref('')
+const confirmPassword = ref('')
+const message = ref('')
+const messageType = ref('error')
+const formSubmitted = ref(false)
+const loading = ref(false)
+const showPassword = ref(false)
+const showConfirm = ref(false)
+
+const emailValid = computed(() => /\S+@\S+\.\S+/.test(email.value))
+const passwordsMatch = computed(() => password.value === confirmPassword.value)
+
+function signUp() {
+  formSubmitted.value = true
+  message.value = ''
+  if (!emailValid.value || !passwordsMatch.value) return
+
+  loading.value = true
+  const users = createListResource({ doctype: 'User' })
+  users.insert
+    .submit({ email: email.value, first_name: username.value, new_password: password.value })
+    .then(() => {
+      messageType.value = 'ok'
+      message.value = 'Account created. You can now log in.'
     })
-  
-    NewUser.insert
-      .submit({
-        email: email.value,
-        first_name: username.value,
-        new_password: password.value,
-      })
-      .then(() => {
-        responseMessage.value = 'User Created successfully'
-        loading.value = false
-      })
-      .catch((error) => {
-        if (error.response && error.response.status === 417) {
-          responseMessage.value = 'Password is too weak'
-        } else if (error.response && error.response.status === 409) {
-          responseMessage.value = 'Email already exists'
-        } else {
-          console.error('Error creating user:', error)
-          responseMessage.value = 'Error creating User'
-        }
-        loading.value = false
-      })
-  }
-  
-  fetchLogo()
-  </script>
-  
-  <style scoped>
-  @media (min-width: 640px) {
-    .sm\:w-96 {
-      width: 24rem;
-    }
-  }
-  
-  @media (max-width: 640px) {
-    .sm\:w-96 {
-      width: 100%;
-    }
-  }
-  </style>
-  
+    .catch((error) => {
+      messageType.value = 'error'
+      const status = error?.response?.status
+      if (status === 417) message.value = 'Password is too weak'
+      else if (status === 409) message.value = 'Email already exists'
+      else message.value = 'Could not create the account'
+    })
+    .finally(() => {
+      loading.value = false
+    })
+}
+</script>
+
+<style scoped>
+.pw-toggle {
+  position: absolute;
+  right: 8px;
+  top: 30px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.btn-primary {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--brand-fg);
+  background: var(--brand);
+  border-radius: var(--radius-control);
+}
+.btn-primary:hover:not(:disabled) { background: var(--brand-hover); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.auth-link {
+  color: var(--brand);
+  font-weight: 500;
+}
+.auth-link:hover { text-decoration: underline; }
+.auth-error {
+  margin-top: -8px;
+  font-size: 12px;
+  color: var(--danger);
+}
+.auth-alert {
+  padding: 8px 12px;
+  border-radius: var(--radius-control);
+  font-size: 13px;
+}
+.auth-alert--error {
+  color: var(--danger);
+  background: rgba(220, 38, 38, 0.08);
+}
+.auth-alert--ok {
+  color: var(--ok);
+  background: rgba(22, 163, 74, 0.08);
+}
+</style>
