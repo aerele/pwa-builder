@@ -172,12 +172,13 @@ def schedule_export_project(project_name):
 		if pwa_doctype := frappe.get_list("PWA DocType", {"project_name": project_doc.name}):
 			for doctype in pwa_doctype:
 				doc = frappe.get_doc("PWA DocType", doctype.name)
-				json_data = doc.field_list
+				json_data = with_nav_order(doc)
 				file_name = doc.title + ".json"
 				path = file_path+"/pwa_build/pwa_build/pwa_form/"+file_name.lower()
 				os.makedirs(os.path.dirname(path), exist_ok=True)
 				with open(path, 'w') as json_file:
 					json_file.write(json_data)
+			brand_template(file_path, project_doc)
 			# rename the app
 			if renaming_result := rename_template_app(
 				app_path=file_path,
@@ -210,6 +211,45 @@ def schedule_export_project(project_name):
 	else:
 		frappe.log_error(message=_(git_clone_response), title= _("Failed to clone repository"))
 		return {"success":False, "error": git_clone_response.get('error')}
+
+
+def with_nav_order(doc):
+	"""Return the screen's field_list JSON with its nav_order stamped in,
+	so the generated app can render screens in the designed flow order."""
+	try:
+		data = json.loads(doc.field_list or "{}")
+	except ValueError:
+		return doc.field_list
+	data["nav_order"] = doc.nav_order or 0
+	return json.dumps(data, indent=4)
+
+
+def brand_template(file_path, project_doc):
+	"""Stamp the project's name and colors into the cloned template's
+	web app manifest and page title before the app is renamed."""
+	import html
+
+	title = project_doc.project_title
+	manifest_path = os.path.join(file_path, "pwa_build", "public", "pwa", "manifest.webmanifest")
+	if os.path.exists(manifest_path):
+		with open(manifest_path) as manifest_file:
+			manifest = json.load(manifest_file)
+		manifest["name"] = title
+		manifest["short_name"] = title
+		if project_doc.get("theme_color"):
+			manifest["theme_color"] = project_doc.theme_color
+		if project_doc.get("background_color"):
+			manifest["background_color"] = project_doc.background_color
+		with open(manifest_path, "w") as manifest_file:
+			json.dump(manifest, manifest_file, indent=4)
+
+	page_path = os.path.join(file_path, "pwa_build", "www", "pwa.html")
+	if os.path.exists(page_path):
+		with open(page_path) as page_file:
+			page = page_file.read()
+		page = page.replace("<title>Frappe UI App</title>", f"<title>{html.escape(title)}</title>")
+		with open(page_path, "w") as page_file:
+			page_file.write(page)
 
 
 # validate form mandatory fields

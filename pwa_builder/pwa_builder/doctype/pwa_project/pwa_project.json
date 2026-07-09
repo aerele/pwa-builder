@@ -12,6 +12,8 @@
   "user_id",
   "password",
   "project_logo",
+  "theme_color",
+  "background_color",
   "description",
   "column_break_kckg",
   "github_repository_url",
@@ -82,12 +84,24 @@
    "fieldname": "last_push_commit",
    "fieldtype": "Data",
    "label": "Last Push Commit"
+  },
+  {
+   "description": "PWA manifest theme color (address bar / splash accent).",
+   "fieldname": "theme_color",
+   "fieldtype": "Color",
+   "label": "Theme Color"
+  },
+  {
+   "description": "PWA manifest background color (splash screen).",
+   "fieldname": "background_color",
+   "fieldtype": "Color",
+   "label": "Background Color"
   }
  ],
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-03 19:13:24.723527",
+ "modified": "2026-07-09 13:10:00.000000",
  "modified_by": "Administrator",
  "module": "PWA Builder",
  "name": "PWA-Project",
