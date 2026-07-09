@@ -1,0 +1,99 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"pwab_head\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>PWA Builder</b></span>\",\"col\":12}},{\"id\":\"pwab_open\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Open Builder\",\"col\":3}},{\"id\":\"pwab_proj\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Projects\",\"col\":3}},{\"id\":\"pwab_scr\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Screens\",\"col\":3}},{\"id\":\"pwab_gh\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"GitHub Integration\",\"col\":3}},{\"id\":\"pwab_spacer\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"pwab_masters_head\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Masters</b></span>\",\"col\":12}},{\"id\":\"pwab_card\",\"type\":\"card\",\"data\":{\"card_name\":\"PWA Builder\",\"col\":4}}]",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "website",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "PWA Builder",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "PWA Builder",
+   "link_count": 3,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "PWA Project",
+   "link_count": 0,
+   "link_to": "PWA-Project",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "PWA Screen",
+   "link_count": 0,
+   "link_to": "PWA DocType",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "PWA Github Integration",
+   "link_count": 0,
+   "link_to": "PWA Github Integration",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-07-09 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "PWA Builder",
+ "name": "PWA Builder",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "restrict_to_domain": "",
+ "roles": [],
+ "sequence_id": 99.0,
+ "shortcuts": [
+  {
+   "color": "Blue",
+   "doc_view": "List",
+   "label": "Open Builder",
+   "type": "URL",
+   "url": "/pwa-builder"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Projects",
+   "link_to": "PWA-Project",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Screens",
+   "link_to": "PWA DocType",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "GitHub Integration",
+   "link_to": "PWA Github Integration",
+   "type": "DocType"
+  }
+ ],
+ "title": "PWA Builder"
+}
