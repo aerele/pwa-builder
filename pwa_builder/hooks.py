@@ -6,6 +6,19 @@ app_email = "hello@aerele.in"
 app_license = "mit"
 # required_apps = []
 
+# Desk / Apps switcher logo (white corners trimmed → transparent PNG)
+app_logo_url = "/assets/pwa_builder/images/pwa-builder-logo.png"
+app_home = "/pwa-builder"
+
+add_to_apps_screen = [
+	{
+		"name": "pwa_builder",
+		"logo": "/assets/pwa_builder/images/pwa-builder-logo.png",
+		"title": "PWA Builder",
+		"route": "/pwa-builder",
+	}
+]
+
 # Includes in <head>
 # ------------------
 

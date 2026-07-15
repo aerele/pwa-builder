@@ -1,0 +1,22 @@
+{
+ "app": "pwa_builder",
+ "bg_color": "gray",
+ "creation": "2026-07-14 21:21:26.630883",
+ "docstatus": 0,
+ "doctype": "Desktop Icon",
+ "hidden": 0,
+ "icon": "website",
+ "icon_type": "Link",
+ "idx": 0,
+ "label": "PWA Builder",
+ "link_to": "PWA Builder",
+ "link_type": "Workspace Sidebar",
+ "logo_url": "/assets/pwa_builder/images/pwa-builder-logo.png",
+ "modified": "2026-07-15 08:20:29.820536",
+ "modified_by": "Administrator",
+ "name": "PWA Builder",
+ "owner": "Administrator",
+ "restrict_removal": 0,
+ "roles": [],
+ "standard": 1
+}
