@@ -37,7 +37,7 @@
             <div class="card__sub">{{ s.doctype_name }} · {{ fieldsOf(s).length }} fields</div>
           </div>
           <span v-if="s.is_validated" class="tag tag--ok">Validated</span>
-          <button class="card__act card__act--danger" title="Delete screen" @click.stop="removeScreen(s)">
+          <button class="card__act card__act--danger" title="Delete screen" @click.stop="askDelete(s)">
             <FeatherIcon name="trash-2" class="w-4 h-4" />
           </button>
         </div>
@@ -68,10 +68,12 @@
           <template v-if="kind === 'form'">
             <label class="nw__group">
               <span class="nw__label">Doctype</span>
-              <input v-model="newDoctype" list="scr-doctypes" class="nw__in" placeholder="e.g. Task" />
-              <datalist id="scr-doctypes">
-                <option v-for="d in (doctypes.data || [])" :key="d.name" :value="d.name" />
-              </datalist>
+              <LinkField
+                v-model="newDoctype"
+                doctype="DocType"
+                :filters="doctypeFilters"
+                placeholder="Search DocType (e.g. Task)"
+              />
             </label>
             <label class="nw__group">
               <span class="nw__label">Screen title</span>
@@ -105,14 +107,32 @@
         </div>
       </template>
     </Dialog>
+
+    <!-- Delete confirmation — frappe-ui Dialog (not browser confirm) -->
+    <Dialog v-model="showDelete" :options="deleteDialogOptions">
+      <template #actions="{ close }">
+        <div class="del-actions">
+          <Button variant="subtle" @click="close">Cancel</Button>
+          <Button
+            variant="solid"
+            theme="red"
+            :loading="deleting"
+            @click="confirmDelete(close)"
+          >
+            Delete
+          </Button>
+        </div>
+      </template>
+    </Dialog>
   </section>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { Dialog, FeatherIcon, createListResource, createResource } from 'frappe-ui'
+import { Button, Dialog, FeatherIcon, createListResource, createResource } from 'frappe-ui'
 import PhoneFrame from '@/components/PhoneFrame.vue'
+import LinkField from '@/components/LinkField.vue'
 import PreviewField from '@/pages/builder/components/PreviewField.vue'
 import { SCREEN_TEMPLATES, applyScreenTemplate } from '@/pages/builder/composables/screenTemplates'
 
@@ -126,6 +146,20 @@ const newDoctype = ref('')
 const newTitle = ref('')
 const template = ref('essentials')
 const creating = ref(false)
+const doctypeFilters = { istable: 0, issingle: 0 }
+
+const showDelete = ref(false)
+const deleting = ref(false)
+const pendingDelete = ref(null) // PWA DocType row
+
+const deleteDialogOptions = computed(() => ({
+  title: 'Delete screen',
+  size: 'sm',
+  icon: { name: 'trash-2', appearance: 'danger' },
+  message: pendingDelete.value
+    ? `Delete “${pendingDelete.value.title}”? This cannot be undone.`
+    : 'Delete this screen? This cannot be undone.',
+}))
 
 const rows = createListResource({
   doctype: 'PWA DocType',
@@ -137,15 +171,6 @@ const rows = createListResource({
 })
 const list = computed(() => rows.data || [])
 const hasDashboard = computed(() => list.value.some((s) => s.title === 'Dashboard'))
-
-const doctypes = createListResource({
-  doctype: 'DocType',
-  fields: ['name'],
-  filters: { istable: 0, issingle: 0 },
-  orderBy: 'name asc',
-  pageLength: 0,
-  auto: true,
-})
 
 function fieldsOf(s) {
   try {
@@ -200,13 +225,28 @@ async function createScreen() {
   }
 }
 
-async function removeScreen(s) {
-  if (!confirm(`Delete the screen "${s.title}"? This cannot be undone.`)) return
+function askDelete(s) {
+  pendingDelete.value = s
+  showDelete.value = true
+}
+
+async function confirmDelete(close) {
+  if (!pendingDelete.value || deleting.value) return
+  deleting.value = true
+  error.value = ''
   try {
-    await createResource({ url: 'frappe.client.delete' }).submit({ doctype: 'PWA DocType', name: s.name })
+    await createResource({ url: 'frappe.client.delete' }).submit({
+      doctype: 'PWA DocType',
+      name: pendingDelete.value.name,
+    })
+    pendingDelete.value = null
+    close()
     rows.reload()
   } catch (e) {
     error.value = (e && e.messages && e.messages[0]) || 'Could not delete the screen.'
+    close()
+  } finally {
+    deleting.value = false
   }
 }
 </script>
@@ -227,7 +267,18 @@ async function removeScreen(s) {
 .card__mini { display: flex; flex-direction: column; height: 100%; background: var(--surface); pointer-events: none; }
 .card__mini-bar { padding: 26px 12px 10px; font-size: 13px; font-weight: 600; color: #fff; background: var(--brand); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .card__mini-body { flex: 1; overflow: hidden; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
-.card__mini-empty { margin: auto; font-size: 13px; color: var(--text-subtle); }
+.card__mini-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 16px;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+  color: var(--text-subtle);
+}
 
 .card__foot { display: flex; align-items: center; gap: 8px; padding: 12px 14px; }
 .card__main { flex: 1; min-width: 0; }
@@ -264,4 +315,10 @@ async function removeScreen(s) {
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 .spin { animation: sp 0.8s linear infinite; }
 @keyframes sp { to { transform: rotate(360deg); } }
+
+.del-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
 </style>

@@ -9,16 +9,14 @@
 
     <!-- Add row -->
     <div class="add">
-      <input
-        v-model="newDoctype"
-        list="local-doctypes"
-        class="add__in add__in--dt"
-        placeholder="Doctype (e.g. Task)"
-        @keyup.enter="addDoctype"
-      />
-      <datalist id="local-doctypes">
-        <option v-for="d in (doctypes.data || [])" :key="d.name" :value="d.name" />
-      </datalist>
+      <div class="add__link">
+        <LinkField
+          v-model="newDoctype"
+          doctype="DocType"
+          :filters="doctypeFilters"
+          placeholder="Search DocType (e.g. Task)"
+        />
+      </div>
       <input
         v-model="newTitle"
         class="add__in"
@@ -65,6 +63,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { FeatherIcon, createResource, createListResource } from 'frappe-ui'
+import LinkField from '@/components/LinkField.vue'
 
 const props = defineProps({ projectId: { type: String, required: true } })
 
@@ -72,6 +71,9 @@ const newDoctype = ref('')
 const newTitle = ref('')
 const adding = ref(false)
 const error = ref('')
+
+/** Same filters as before: skip child tables and singles. */
+const doctypeFilters = { istable: 0, issingle: 0 }
 
 const rows = createListResource({
   doctype: 'PWA DocType',
@@ -81,16 +83,6 @@ const rows = createListResource({
   auto: true,
 })
 const list = computed(() => rows.data || [])
-
-// Local doctype suggestions (best effort; useful for "This site" projects).
-const doctypes = createListResource({
-  doctype: 'DocType',
-  fields: ['name'],
-  filters: { istable: 0, issingle: 0 },
-  orderBy: 'name asc',
-  pageLength: 0,
-  auto: true,
-})
 
 const insert = createResource({ url: 'frappe.client.insert' })
 const del = createResource({ url: 'frappe.client.delete' })
@@ -135,9 +127,9 @@ async function removeDoctype(name) {
 .data__title { font-size: 22px; font-weight: 650; color: var(--text); }
 .data__sub { margin-top: 4px; font-size: 13.5px; color: var(--text-muted); }
 
-.add { display: flex; gap: 10px; margin-bottom: 8px; }
+.add { display: flex; gap: 10px; margin-bottom: 8px; align-items: center; }
+.add__link { flex: 1.2; min-width: 0; }
 .add__in { flex: 1; padding: 9px 11px; font-size: 13px; color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-control); outline: none; transition: border-color 0.12s, box-shadow 0.12s; }
-.add__in--dt { flex: 1.2; }
 .add__in:focus { border-color: var(--brand-500); box-shadow: 0 0 0 3px var(--brand-ring); }
 .err { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--danger); margin-bottom: 10px; }
 

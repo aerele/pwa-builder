@@ -125,7 +125,14 @@ function applyJson() {
 </script>
 
 <style scoped>
-.ins { height: 100%; overflow-y: auto; }
+.ins {
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
 .ins__empty { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 44px 20px; color: var(--text-subtle); font-size: 12.5px; text-align: center; }
 
 .ins__body { display: flex; flex-direction: column; gap: 14px; padding: 14px; }

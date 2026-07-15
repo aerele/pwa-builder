@@ -322,14 +322,38 @@ onBeforeRouteLeave((to) => {
 
 .bld__err { display: flex; align-items: center; gap: 6px; padding: 8px 14px; font-size: 12.5px; color: var(--danger); background: rgba(220, 38, 38, 0.06); border-bottom: 1px solid rgba(220, 38, 38, 0.15); }
 
-.bld__panes { flex: 1; min-height: 0; display: grid; grid-template-columns: 280px minmax(0, 1fr) minmax(300px, 380px); }
-.bld__left { display: flex; flex-direction: column; min-height: 0; background: var(--surface); border-right: 1px solid var(--border); }
-.bld__tabs { display: flex; gap: 4px; padding: 10px 12px 0; border-bottom: 1px solid var(--border); }
+.bld__panes { flex: 1; min-height: 0; display: grid; grid-template-columns: 280px minmax(0, 1fr) minmax(300px, 380px); overflow: hidden; }
+.bld__left {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+}
+/* Palette / Inspector fill remaining height under the tabs */
+.bld__left > :not(.bld__tabs) {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+.bld__tabs { display: flex; gap: 4px; padding: 10px 12px 0; border-bottom: 1px solid var(--border); flex: none; }
 .bld__tab { padding: 7px 12px; font-size: 12.5px; font-weight: 550; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
 .bld__tab--on { color: var(--text); border-bottom-color: var(--brand); }
 .bld__tab:disabled { opacity: 0.4; cursor: not-allowed; }
-.bld__mid { min-height: 0; }
-.bld__right { min-height: 0; border-left: 1px solid var(--border); padding: 12px; }
+.bld__mid { min-height: 0; overflow: hidden; }
+.bld__right {
+  min-height: 0;
+  min-width: 0;
+  border-left: 1px solid var(--border);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface-muted);
+}
 
 .bld__val { display: flex; flex-direction: column; gap: 10px; }
 .bld__val-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13.5px; color: var(--text); }

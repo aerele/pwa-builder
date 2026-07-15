@@ -83,5 +83,23 @@ defineEmits(['select', 'remove', 'add', 'changed'])
 .cv__del { color: var(--text-subtle); padding: 4px; border-radius: 6px; flex: none; }
 .cv__del:hover { color: var(--danger); background: rgba(220, 38, 38, 0.08); }
 
-.cv__empty { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 56px 20px; color: var(--text-subtle); font-size: 13px; text-align: center; border: 1.5px dashed var(--border-strong); border-radius: var(--radius-card); }
+.cv__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 220px;
+  padding: 56px 20px;
+  color: var(--text-subtle);
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+  border: 1.5px dashed var(--border-strong);
+  border-radius: var(--radius-card);
+}
+.cv__empty p {
+  margin: 0;
+  text-align: center;
+}
 </style>

@@ -45,15 +45,15 @@
    "dependencies": "",
    "hidden": 0,
    "is_query_report": 0,
-   "label": "PWA Github Integration",
+   "label": "PWA GitHub Integration",
    "link_count": 0,
-   "link_to": "PWA Github Integration",
+   "link_to": "PWA GitHub Integration",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   }
  ],
- "modified": "2026-07-09 12:00:00.000000",
+ "modified": "2026-07-15 06:44:08.326003",
  "modified_by": "Administrator",
  "module": "PWA Builder",
  "name": "PWA Builder",
@@ -89,10 +89,10 @@
   },
   {
    "color": "Grey",
-   "doc_view": "List",
+   "doc_view": "",
    "label": "GitHub Integration",
-   "link_to": "PWA Github Integration",
-   "type": "DocType"
+   "type": "URL",
+   "url": "/desk/pwa-github-integration"
   }
  ],
  "title": "PWA Builder"
