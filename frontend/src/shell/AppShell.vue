@@ -5,7 +5,13 @@
   <div class="shell pwa-app-bg">
     <header class="shell__topbar">
       <div class="shell__brand">
-        <div class="shell__logo">P</div>
+        <img
+          class="shell__logo-img"
+          :src="appLogo"
+          alt="PWA Builder"
+          width="28"
+          height="28"
+        />
         <template v-if="projectId">
           <FeatherIcon name="chevron-right" class="w-4 h-4 text-[var(--text-subtle)]" />
           <span class="shell__project">{{ projectTitle || projectId }}</span>
@@ -51,6 +57,7 @@ import ProjectRail from './ProjectRail.vue'
 import ModeToggle from './ModeToggle.vue'
 import { session } from '@/data/session'
 import { useTheme } from '@/composables/useTheme'
+import appLogo from '@/assets/pwa-builder-logo.png'
 
 const { isDark, toggle: toggleTheme } = useTheme()
 
@@ -114,6 +121,14 @@ const initials = computed(() => {
   flex-shrink: 0;
 }
 .shell__brand { display: flex; align-items: center; gap: 10px; }
+.shell__logo-img {
+  width: 28px;
+  height: 28px;
+  display: block;
+  flex: none;
+  object-fit: contain;
+  border-radius: 7px;
+}
 .shell__logo {
   width: 28px;
   height: 28px;

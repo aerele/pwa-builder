@@ -281,3 +281,28 @@ When new work lands, append:
 ---
 
 *Last updated: 2026-07-15 — PR #27 builder UI fixes + PR workflow conventions.*
+
+---
+
+## 11. App logo (added 2026-07-15)
+
+- Source icon: rounded navy square + blue/white **P** (trim near-white outer corners → transparent PNG).
+- Files under `pwa_builder/public/images/`:
+  - `pwa-builder-logo.png` (full, transparent corners)
+  - `pwa-builder-logo-512/256/128/64.png`, `pwa-builder-favicon.png`
+- Hooks:
+  - `app_logo_url = "/assets/pwa_builder/images/pwa-builder-logo.png"`
+  - `add_to_apps_screen` → Desk **Apps** switcher tile for PWA Builder → `/pwa-builder`
+- Builder chrome: `AppShell.vue` uses imported `@/assets/pwa-builder-logo.png` (Vite cannot resolve absolute `/assets/...` at build time).
+- Workspace JSON: set `"app": "pwa_builder"` so Desk associates the workspace with the app.
+- After logo changes: `yarn build` (frontend) + `bench --site <site> clear-cache`.
+
+### Desk sidebar workspace header icon
+
+The **letter "P"** in the left Desk sidebar (next to “PWA Builder”) comes from **Desktop Icon**, not from `app_logo_url`.
+
+- Set **`Desktop Icon.logo_url`** to `/assets/pwa_builder/images/pwa-builder-logo.png`.
+- Fixture: `pwa_builder/desktop_icon/pwa_builder.json` (`standard: 1`).
+- `app_logo_url` / `add_to_apps_screen` only affect the **Apps switcher** and app metadata.
+- After change: `clear-cache` + hard refresh (bootinfo caches desktop icons).
+
