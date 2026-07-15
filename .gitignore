@@ -7,3 +7,5 @@ node_modules
 __pycache__
 pwa_builder/public/frontend
 pwa_builder/www/frontend.html
+# Local agent notes — do not push to PRs
+learnings.md
