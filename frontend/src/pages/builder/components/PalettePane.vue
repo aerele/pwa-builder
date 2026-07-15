@@ -88,22 +88,124 @@ function iconFor(f) {
 </script>
 
 <style scoped>
-.pal { display: flex; flex-direction: column; height: 100%; }
-.pal__search { position: relative; margin: 12px 12px 8px; }
-.pal__search-icon { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); width: 13px; height: 13px; color: var(--text-subtle); }
-.pal__search-in { width: 100%; padding: 7px 10px 7px 28px; font-size: 12.5px; color: var(--text); background: var(--surface-muted); border: 1px solid var(--border); border-radius: var(--radius-control); outline: none; }
-.pal__search-in:focus { border-color: var(--brand-500); background: var(--surface); }
+.pal {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+.pal__search {
+  position: relative;
+  flex: none;
+  margin: 12px 12px 8px;
+}
+.pal__search-icon {
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 13px;
+  height: 13px;
+  color: var(--text-subtle);
+  pointer-events: none;
+}
+.pal__search-in {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 7px 10px 7px 28px;
+  font-size: 12.5px;
+  color: var(--text);
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  outline: none;
+}
+.pal__search-in:focus {
+  border-color: var(--brand-500);
+  background: var(--surface);
+}
 
-.pal__hint { padding: 20px 14px; font-size: 12.5px; color: var(--text-subtle); text-align: center; }
-.pal__list { flex: 1; overflow-y: auto; padding: 0 8px 12px; }
+.pal__hint {
+  flex: none;
+  padding: 20px 14px;
+  font-size: 12.5px;
+  color: var(--text-subtle);
+  text-align: center;
+}
 
-.pal__item { display: flex; align-items: center; gap: 9px; padding: 8px 9px; margin-bottom: 2px; border-radius: 8px; cursor: grab; border: 1px solid transparent; }
-.pal__item:hover { background: var(--surface-muted); border-color: var(--border); }
-.pal__item:hover .pal__item-add { opacity: 1; }
-.pal__item-icon { display: grid; place-items: center; width: 26px; height: 26px; flex: none; color: var(--brand); background: var(--brand-subtle); border-radius: 7px; }
-.pal__item-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.pal__item-label { font-size: 12.5px; font-weight: 550; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.pal__item-type { font-size: 11px; color: var(--text-subtle); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.pal__item-add { width: 13px; height: 13px; color: var(--text-subtle); opacity: 0; flex: none; }
-.pal__req { color: var(--danger); margin-left: 2px; }
+/* Scroll only this list — last items stay inside the panel */
+.pal__list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0 8px 16px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.pal__item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 8px 9px;
+  margin-bottom: 2px;
+  border-radius: 8px;
+  cursor: grab;
+  border: 1px solid transparent;
+}
+.pal__item:hover {
+  background: var(--surface-muted);
+  border-color: var(--border);
+}
+.pal__item:hover .pal__item-add {
+  opacity: 1;
+}
+.pal__item-icon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  color: var(--brand);
+  background: var(--brand-subtle);
+  border-radius: 7px;
+}
+.pal__item-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.pal__item-label {
+  font-size: 12.5px;
+  font-weight: 550;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pal__item-type {
+  font-size: 11px;
+  color: var(--text-subtle);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pal__item-add {
+  width: 13px;
+  height: 13px;
+  color: var(--text-subtle);
+  opacity: 0;
+  flex: none;
+}
+.pal__req {
+  color: var(--danger);
+  margin-left: 2px;
+}
 </style>
