@@ -2,7 +2,7 @@
   <div class="auth pwa-app-bg">
     <div class="auth__wrap">
       <div class="auth__brand">
-        <div class="auth__logo">P</div>
+        <img class="auth__logo-img" :src="appLogo" alt="PWA Builder" width="36" height="36" />
         <span class="auth__wordmark">PWA Builder</span>
       </div>
       <div class="auth__card">
@@ -22,6 +22,7 @@
 // applies the stored light/dark preference on these pages too, which live
 // outside AppShell.
 import { useTheme } from '@/composables/useTheme'
+import appLogo from '@/assets/pwa-builder-logo.png'
 
 defineProps({
   title: { type: String, default: '' },
@@ -48,6 +49,13 @@ useTheme()
   justify-content: center;
   gap: 10px;
   margin-bottom: 20px;
+}
+.auth__logo-img {
+  width: 36px;
+  height: 36px;
+  display: block;
+  object-fit: contain;
+  border-radius: 9px;
 }
 .auth__logo {
   width: 36px;

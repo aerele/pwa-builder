@@ -53,7 +53,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-07-15 06:44:08.326003",
+ "modified": "2026-07-15 08:20:29.820536",
  "modified_by": "Administrator",
  "module": "PWA Builder",
  "name": "PWA Builder",
@@ -95,5 +95,6 @@
    "url": "/desk/pwa-github-integration"
   }
  ],
- "title": "PWA Builder"
+ "title": "PWA Builder",
+ "app": "pwa_builder"
 }
