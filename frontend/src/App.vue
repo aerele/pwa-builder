@@ -1,7 +1,7 @@
 <template>
   <div>
     <router-view />
-    <Toasts/>
+    <Toasts />
   </div>
 </template>
 <script setup>

@@ -22,10 +22,15 @@
       </div>
 
       <!-- Select / naming series -->
-      <div v-if="field.fieldtype === 'Select' || isSeries" class="pf__input pf__input--row">
-        <span class="pf__value" :class="{ 'pf__value--empty': !selectDisplay }">{{
-          selectDisplay || 'Select…'
-        }}</span>
+      <div
+        v-if="field.fieldtype === 'Select' || isSeries"
+        class="pf__input pf__input--row"
+      >
+        <span
+          class="pf__value"
+          :class="{ 'pf__value--empty': !selectDisplay }"
+          >{{ selectDisplay || 'Select…' }}</span
+        >
         <FeatherIcon name="chevron-down" class="pf__icon" />
       </div>
 
@@ -38,7 +43,10 @@
       <!-- Date / Datetime / Time -->
       <div v-else-if="isDate" class="pf__input pf__input--row">
         <span class="pf__value pf__value--empty">{{ datePlaceholder }}</span>
-        <FeatherIcon :name="field.fieldtype === 'Time' ? 'clock' : 'calendar'" class="pf__icon" />
+        <FeatherIcon
+          :name="field.fieldtype === 'Time' ? 'clock' : 'calendar'"
+          class="pf__icon"
+        />
       </div>
 
       <!-- Numbers / Currency -->
@@ -53,8 +61,13 @@
 
       <!-- Attach -->
       <div v-else-if="isAttach" class="pf__attach">
-        <FeatherIcon :name="field.fieldtype === 'Attach Image' ? 'image' : 'upload'" class="pf__icon" />
-        <span>{{ field.fieldtype === 'Attach Image' ? 'Add image' : 'Attach file' }}</span>
+        <FeatherIcon
+          :name="field.fieldtype === 'Attach Image' ? 'image' : 'upload'"
+          class="pf__icon"
+        />
+        <span>{{
+          field.fieldtype === 'Attach Image' ? 'Add image' : 'Attach file'
+        }}</span>
       </div>
 
       <!-- Rating -->
@@ -63,7 +76,10 @@
       </div>
 
       <!-- Color -->
-      <div v-else-if="field.fieldtype === 'Color'" class="pf__input pf__input--row">
+      <div
+        v-else-if="field.fieldtype === 'Color'"
+        class="pf__input pf__input--row"
+      >
         <span class="pf__swatch"></span>
         <span class="pf__value pf__value--empty">Pick a color</span>
       </div>
@@ -74,9 +90,15 @@
           <span v-for="c in tableColumns" :key="c">{{ c }}</span>
         </div>
         <div v-for="n in 2" :key="n" class="pf__table-row">
-          <span v-for="c in tableColumns" :key="c" class="pf__table-cell"></span>
+          <span
+            v-for="c in tableColumns"
+            :key="c"
+            class="pf__table-cell"
+          ></span>
         </div>
-        <div class="pf__table-add"><FeatherIcon name="plus" class="pf__icon" /> Add row</div>
+        <div class="pf__table-add">
+          <FeatherIcon name="plus" class="pf__icon" /> Add row
+        </div>
       </div>
 
       <!-- HTML / HTML Editor -->
@@ -103,20 +125,38 @@ const props = defineProps({
   selected: { type: Boolean, default: false },
 })
 
-const isLink = computed(() => ['Link', 'Dynamic Link'].includes(props.field.fieldtype))
-const isDate = computed(() => ['Date', 'Datetime', 'Time'].includes(props.field.fieldtype))
-const isNumber = computed(() =>
-  ['Int', 'Float', 'Currency', 'Percent', 'Duration'].includes(props.field.fieldtype)
+const isLink = computed(() =>
+  ['Link', 'Dynamic Link'].includes(props.field.fieldtype)
 )
-const isTextarea = computed(() =>
-  ['Text', 'Small Text', 'Long Text', 'Text Editor', 'Markdown Editor', 'Code', 'JSON'].includes(
+const isDate = computed(() =>
+  ['Date', 'Datetime', 'Time'].includes(props.field.fieldtype)
+)
+const isNumber = computed(() =>
+  ['Int', 'Float', 'Currency', 'Percent', 'Duration'].includes(
     props.field.fieldtype
   )
 )
-const isAttach = computed(() => ['Attach', 'Attach Image', 'Signature'].includes(props.field.fieldtype))
-const isHtml = computed(() => ['HTML', 'HTML Editor'].includes(props.field.fieldtype))
+const isTextarea = computed(() =>
+  [
+    'Text',
+    'Small Text',
+    'Long Text',
+    'Text Editor',
+    'Markdown Editor',
+    'Code',
+    'JSON',
+  ].includes(props.field.fieldtype)
+)
+const isAttach = computed(() =>
+  ['Attach', 'Attach Image', 'Signature'].includes(props.field.fieldtype)
+)
+const isHtml = computed(() =>
+  ['HTML', 'HTML Editor'].includes(props.field.fieldtype)
+)
 const isSeries = computed(
-  () => props.field.fieldname === 'naming_series' || props.field.fieldtype === 'Autocomplete'
+  () =>
+    props.field.fieldname === 'naming_series' ||
+    props.field.fieldtype === 'Autocomplete'
 )
 
 const firstOption = computed(() => {
@@ -158,7 +198,8 @@ const numberPlaceholder = computed(() => {
 // Table columns come from the picked child fields (array) stored in options.
 const tableColumns = computed(() => {
   const opts = props.field.options
-  if (Array.isArray(opts) && opts.length) return opts.slice(0, 3).map((c) => c.label || c.fieldname)
+  if (Array.isArray(opts) && opts.length)
+    return opts.slice(0, 3).map((c) => c.label || c.fieldname)
   return ['Column 1', 'Column 2']
 })
 </script>

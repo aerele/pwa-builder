@@ -5,7 +5,11 @@
     <!-- Scale the whole bezel (padding + screen) so chrome and content stay aligned. -->
     <div class="phone-frame__scale" :style="scaleStyle">
       <div class="phone-frame__bezel">
-        <div v-if="deviceFrame" class="phone-frame__notch" aria-hidden="true"></div>
+        <div
+          v-if="deviceFrame"
+          class="phone-frame__notch"
+          aria-hidden="true"
+        ></div>
         <div class="phone-frame__screen" :style="screenStyle">
           <slot>
             <div class="phone-frame__placeholder">

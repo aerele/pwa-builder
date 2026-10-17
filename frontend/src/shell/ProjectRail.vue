@@ -76,9 +76,18 @@ const visibleItems = computed(() =>
   color: var(--text-subtle);
   border-radius: var(--radius-control);
 }
-.rail__back:hover { color: var(--text); background: var(--surface-muted); }
-.rail__group { display: flex; flex-direction: column; gap: 2px; }
-.rail__spacer { flex: 1; }
+.rail__back:hover {
+  color: var(--text);
+  background: var(--surface-muted);
+}
+.rail__group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.rail__spacer {
+  flex: 1;
+}
 .rail__item {
   display: flex;
   align-items: center;
@@ -90,8 +99,14 @@ const visibleItems = computed(() =>
   border-radius: var(--radius-control);
   transition: background 0.12s ease, color 0.12s ease;
 }
-.rail__item:hover { background: var(--surface-muted); color: var(--text); }
-.rail__item--active { background: var(--brand-subtle); color: var(--brand); }
+.rail__item:hover {
+  background: var(--surface-muted);
+  color: var(--text);
+}
+.rail__item--active {
+  background: var(--brand-subtle);
+  color: var(--brand);
+}
 .rail__adv {
   margin-left: auto;
   font-size: 9.5px;

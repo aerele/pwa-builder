@@ -61,7 +61,9 @@ const emit = defineEmits(['update:modelValue'])
 const autocompleteRef = ref(null)
 const searchText = ref('')
 
-const sizeClass = computed(() => (props.size === 'compact' ? 'lf--compact' : ''))
+const sizeClass = computed(() =>
+  props.size === 'compact' ? 'lf--compact' : ''
+)
 const dropdownBodyClass = 'lf-dropdown'
 
 const value = computed({
@@ -101,7 +103,8 @@ const options = createResource({
       return {
         label: title && title !== doc.value ? `${doc.value}` : doc.value,
         value: doc.value,
-        description: title && title !== doc.value ? title : doc.description || '',
+        description:
+          title && title !== doc.value ? title : doc.description || '',
       }
     })
   },
@@ -144,13 +147,13 @@ watch(
     if (!props.doctype) return
     reloadOptions('')
   },
-  { immediate: true },
+  { immediate: true }
 )
 
 watch(
   () => props.filters,
   () => reloadOptions(''),
-  { deep: true },
+  { deep: true }
 )
 </script>
 

@@ -16,7 +16,12 @@
 
     <div class="rail__spacer" />
 
-    <a class="rail__item rail__item--muted" href="https://github.com/aerele/pwa-builder" target="_blank" rel="noopener">
+    <a
+      class="rail__item rail__item--muted"
+      href="https://github.com/aerele/pwa-builder"
+      target="_blank"
+      rel="noopener"
+    >
       <FeatherIcon name="help-circle" class="w-[18px] h-[18px]" />
       <span>Help</span>
     </a>
@@ -30,8 +35,18 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 const items = [
   { name: 'Dashboard', label: 'Home', icon: 'grid', to: { name: 'Dashboard' } },
-  { name: 'Templates', label: 'Templates', icon: 'layout', to: { name: 'Templates' } },
-  { name: 'Settings', label: 'Settings', icon: 'settings', to: { name: 'Settings' } },
+  {
+    name: 'Templates',
+    label: 'Templates',
+    icon: 'layout',
+    to: { name: 'Templates' },
+  },
+  {
+    name: 'Settings',
+    label: 'Settings',
+    icon: 'settings',
+    to: { name: 'Settings' },
+  },
 ]
 
 function isActive(item) {
@@ -49,8 +64,14 @@ function isActive(item) {
   background: var(--surface-rail);
   border-right: 1px solid var(--border);
 }
-.rail__group { display: flex; flex-direction: column; gap: 2px; }
-.rail__spacer { flex: 1; }
+.rail__group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.rail__spacer {
+  flex: 1;
+}
 .rail__item {
   display: flex;
   align-items: center;
@@ -62,10 +83,15 @@ function isActive(item) {
   border-radius: var(--radius-control);
   transition: background 0.12s ease, color 0.12s ease;
 }
-.rail__item:hover { background: var(--surface-muted); color: var(--text); }
+.rail__item:hover {
+  background: var(--surface-muted);
+  color: var(--text);
+}
 .rail__item--active {
   background: var(--brand-subtle);
   color: var(--brand);
 }
-.rail__item--muted { color: var(--text-subtle); }
+.rail__item--muted {
+  color: var(--text-subtle);
+}
 </style>

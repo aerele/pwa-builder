@@ -10,23 +10,27 @@ from pwa_builder.api import set_value, with_nav_order
 
 
 def make_project(title="_Test PWA Project"):
-	return frappe.get_doc({
-		"doctype": "PWA-Project",
-		"project_title": title,
-		"connection_type": "This Site",
-		"site_url": frappe.utils.get_url(),
-	}).insert()
+	return frappe.get_doc(
+		{
+			"doctype": "PWA-Project",
+			"project_title": title,
+			"connection_type": "This Site",
+			"site_url": frappe.utils.get_url(),
+		}
+	).insert()
 
 
 def make_screen(project, doctype_name="ToDo", fields=None, nav_order=0):
-	return frappe.get_doc({
-		"doctype": "PWA DocType",
-		"title": f"_Test {doctype_name} Screen",
-		"doctype_name": doctype_name,
-		"project_name": project,
-		"nav_order": nav_order,
-		"field_list": json.dumps({"pwa_form_fields": fields or []}),
-	}).insert()
+	return frappe.get_doc(
+		{
+			"doctype": "PWA DocType",
+			"title": f"_Test {doctype_name} Screen",
+			"doctype_name": doctype_name,
+			"project_name": project,
+			"nav_order": nav_order,
+			"field_list": json.dumps({"pwa_form_fields": fields or []}),
+		}
+	).insert()
 
 
 class TestPWADocType(FrappeTestCase):
@@ -49,7 +53,11 @@ class TestPWADocType(FrappeTestCase):
 	def test_set_value_rejects_other_doctypes(self):
 		self.assertRaises(
 			frappe.PermissionError,
-			set_value, "User", "Administrator", "first_name", "Hacked",
+			set_value,
+			"User",
+			"Administrator",
+			"first_name",
+			"Hacked",
 		)
 		self.assertNotEqual(frappe.db.get_value("User", "Administrator", "first_name"), "Hacked")
 
@@ -57,7 +65,11 @@ class TestPWADocType(FrappeTestCase):
 		screen = make_screen(self.project.name)
 		self.assertRaises(
 			frappe.PermissionError,
-			set_value, "PWA DocType", screen.name, "project_name", "x",
+			set_value,
+			"PWA DocType",
+			screen.name,
+			"project_name",
+			"x",
 		)
 
 	def test_set_value_denied_for_guest(self):
@@ -65,7 +77,11 @@ class TestPWADocType(FrappeTestCase):
 		with self.set_user("Guest"):
 			self.assertRaises(
 				frappe.PermissionError,
-				set_value, "PWA DocType", screen.name, "field_list", {},
+				set_value,
+				"PWA DocType",
+				screen.name,
+				"field_list",
+				{},
 			)
 
 	def test_with_nav_order_stamps_order(self):

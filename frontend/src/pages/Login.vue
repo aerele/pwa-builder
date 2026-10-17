@@ -1,5 +1,8 @@
 <template>
-  <AuthLayout title="Welcome back" subtitle="Sign in to build and publish your PWAs.">
+  <AuthLayout
+    title="Welcome back"
+    subtitle="Sign in to build and publish your PWAs."
+  >
     <form @submit.prevent="submit" class="space-y-4">
       <div>
         <FormControl
@@ -11,7 +14,9 @@
         >
           <template #prefix><FeatherIcon class="w-4" name="mail" /></template>
         </FormControl>
-        <p v-if="formSubmitted && !emailValid" class="auth-error">Enter a valid email</p>
+        <p v-if="formSubmitted && !emailValid" class="auth-error">
+          Enter a valid email
+        </p>
       </div>
 
       <div>
@@ -33,23 +38,35 @@
             {{ showPassword ? 'Hide' : 'Show' }}
           </button>
         </div>
-        <p v-if="formSubmitted && !passwordValid" class="auth-error">Enter password</p>
+        <p v-if="formSubmitted && !passwordValid" class="auth-error">
+          Enter password
+        </p>
       </div>
 
       <div class="flex justify-end">
-        <router-link to="/forget-password" class="auth-link">Forgot password?</router-link>
+        <router-link to="/forget-password" class="auth-link"
+          >Forgot password?</router-link
+        >
       </div>
 
-      <p v-if="loginError" class="auth-alert auth-alert--error">Login failed. Check your credentials.</p>
+      <p v-if="loginError" class="auth-alert auth-alert--error">
+        Login failed. Check your credentials.
+      </p>
 
-      <button type="submit" class="btn-primary" :disabled="session.login.loading">
+      <button
+        type="submit"
+        class="btn-primary"
+        :disabled="session.login.loading"
+      >
         {{ session.login.loading ? 'Logging in…' : 'Login' }}
       </button>
     </form>
 
     <template #footer>
       New here?
-      <router-link to="/signup" class="auth-link">Create an account</router-link>
+      <router-link to="/signup" class="auth-link"
+        >Create an account</router-link
+      >
     </template>
   </AuthLayout>
 </template>
@@ -66,7 +83,9 @@ const showPassword = ref(false)
 const loginError = ref(false)
 const formSubmitted = ref(false)
 
-const emailValid = computed(() => email.value.includes('@') || email.value === 'Administrator')
+const emailValid = computed(
+  () => email.value.includes('@') || email.value === 'Administrator'
+)
 const passwordValid = computed(() => !!password.value)
 
 function submit() {
@@ -104,13 +123,20 @@ function submit() {
   background: var(--brand);
   border-radius: var(--radius-control);
 }
-.btn-primary:hover:not(:disabled) { background: var(--brand-hover); }
-.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-primary:hover:not(:disabled) {
+  background: var(--brand-hover);
+}
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 .auth-link {
   color: var(--brand);
   font-weight: 500;
 }
-.auth-link:hover { text-decoration: underline; }
+.auth-link:hover {
+  text-decoration: underline;
+}
 .auth-error {
   margin-top: 4px;
   font-size: 12px;

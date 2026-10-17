@@ -1,5 +1,8 @@
 <template>
-  <AuthLayout title="Create your account" subtitle="Start building PWAs in minutes.">
+  <AuthLayout
+    title="Create your account"
+    subtitle="Start building PWAs in minutes."
+  >
     <form @submit.prevent="signUp" class="space-y-4">
       <FormControl
         required
@@ -31,7 +34,11 @@
         >
           <template #prefix><FeatherIcon class="w-4" name="lock" /></template>
         </FormControl>
-        <button type="button" @click="showPassword = !showPassword" class="pw-toggle">
+        <button
+          type="button"
+          @click="showPassword = !showPassword"
+          class="pw-toggle"
+        >
           {{ showPassword ? 'Hide' : 'Show' }}
         </button>
       </div>
@@ -46,15 +53,29 @@
         >
           <template #prefix><FeatherIcon class="w-4" name="lock" /></template>
         </FormControl>
-        <button type="button" @click="showConfirm = !showConfirm" class="pw-toggle">
+        <button
+          type="button"
+          @click="showConfirm = !showConfirm"
+          class="pw-toggle"
+        >
           {{ showConfirm ? 'Hide' : 'Show' }}
         </button>
       </div>
 
-      <p v-if="formSubmitted && !emailValid" class="auth-error">Enter a valid email</p>
-      <p v-if="formSubmitted && !passwordsMatch" class="auth-error">Passwords do not match</p>
+      <p v-if="formSubmitted && !emailValid" class="auth-error">
+        Enter a valid email
+      </p>
+      <p v-if="formSubmitted && !passwordsMatch" class="auth-error">
+        Passwords do not match
+      </p>
 
-      <p v-if="message" class="auth-alert" :class="`auth-alert--${messageType}`">{{ message }}</p>
+      <p
+        v-if="message"
+        class="auth-alert"
+        :class="`auth-alert--${messageType}`"
+      >
+        {{ message }}
+      </p>
 
       <button type="submit" class="btn-primary" :disabled="loading">
         {{ loading ? 'Creating…' : 'Sign Up' }}
@@ -95,7 +116,11 @@ function signUp() {
   loading.value = true
   const users = createListResource({ doctype: 'User' })
   users.insert
-    .submit({ email: email.value, first_name: username.value, new_password: password.value })
+    .submit({
+      email: email.value,
+      first_name: username.value,
+      new_password: password.value,
+    })
     .then(() => {
       messageType.value = 'ok'
       message.value = 'Account created. You can now log in.'
@@ -134,13 +159,20 @@ function signUp() {
   background: var(--brand);
   border-radius: var(--radius-control);
 }
-.btn-primary:hover:not(:disabled) { background: var(--brand-hover); }
-.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-primary:hover:not(:disabled) {
+  background: var(--brand-hover);
+}
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 .auth-link {
   color: var(--brand);
   font-weight: 500;
 }
-.auth-link:hover { text-decoration: underline; }
+.auth-link:hover {
+  text-decoration: underline;
+}
 .auth-error {
   margin-top: -8px;
   font-size: 12px;

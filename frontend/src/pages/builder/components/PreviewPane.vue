@@ -61,9 +61,17 @@ const W = 340
 const H = 690
 
 // Hide layout-only fieldtypes if they ever land on the canvas
-const HIDDEN = new Set(['Section Break', 'Column Break', 'Tab Break', 'Fold', 'Heading'])
+const HIDDEN = new Set([
+  'Section Break',
+  'Column Break',
+  'Tab Break',
+  'Fold',
+  'Heading',
+])
 const visibleFields = computed(() =>
-  (props.fields || []).filter((f) => f && f.fieldtype && !HIDDEN.has(f.fieldtype))
+  (props.fields || []).filter(
+    (f) => f && f.fieldtype && !HIDDEN.has(f.fieldtype)
+  )
 )
 
 // Fit the phone to whatever space the pane gives us.
@@ -118,7 +126,8 @@ onBeforeUnmount(() => ro && ro.disconnect())
   min-height: 0;
   background: #ffffff;
   color: #111827;
-  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
