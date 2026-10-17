@@ -95,12 +95,12 @@
 .pwa-app-bg {
   background-color: var(--surface-muted);
   background-image: radial-gradient(
-      circle at top left,
+      circle 880px at top left,
       rgba(5, 16, 42, 0.05),
-      transparent 60%
+      transparent
     ),
     radial-gradient(var(--dot) 1px, transparent 1.5px);
-  background-size: 100% 320px, 22px 22px;
+  background-size: 100% 100%, 22px 22px;
   background-position: 0 0, -1px -1px;
   background-repeat: no-repeat, repeat;
 }
