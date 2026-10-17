@@ -7,6 +7,7 @@ from frappe import _
 from frappe import ValidationError, _, qb, scrub, throw
 from pwa_builder.rename_template_app import rename_template_app
 from frappe.model.meta import Meta
+from frappe.utils import cint
 
 @frappe.whitelist()
 def add_site(data, update=False):
@@ -75,7 +76,7 @@ def get_meta(doctype, project,with_parent=False,cached=True) -> "Meta":
 		from frappe.desk.form.load import get_meta_bundle
 
 		meta = {"docs": [d.as_dict() for d in get_meta_bundle(doctype)]}
-		if with_parent == True:
+		if cint(with_parent):
 			return meta
 		for d in meta["docs"]:
 			if d.get("name") == doctype:
@@ -89,7 +90,7 @@ def get_meta(doctype, project,with_parent=False,cached=True) -> "Meta":
 	response = call(site_url, end_point, doc.user_id, doc.get_password("password"), doc.project_title)
 	if response.ok:
 		meta = response.json()
-		if with_parent == True:
+		if cint(with_parent):
 			return meta
 		else:
 			for doc in meta["docs"]:
@@ -278,7 +279,7 @@ def validate_form_fields(project_name):
 			field_meta = json.loads(field_meta) if not isinstance(field_meta, dict) else field_meta
 			for field in field_meta.get('pwa_form_fields',[]):
 				if form.get('doctype_name') and form.get('doctype_name') == 'Number Card':
-					if not (doc := frappe.get_doc(field['fieldtype'], field['fieldname'])):
+					if not frappe.get_doc(field['fieldtype'], field['fieldname']):
 						field = field.get('fieldtype')
 						result['success']=False
 						result['message']=f'The Number Card Doctype {field} not found'
@@ -315,7 +316,9 @@ def validate_form_fields(project_name):
 		result['message']='No PWA DocType found for this project'
 	return result
 				
-def process_mandatory_fields(form, actual_field_meta, mandatory_fields_parent={}, mandatory_fields_child={},child_table_list=[]):
+def process_mandatory_fields(form, actual_field_meta, mandatory_fields_parent=None, mandatory_fields_child=None, child_table_list=None):
+	mandatory_fields_parent = mandatory_fields_parent or {}
+	mandatory_fields_child = mandatory_fields_child or {}
 	missing_fields_parent={}
 	missing_fields_child={}
 	child_table_list = child_table_list or []
