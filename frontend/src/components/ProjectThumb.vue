@@ -2,7 +2,7 @@
   <!-- Friendly mini app-screen mock used as a project card thumbnail.
        Light, abstract UI preview (not a dark phone). A gentle per-project
        accent gives the grid variety while staying tasteful. -->
-  <div class="thumb">
+  <div class="thumb theme-light">
     <div class="thumb__bar" :style="barStyle">
       <span class="thumb__avatar">{{ initial }}</span>
       <span class="thumb__title-lines">
