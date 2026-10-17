@@ -28,15 +28,27 @@ defineProps({
 </script>
 
 <style scoped>
-.ph { padding: 24px; max-width: 1100px; margin: 0 auto; }
+.ph {
+  padding: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
 .ph__head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   margin-bottom: 20px;
 }
-.ph__title { font-size: 22px; font-weight: 650; color: var(--text); }
-.ph__subtitle { margin-top: 4px; font-size: 13.5px; color: var(--text-muted); }
+.ph__title {
+  font-size: 22px;
+  font-weight: 650;
+  color: var(--text);
+}
+.ph__subtitle {
+  margin-top: 4px;
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
 .ph__phase {
   font-size: 11px;
   font-weight: 600;

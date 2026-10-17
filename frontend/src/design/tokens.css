@@ -22,22 +22,22 @@
   --brand: var(--brand-950);
   --brand-hover: var(--brand-800);
   --brand-active: #02091a;
-  --brand-fg: #ffffff;          /* text/icon on a brand fill */
+  --brand-fg: #ffffff; /* text/icon on a brand fill */
   --brand-subtle: var(--brand-50);
   --brand-ring: rgba(5, 16, 42, 0.28);
 
   /* Surfaces (light) */
-  --surface: #ffffff;           /* cards, panels */
-  --surface-muted: #eef1f6;     /* app background tint */
-  --surface-rail: #ffffff;      /* nav rails */
+  --surface: #ffffff; /* cards, panels */
+  --surface-muted: #eef1f6; /* app background tint */
+  --surface-rail: #ffffff; /* nav rails */
   --dot: rgba(5, 16, 42, 0.06); /* app-background dot grid */
-  --border: #e5e7eb;            /* gray-200 */
-  --border-strong: #d1d5db;     /* gray-300 */
+  --border: #e5e7eb; /* gray-200 */
+  --border-strong: #d1d5db; /* gray-300 */
 
   /* Text */
-  --text: #111827;             /* gray-900 */
-  --text-muted: #6b7280;       /* gray-500 */
-  --text-subtle: #9ca3af;      /* gray-400 */
+  --text: #111827; /* gray-900 */
+  --text-muted: #6b7280; /* gray-500 */
+  --text-subtle: #9ca3af; /* gray-400 */
 
   /* Status */
   --ok: #16a34a;
@@ -45,13 +45,13 @@
   --danger: #dc2626;
 
   /* Radius */
-  --radius-control: 6px;       /* buttons, inputs */
-  --radius-card: 12px;         /* cards, panels */
-  --radius-phone: 2rem;        /* device bezel */
+  --radius-control: 6px; /* buttons, inputs */
+  --radius-card: 12px; /* cards, panels */
+  --radius-phone: 2rem; /* device bezel */
 
   /* Elevation */
   --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
-  --shadow-md: 0 4px 16px rgba(16, 24, 40, 0.10);
+  --shadow-md: 0 4px 16px rgba(16, 24, 40, 0.1);
 
   /* Skeleton shimmer */
   --sheen: rgba(255, 255, 255, 0.6);
@@ -94,8 +94,11 @@
  * faint brand wash at the top for depth. */
 .pwa-app-bg {
   background-color: var(--surface-muted);
-  background-image:
-    radial-gradient(circle at top left, rgba(5, 16, 42, 0.05), transparent 60%),
+  background-image: radial-gradient(
+      circle at top left,
+      rgba(5, 16, 42, 0.05),
+      transparent 60%
+    ),
     radial-gradient(var(--dot) 1px, transparent 1.5px);
   background-size: 100% 320px, 22px 22px;
   background-position: 0 0, -1px -1px;

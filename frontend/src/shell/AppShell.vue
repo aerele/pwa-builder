@@ -13,10 +13,17 @@
           height="28"
         />
         <template v-if="projectId">
-          <FeatherIcon name="chevron-right" class="w-4 h-4 text-[var(--text-subtle)]" />
+          <FeatherIcon
+            name="chevron-right"
+            class="w-4 h-4 text-[var(--text-subtle)]"
+          />
           <span class="shell__project">{{ projectTitle || projectId }}</span>
-          <span class="shell__status" :class="{ 'shell__status--live': projectPublished }">
-            <span class="shell__status-dot" /> {{ projectPublished ? 'Published' : 'Draft' }}
+          <span
+            class="shell__status"
+            :class="{ 'shell__status--live': projectPublished }"
+          >
+            <span class="shell__status-dot" />
+            {{ projectPublished ? 'Published' : 'Draft' }}
           </span>
         </template>
         <span v-else class="shell__title">PWA Builder</span>
@@ -24,7 +31,11 @@
 
       <div class="shell__actions">
         <ModeToggle :project-id="projectId" />
-        <button class="shell__theme" :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'" @click="toggleTheme">
+        <button
+          class="shell__theme"
+          :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+          @click="toggleTheme"
+        >
           <FeatherIcon :name="isDark ? 'sun' : 'moon'" class="w-4 h-4" />
         </button>
         <button class="shell__avatar" :title="user">
@@ -86,11 +97,13 @@ watch(
     projectPublished.value = false
     if (!id) return
     try {
-      const r = await createResource({ url: 'frappe.client.get_value' }).submit({
-        doctype: 'PWA-Project',
-        filters: id,
-        fieldname: ['project_title', 'github_repository_url'],
-      })
+      const r = await createResource({ url: 'frappe.client.get_value' }).submit(
+        {
+          doctype: 'PWA-Project',
+          filters: id,
+          fieldname: ['project_title', 'github_repository_url'],
+        }
+      )
       if (projectId.value !== id) return // stale response after fast navigation
       projectTitle.value = r?.project_title || id
       projectPublished.value = !!r?.github_repository_url
@@ -109,7 +122,11 @@ const initials = computed(() => {
 </script>
 
 <style scoped>
-.shell { display: flex; flex-direction: column; height: 100vh; }
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
 .shell__topbar {
   display: flex;
   align-items: center;
@@ -120,7 +137,11 @@ const initials = computed(() => {
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
-.shell__brand { display: flex; align-items: center; gap: 10px; }
+.shell__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 .shell__logo-img {
   width: 28px;
   height: 28px;
@@ -139,8 +160,14 @@ const initials = computed(() => {
   font-weight: 700;
   border-radius: var(--radius-control);
 }
-.shell__title { font-weight: 600; color: var(--text); }
-.shell__project { font-weight: 600; color: var(--text); }
+.shell__title {
+  font-weight: 600;
+  color: var(--text);
+}
+.shell__project {
+  font-weight: 600;
+  color: var(--text);
+}
 .shell__status {
   display: inline-flex;
   align-items: center;
@@ -154,14 +181,46 @@ const initials = computed(() => {
   border-radius: 999px;
 }
 .shell__status-dot {
-  width: 6px; height: 6px; border-radius: 50%; background: var(--text-subtle);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-subtle);
 }
-.shell__status--live { color: var(--ok); }
-.shell__status--live .shell__status-dot { background: var(--ok); }
-.shell__actions { display: flex; align-items: center; gap: 12px; }
-.shell__theme { display: grid; place-items: center; width: 30px; height: 30px; color: var(--text-muted); border-radius: var(--radius-control); }
-.shell__theme:hover { color: var(--text); background: var(--surface-muted); }
-.shell__offline { display: flex; align-items: center; justify-content: center; gap: 7px; padding: 7px 12px; font-size: 12.5px; font-weight: 550; color: #fff; background: var(--warn); flex-shrink: 0; }
+.shell__status--live {
+  color: var(--ok);
+}
+.shell__status--live .shell__status-dot {
+  background: var(--ok);
+}
+.shell__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.shell__theme {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  color: var(--text-muted);
+  border-radius: var(--radius-control);
+}
+.shell__theme:hover {
+  color: var(--text);
+  background: var(--surface-muted);
+}
+.shell__offline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 7px 12px;
+  font-size: 12.5px;
+  font-weight: 550;
+  color: #fff;
+  background: var(--warn);
+  flex-shrink: 0;
+}
 .shell__avatar {
   width: 30px;
   height: 30px;
@@ -173,6 +232,13 @@ const initials = computed(() => {
   background: var(--brand-700);
   border-radius: 50%;
 }
-.shell__body { display: flex; flex: 1; min-height: 0; }
-.shell__content { flex: 1; overflow: auto; }
+.shell__body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+.shell__content {
+  flex: 1;
+  overflow: auto;
+}
 </style>

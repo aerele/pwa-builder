@@ -28,8 +28,12 @@ class TestPWAProject(FrappeTestCase):
 
 	def test_api_methods_not_open_to_guest(self):
 		methods = [
-			api.add_site, api.get_meta, api.set_value, api.export_status,
-			api.export_project, api.validate_form_fields,
+			api.add_site,
+			api.get_meta,
+			api.set_value,
+			api.export_status,
+			api.export_project,
+			api.validate_form_fields,
 		]
 		with self.set_user("Guest"):
 			for method in methods:
@@ -103,7 +107,9 @@ class TestPWAProject(FrappeTestCase):
 
 	def test_export_status_without_job(self):
 		project = make_project()
-		project.db_set({"github_repository_url": "https://github.com/_test/repo.git", "last_push_commit": "version-2"})
+		project.db_set(
+			{"github_repository_url": "https://github.com/_test/repo.git", "last_push_commit": "version-2"}
+		)
 
 		status = api.export_status(project.name)
 		self.assertIsNone(status["job_status"])
@@ -140,9 +146,12 @@ class TestPWAProject(FrappeTestCase):
 	def test_validate_passes_with_mandatory_fields(self):
 		set_github_credentials()
 		project = make_project()
-		make_screen(project.name, fields=[
-			{"fieldname": "description", "label": "Description", "fieldtype": "Text Editor", "reqd": 1}
-		])
+		make_screen(
+			project.name,
+			fields=[
+				{"fieldname": "description", "label": "Description", "fieldtype": "Text Editor", "reqd": 1}
+			],
+		)
 
 		result = api.validate_form_fields(project.name)
 		self.assertTrue(result["success"])
@@ -151,7 +160,9 @@ class TestPWAProject(FrappeTestCase):
 
 def set_github_credentials():
 	settings = frappe.get_single("PWA GitHub Integration")
-	settings.update({"github_username": "_test-user", "access_token": "_test-token", "get_exports_on": "New Commit"})
+	settings.update(
+		{"github_username": "_test-user", "access_token": "_test-token", "get_exports_on": "New Commit"}
+	)
 	settings.save()
 
 
@@ -209,9 +220,7 @@ class TestPWAProjectExport(FrappeTestCase):
 		with open(os.path.join(app_dir, "pwa_build", "www", "pwa.html")) as f:
 			self.assertIn("<title>_Test Export App</title>", f.read())
 
-		self.assertEqual(
-			mock_push.call_args.kwargs["path"], self.workdir + "/" + scrub("_Test Export App")
-		)
+		self.assertEqual(mock_push.call_args.kwargs["path"], self.workdir + "/" + scrub("_Test Export App"))
 		self.project.reload()
 		self.assertEqual(self.project.github_repository_url, "https://github.com/_test/export.git")
 		self.assertEqual(self.project.github_default_branch, "version-1")

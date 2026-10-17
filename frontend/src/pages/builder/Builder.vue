@@ -1,13 +1,18 @@
 <template>
   <div class="bld">
     <!-- Loading / empty states -->
-    <div v-if="state.screensLoading.value" class="bld__center"><Spinner class="w-8" /></div>
+    <div v-if="state.screensLoading.value" class="bld__center">
+      <Spinner class="w-8" />
+    </div>
 
     <div v-else-if="!state.screens.value.length" class="bld__center bld__none">
       <FeatherIcon name="layers" class="w-8 h-8" />
       <h2>No screens yet</h2>
       <p>Create your first screen, then come back to design it.</p>
-      <router-link class="bld__cta" :to="{ name: 'ProjectScreens', params: { projectId } }">
+      <router-link
+        class="bld__cta"
+        :to="{ name: 'ProjectScreens', params: { projectId } }"
+      >
         Go to Screens
       </router-link>
     </div>
@@ -15,48 +20,102 @@
     <template v-else-if="state.screen.value">
       <!-- Builder toolbar -->
       <div class="bld__bar">
-        <router-link class="bld__back" :to="{ name: 'ProjectScreens', params: { projectId } }" title="Back to screens">
+        <router-link
+          class="bld__back"
+          :to="{ name: 'ProjectScreens', params: { projectId } }"
+          title="Back to screens"
+        >
           <FeatherIcon name="arrow-left" class="w-4 h-4" />
         </router-link>
 
-        <select class="bld__switch" :value="state.screen.value.name" @change="switchScreen($event.target.value)">
-          <option v-for="s in state.screens.value" :key="s.name" :value="s.name">{{ s.title }}</option>
+        <select
+          class="bld__switch"
+          :value="state.screen.value.name"
+          @change="switchScreen($event.target.value)"
+        >
+          <option
+            v-for="s in state.screens.value"
+            :key="s.name"
+            :value="s.name"
+          >
+            {{ s.title }}
+          </option>
         </select>
-        <span v-if="state.dirty.value" class="bld__dirty" title="Unsaved changes"></span>
+        <span
+          v-if="state.dirty.value"
+          class="bld__dirty"
+          title="Unsaved changes"
+        ></span>
 
         <div class="bld__bar-mid">
-          <button class="bld__tool" :disabled="!state.canUndo.value" title="Undo (Ctrl+Z)" @click="state.undo">
+          <button
+            class="bld__tool"
+            :disabled="!state.canUndo.value"
+            title="Undo (Ctrl+Z)"
+            @click="state.undo"
+          >
             <FeatherIcon name="corner-up-left" class="w-4 h-4" />
           </button>
-          <button class="bld__tool" :disabled="!state.canRedo.value" title="Redo (Ctrl+Shift+Z)" @click="state.redo">
+          <button
+            class="bld__tool"
+            :disabled="!state.canRedo.value"
+            title="Redo (Ctrl+Shift+Z)"
+            @click="state.redo"
+          >
             <FeatherIcon name="corner-up-right" class="w-4 h-4" />
           </button>
         </div>
 
         <div class="bld__bar-right">
-          <button class="bld__btn" :disabled="!state.screens.value.length || validating" @click="validateForms">
-            <FeatherIcon :name="validating ? 'loader' : 'check-square'" class="w-3.5 h-3.5" :class="{ spin: validating }" />
+          <button
+            class="bld__btn"
+            :disabled="!state.screens.value.length || validating"
+            @click="validateForms"
+          >
+            <FeatherIcon
+              :name="validating ? 'loader' : 'check-square'"
+              class="w-3.5 h-3.5"
+              :class="{ spin: validating }"
+            />
             Validate
           </button>
-          <router-link class="bld__btn" :to="{ name: 'ProjectPublish', params: { projectId } }">
+          <router-link
+            class="bld__btn"
+            :to="{ name: 'ProjectPublish', params: { projectId } }"
+          >
             <FeatherIcon name="upload-cloud" class="w-3.5 h-3.5" /> Publish
           </router-link>
-          <button class="bld__btn bld__btn--primary" :disabled="!state.dirty.value || state.saving.value" @click="saveScreen">
-            <FeatherIcon :name="state.saving.value ? 'loader' : 'save'" class="w-3.5 h-3.5" :class="{ spin: state.saving.value }" />
+          <button
+            class="bld__btn bld__btn--primary"
+            :disabled="!state.dirty.value || state.saving.value"
+            @click="saveScreen"
+          >
+            <FeatherIcon
+              :name="state.saving.value ? 'loader' : 'save'"
+              class="w-3.5 h-3.5"
+              :class="{ spin: state.saving.value }"
+            />
             Save
           </button>
         </div>
       </div>
 
       <p v-if="state.loadError.value" class="bld__err">
-        <FeatherIcon name="alert-circle" class="w-4 h-4" /> {{ state.loadError.value }}
+        <FeatherIcon name="alert-circle" class="w-4 h-4" />
+        {{ state.loadError.value }}
       </p>
 
       <!-- 3 panes: palette/inspector · canvas · live preview -->
       <div class="bld__panes">
         <aside class="bld__left">
           <div class="bld__tabs">
-            <button class="bld__tab" :class="{ 'bld__tab--on': tab === 'insert' }" @click="tab = 'insert'">Insert</button>
+            <button
+              class="bld__tab"
+              :class="{ 'bld__tab--on': tab === 'insert' }"
+              @click="tab = 'insert'"
+            >
+              Insert
+            </button>
             <button
               class="bld__tab"
               :class="{ 'bld__tab--on': tab === 'inspect' }"
@@ -110,13 +169,17 @@
 
     <!-- Validation results -->
     <Dialog v-model="showValidation">
-      <template #body-title><h3 class="font-semibold">Validation results</h3></template>
+      <template #body-title
+        ><h3 class="font-semibold">Validation results</h3></template
+      >
       <template #body-content>
         <div class="bld__val">
           <div v-for="r in validationRows" :key="r.form" class="bld__val-row">
             <span>{{ r.form }}</span>
             <Badge v-if="r.ok" theme="green" variant="subtle">Ready</Badge>
-            <span v-else class="bld__val-missing">Missing: {{ r.missing.join(', ') }}</span>
+            <span v-else class="bld__val-missing"
+              >Missing: {{ r.missing.join(', ') }}</span
+            >
           </div>
         </div>
       </template>
@@ -127,7 +190,14 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
-import { Badge, Dialog, FeatherIcon, Spinner, createResource, toast } from 'frappe-ui'
+import {
+  Badge,
+  Dialog,
+  FeatherIcon,
+  Spinner,
+  createResource,
+  toast,
+} from 'frappe-ui'
 import { useMode } from '@/composables/useMode'
 import { useBuilderState } from './composables/useBuilderState'
 import PalettePane from './components/PalettePane.vue'
@@ -152,10 +222,15 @@ const validationRows = ref([])
 onMounted(async () => {
   await state.loadScreens()
   if (!state.screens.value.length) return
-  const target = state.screens.value.find((s) => s.name === props.screenId) || state.screens.value[0]
+  const target =
+    state.screens.value.find((s) => s.name === props.screenId) ||
+    state.screens.value[0]
   await state.openScreen(target.name)
   if (target.name !== props.screenId) {
-    router.replace({ name: 'ProjectBuilder', params: { projectId: props.projectId, screenId: target.name } })
+    router.replace({
+      name: 'ProjectBuilder',
+      params: { projectId: props.projectId, screenId: target.name },
+    })
   }
 })
 
@@ -163,7 +238,11 @@ onMounted(async () => {
 watch(
   () => props.screenId,
   async (name) => {
-    if (name && state.screens.value.some((s) => s.name === name) && state.screen.value?.name !== name) {
+    if (
+      name &&
+      state.screens.value.some((s) => s.name === name) &&
+      state.screen.value?.name !== name
+    ) {
       await state.openScreen(name)
       tab.value = 'insert'
     }
@@ -172,8 +251,15 @@ watch(
 
 function switchScreen(name) {
   if (name === state.screen.value?.name) return
-  if (state.dirty.value && !confirm('You have unsaved changes. Switch screens anyway?')) return
-  router.push({ name: 'ProjectBuilder', params: { projectId: props.projectId, screenId: name } })
+  if (
+    state.dirty.value &&
+    !confirm('You have unsaved changes. Switch screens anyway?')
+  )
+    return
+  router.push({
+    name: 'ProjectBuilder',
+    params: { projectId: props.projectId, screenId: name },
+  })
 }
 
 function onSelect(fieldname) {
@@ -203,11 +289,17 @@ async function validateForms() {
   if (state.dirty.value && !(await state.save())) return
   validating.value = true
   try {
-    const res = await createResource({ url: 'pwa_builder.api.validate_form_fields' }).submit({
+    const res = await createResource({
+      url: 'pwa_builder.api.validate_form_fields',
+    }).submit({
       project_name: props.projectId,
     })
     if (res?.success) {
-      validationRows.value = state.screens.value.map((s) => ({ form: s.title, ok: true, missing: [] }))
+      validationRows.value = state.screens.value.map((s) => ({
+        form: s.title,
+        ok: true,
+        missing: [],
+      }))
     } else {
       const missing = res?.forms_with_missing_fields || {}
       // Values are labels, nested one level deeper for child-table fields.
@@ -245,7 +337,10 @@ async function validateForms() {
 
 // --- keyboard shortcuts ---
 function isTyping(e) {
-  return ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName) || e.target.isContentEditable
+  return (
+    ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName) ||
+    e.target.isContentEditable
+  )
 }
 
 function onKeydown(e) {
@@ -262,7 +357,10 @@ function onKeydown(e) {
   } else if (mod && e.key.toLowerCase() === 'y') {
     e.preventDefault()
     state.redo()
-  } else if ((e.key === 'Delete' || e.key === 'Backspace') && state.selected.value) {
+  } else if (
+    (e.key === 'Delete' || e.key === 'Backspace') &&
+    state.selected.value
+  ) {
     e.preventDefault()
     state.removeField(state.selected.value)
   }
@@ -287,42 +385,174 @@ onBeforeUnmount(() => {
 onBeforeRouteLeave((to) => {
   // Screen switches inside the builder are guarded in switchScreen already.
   if (to.name === 'ProjectBuilder') return true
-  if (state.dirty.value && !confirm('You have unsaved changes. Leave the builder anyway?')) return false
+  if (
+    state.dirty.value &&
+    !confirm('You have unsaved changes. Leave the builder anyway?')
+  )
+    return false
   return true
 })
 </script>
 
 <style scoped>
-.bld { height: 100%; display: flex; flex-direction: column; }
-.bld__center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
-.bld__none { color: var(--text-subtle); }
-.bld__none h2 { font-size: 16px; font-weight: 650; color: var(--text); }
-.bld__none p { font-size: 13px; color: var(--text-muted); }
-.bld__cta { margin-top: 6px; padding: 8px 16px; font-size: 13px; font-weight: 550; color: var(--brand-fg); background: var(--brand); border-radius: var(--radius-control); }
-.bld__cta:hover { background: var(--brand-hover); }
+.bld {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.bld__center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.bld__none {
+  color: var(--text-subtle);
+}
+.bld__none h2 {
+  font-size: 16px;
+  font-weight: 650;
+  color: var(--text);
+}
+.bld__none p {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.bld__cta {
+  margin-top: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--brand-fg);
+  background: var(--brand);
+  border-radius: var(--radius-control);
+}
+.bld__cta:hover {
+  background: var(--brand-hover);
+}
 
-.bld__bar { display: flex; align-items: center; gap: 10px; height: 50px; padding: 0 14px; background: var(--surface); border-bottom: 1px solid var(--border); flex: none; }
-.bld__back { display: grid; place-items: center; width: 30px; height: 30px; color: var(--text-muted); border-radius: var(--radius-control); }
-.bld__back:hover { color: var(--text); background: var(--surface-muted); }
-.bld__switch { max-width: 220px; padding: 6px 8px; font-size: 13px; font-weight: 600; color: var(--text); background: transparent; border: 1px solid transparent; border-radius: var(--radius-control); outline: none; cursor: pointer; }
-.bld__switch:hover { border-color: var(--border-strong); background: var(--surface); }
-.bld__dirty { width: 8px; height: 8px; border-radius: 50%; background: var(--warn); flex: none; }
+.bld__bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 50px;
+  padding: 0 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex: none;
+}
+.bld__back {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  color: var(--text-muted);
+  border-radius: var(--radius-control);
+}
+.bld__back:hover {
+  color: var(--text);
+  background: var(--surface-muted);
+}
+.bld__switch {
+  max-width: 220px;
+  padding: 6px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  outline: none;
+  cursor: pointer;
+}
+.bld__switch:hover {
+  border-color: var(--border-strong);
+  background: var(--surface);
+}
+.bld__dirty {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--warn);
+  flex: none;
+}
 
-.bld__bar-mid { display: flex; gap: 2px; margin-left: 8px; }
-.bld__tool { display: grid; place-items: center; width: 30px; height: 30px; color: var(--text-muted); border-radius: var(--radius-control); }
-.bld__tool:hover:not(:disabled) { color: var(--text); background: var(--surface-muted); }
-.bld__tool:disabled { opacity: 0.35; cursor: not-allowed; }
+.bld__bar-mid {
+  display: flex;
+  gap: 2px;
+  margin-left: 8px;
+}
+.bld__tool {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  color: var(--text-muted);
+  border-radius: var(--radius-control);
+}
+.bld__tool:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--surface-muted);
+}
+.bld__tool:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
 
-.bld__bar-right { display: flex; align-items: center; gap: 8px; margin-left: auto; }
-.bld__btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; font-size: 12.5px; font-weight: 550; color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-control); }
-.bld__btn:hover:not(:disabled) { background: var(--surface-muted); }
-.bld__btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.bld__btn--primary { color: var(--brand-fg); background: var(--brand); border-color: var(--brand); }
-.bld__btn--primary:hover:not(:disabled) { background: var(--brand-hover); }
+.bld__bar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+.bld__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  font-size: 12.5px;
+  font-weight: 550;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-control);
+}
+.bld__btn:hover:not(:disabled) {
+  background: var(--surface-muted);
+}
+.bld__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.bld__btn--primary {
+  color: var(--brand-fg);
+  background: var(--brand);
+  border-color: var(--brand);
+}
+.bld__btn--primary:hover:not(:disabled) {
+  background: var(--brand-hover);
+}
 
-.bld__err { display: flex; align-items: center; gap: 6px; padding: 8px 14px; font-size: 12.5px; color: var(--danger); background: rgba(220, 38, 38, 0.06); border-bottom: 1px solid rgba(220, 38, 38, 0.15); }
+.bld__err {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 12.5px;
+  color: var(--danger);
+  background: rgba(220, 38, 38, 0.06);
+  border-bottom: 1px solid rgba(220, 38, 38, 0.15);
+}
 
-.bld__panes { flex: 1; min-height: 0; display: grid; grid-template-columns: 280px minmax(0, 1fr) minmax(300px, 380px); overflow: hidden; }
+.bld__panes {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr) minmax(300px, 380px);
+  overflow: hidden;
+}
 .bld__left {
   display: flex;
   flex-direction: column;
@@ -339,11 +569,33 @@ onBeforeRouteLeave((to) => {
   min-width: 0;
   overflow: hidden;
 }
-.bld__tabs { display: flex; gap: 4px; padding: 10px 12px 0; border-bottom: 1px solid var(--border); flex: none; }
-.bld__tab { padding: 7px 12px; font-size: 12.5px; font-weight: 550; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
-.bld__tab--on { color: var(--text); border-bottom-color: var(--brand); }
-.bld__tab:disabled { opacity: 0.4; cursor: not-allowed; }
-.bld__mid { min-height: 0; overflow: hidden; }
+.bld__tabs {
+  display: flex;
+  gap: 4px;
+  padding: 10px 12px 0;
+  border-bottom: 1px solid var(--border);
+  flex: none;
+}
+.bld__tab {
+  padding: 7px 12px;
+  font-size: 12.5px;
+  font-weight: 550;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.bld__tab--on {
+  color: var(--text);
+  border-bottom-color: var(--brand);
+}
+.bld__tab:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.bld__mid {
+  min-height: 0;
+  overflow: hidden;
+}
 .bld__right {
   min-height: 0;
   min-width: 0;
@@ -355,10 +607,31 @@ onBeforeRouteLeave((to) => {
   background: var(--surface-muted);
 }
 
-.bld__val { display: flex; flex-direction: column; gap: 10px; }
-.bld__val-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13.5px; color: var(--text); }
-.bld__val-missing { font-size: 12px; color: var(--danger); text-align: right; }
+.bld__val {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.bld__val-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13.5px;
+  color: var(--text);
+}
+.bld__val-missing {
+  font-size: 12px;
+  color: var(--danger);
+  text-align: right;
+}
 
-.spin { animation: sp 0.8s linear infinite; }
-@keyframes sp { to { transform: rotate(360deg); } }
+.spin {
+  animation: sp 0.8s linear infinite;
+}
+@keyframes sp {
+  to {
+    transform: rotate(360deg);
+  }
+}
 </style>

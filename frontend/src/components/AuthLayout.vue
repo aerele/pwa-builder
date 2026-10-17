@@ -2,7 +2,13 @@
   <div class="auth pwa-app-bg">
     <div class="auth__wrap">
       <div class="auth__brand">
-        <img class="auth__logo-img" :src="appLogo" alt="PWA Builder" width="36" height="36" />
+        <img
+          class="auth__logo-img"
+          :src="appLogo"
+          alt="PWA Builder"
+          width="36"
+          height="36"
+        />
         <span class="auth__wordmark">PWA Builder</span>
       </div>
       <div class="auth__card">

@@ -1,18 +1,19 @@
 # Copyright (c) 2024, Aerele Technologies Private Limited and contributors
 # For license information, please see license.txt
 
-import os
-import git
-import json
 import base64
-import frappe
-import requests
+import json
+import os
 import shutil
-from git import Repo, InvalidGitRepositoryError
 from time import sleep
+
+import frappe
+import git
+import requests
 from frappe import ValidationError, _, qb, scrub, throw
-from frappe.utils import get_site_path, scheduler, touch_file
 from frappe.model.document import Document
+from frappe.utils import get_site_path, scheduler, touch_file
+from git import InvalidGitRepositoryError, Repo
 
 
 class PWAGitHubIntegration(Document):
@@ -48,13 +49,13 @@ def push_to_github(path, repo_name, current_default_branch=None, last_push_commi
 		repo_url = f'https://api.github.com/orgs/{organization_name}/repos'
 		repo_full_name = f'{organization_name}/{repo_name}'
 	else:
-		repo_url = f'https://api.github.com/user/repos'
+		repo_url = 'https://api.github.com/user/repos'
 		repo_full_name = f'{github_username}/{repo_name}'
 
 	repo_data = {
 		'name': repo_name,
-		'private': bool(is_private), 
-		'auto_init': False  
+		'private': bool(is_private),
+		'auto_init': False
 	}
 
 	try:
@@ -111,7 +112,7 @@ def push_to_github(path, repo_name, current_default_branch=None, last_push_commi
 			print("Force push successful.")
 		except git.exc.GitCommandError as e:
 			frappe.log_error(frappe.get_traceback(), "Git Force Push Failed")
-			return {'success': False, 'error': f"Force push failed: {str(e)}"}
+			return {'success': False, 'error': f"Force push failed: {e!s}"}
 
 		# Set the last pushed branch as default
 		repo_api_url = f'https://api.github.com/repos/{repo_full_name}'
@@ -135,7 +136,7 @@ def push_to_github(path, repo_name, current_default_branch=None, last_push_commi
 		return {'success': False, 'error': str(e)}
 
 def clone_pwa_template(project_name,repo_url="https://github.com/aerele/pwa_build.git"):
-    
+
 	project_name = scrub(project_name)
 	# clone under private files: the export workdir holds a .git dir and must
 	# not be reachable over http like public/files is
@@ -150,7 +151,7 @@ def clone_pwa_template(project_name,repo_url="https://github.com/aerele/pwa_buil
 	if os.path.exists(project_folder) and os.listdir(project_folder):
 		shutil.rmtree(project_folder)
 		print(f"Removed existing directory: {public_folder}")
-	
+
 	# Clone the repository into the public folder
 	try:
 		Repo.clone_from(repo_url, public_folder)

@@ -15,7 +15,9 @@ function load() {
 }
 
 const theme = ref(load())
-const isDark = computed(() => theme.value === 'dark' || (theme.value === 'system' && systemDark.value))
+const isDark = computed(
+  () => theme.value === 'dark' || (theme.value === 'system' && systemDark.value)
+)
 
 watch(
   isDark,

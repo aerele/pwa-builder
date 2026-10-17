@@ -2,7 +2,11 @@
   <div class="pal">
     <div class="pal__search">
       <FeatherIcon name="search" class="pal__search-icon" />
-      <input v-model="query" class="pal__search-in" :placeholder="isDashboard ? 'Search number cards' : 'Search fields'" />
+      <input
+        v-model="query"
+        class="pal__search-in"
+        :placeholder="isDashboard ? 'Search number cards' : 'Search fields'"
+      />
     </div>
 
     <div v-if="loading" class="pal__hint">Loading fields…</div>
@@ -22,10 +26,20 @@
     >
       <template #item="{ element }">
         <div class="pal__item" @click="$emit('add', element)">
-          <span class="pal__item-icon"><FeatherIcon :name="iconFor(element)" class="w-3.5 h-3.5" /></span>
+          <span class="pal__item-icon"
+            ><FeatherIcon :name="iconFor(element)" class="w-3.5 h-3.5"
+          /></span>
           <span class="pal__item-main">
-            <span class="pal__item-label">{{ element.label }}<b v-if="element.reqd" class="pal__req">*</b></span>
-            <span class="pal__item-type">{{ element.fieldtype }}<template v-if="element.fieldtype === 'Link'"> · {{ element.options }}</template></span>
+            <span class="pal__item-label"
+              >{{ element.label
+              }}<b v-if="element.reqd" class="pal__req">*</b></span
+            >
+            <span class="pal__item-type"
+              >{{ element.fieldtype
+              }}<template v-if="element.fieldtype === 'Link'">
+                · {{ element.options }}</template
+              ></span
+            >
           </span>
           <FeatherIcon name="plus" class="pal__item-add" />
         </div>
@@ -52,7 +66,9 @@ const filtered = computed(() => {
   if (!query.value) return props.palette
   const q = query.value.toLowerCase()
   return props.palette.filter(
-    (f) => (f.label || '').toLowerCase().includes(q) || (f.fieldname || '').toLowerCase().includes(q)
+    (f) =>
+      (f.label || '').toLowerCase().includes(q) ||
+      (f.fieldname || '').toLowerCase().includes(q)
   )
 })
 
@@ -80,7 +96,16 @@ const ICONS = {
 }
 
 function iconFor(f) {
-  if (['Text', 'Small Text', 'Long Text', 'Text Editor', 'Markdown Editor', 'Code'].includes(f.fieldtype)) {
+  if (
+    [
+      'Text',
+      'Small Text',
+      'Long Text',
+      'Text Editor',
+      'Markdown Editor',
+      'Code',
+    ].includes(f.fieldtype)
+  ) {
     return 'align-left'
   }
   return ICONS[f.fieldtype] || 'type'
