@@ -289,8 +289,9 @@ def validate_form_fields(project_name):
 			child_table_list = []
 			field_meta = frappe.db.get_value("PWA DocType", form.get("name"), "field_list") or {}
 			field_meta = json.loads(field_meta) if not isinstance(field_meta, dict) else field_meta
+			is_number_card = form.get("doctype_name") == "Number Card"
 			for field in field_meta.get("pwa_form_fields", []):
-				if form.get("doctype_name") and form.get("doctype_name") == "Number Card":
+				if is_number_card:
 					if not frappe.get_doc(field["fieldtype"], field["fieldname"]):
 						field = field.get("fieldtype")
 						result["success"] = False
@@ -314,27 +315,28 @@ def validate_form_fields(project_name):
 										child_table_list.append(row.get("parent"))
 						else:
 							child_table_list.append(field.get("options"))
-					if actual_field_meta := get_meta(
-						doctype=form.get("doctype_name"), project=project_name, with_parent=True, cached=False
-					):
-						missing_fields_parent, missing_fields_child = process_mandatory_fields(
-							form=form.get("doctype_name"),
-							actual_field_meta=actual_field_meta,
-							mandatory_fields_parent=mandatory_fields_parent,
-							mandatory_fields_child=mandatory_fields_child,
-							child_table_list=child_table_list,
-						)
-						if missing_fields_parent.values() or missing_fields_child.values():
-							result["success"] = False
-							result["forms_with_missing_fields"][form.get("doctype_name")] = {}
-							result["forms_with_missing_fields"][form.get("doctype_name")].update(
-								missing_fields_parent
-							)
-							result["forms_with_missing_fields"][form.get("doctype_name")].update(
-								missing_fields_child
-							)
-				if not result.get("success"):
+			# check against live meta once per form, even when the screen has no
+			# fields yet: an empty screen must not pass mandatory validation
+			if not is_number_card and (
+				actual_field_meta := get_meta(
+					doctype=form.get("doctype_name"), project=project_name, with_parent=True, cached=False
+				)
+			):
+				missing_fields_parent, missing_fields_child = process_mandatory_fields(
+					form=form.get("doctype_name"),
+					actual_field_meta=actual_field_meta,
+					mandatory_fields_parent=mandatory_fields_parent,
+					mandatory_fields_child=mandatory_fields_child,
+					child_table_list=child_table_list,
+				)
+				if missing_fields_parent.values() or missing_fields_child.values():
+					result["success"] = False
 					result["message"] = "Mandatory fields missing in the form/forms"
+					result["forms_with_missing_fields"][form.get("doctype_name")] = {}
+					result["forms_with_missing_fields"][form.get("doctype_name")].update(
+						missing_fields_parent
+					)
+					result["forms_with_missing_fields"][form.get("doctype_name")].update(missing_fields_child)
 	else:
 		result["success"] = False
 		result["message"] = "No PWA DocType found for this project"
