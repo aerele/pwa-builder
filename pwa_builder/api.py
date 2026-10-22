@@ -75,6 +75,26 @@ def add_site(data, update=False):
 		return "Invalid credentials"
 
 
+@frappe.whitelist(methods=["POST"])
+def test_connection(site_url: str, user_id: str, password: str) -> dict:
+	"""Validate remote site credentials without persisting anything."""
+	frappe.has_permission("PWA-Project", ptype="create", throw=True)
+
+	url = urlparse(site_url or "")
+	if url.scheme not in ("http", "https") or not url.netloc:
+		return {"success": False, "message": _("Enter a valid site URL")}
+
+	login_url = url.scheme + "://" + url.netloc + "/api/method/login"
+	try:
+		response = requests.post(login_url, data={"usr": user_id, "pwd": password}, timeout=10)
+	except requests.exceptions.RequestException:
+		return {"success": False, "message": _("Could not reach the site")}
+
+	if response.status_code == 200:
+		return {"success": True, "message": _("Connection successful")}
+	return {"success": False, "message": _("Invalid credentials")}
+
+
 @frappe.whitelist()
 def get_meta(doctype, project, with_parent=False, cached=True) -> "Meta":
 	doc = frappe.get_doc("PWA-Project", project)

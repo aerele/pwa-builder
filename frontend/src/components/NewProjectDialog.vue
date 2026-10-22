@@ -1,7 +1,5 @@
 <template>
-  <!-- Create a PWA project + connect a remote site. Single-step for now;
-       the multi-step "Test connection" wizard arrives with the backend
-       session (needs a non-persisting test_connection endpoint). -->
+  <!-- Create a PWA project + connect a remote site. -->
   <div v-if="modelValue" class="np">
     <div class="np__scrim" @click="close" />
     <div class="np__card" role="dialog" aria-modal="true">
@@ -96,9 +94,25 @@
         <p v-if="error" class="np__error">
           <FeatherIcon name="alert-circle" class="w-4 h-4" /> {{ error }}
         </p>
+        <p v-if="testResult" :class="testResult.ok ? 'np__ok' : 'np__error'">
+          <FeatherIcon
+            :name="testResult.ok ? 'check-circle' : 'alert-circle'"
+            class="w-4 h-4"
+          />
+          {{ testResult.message }}
+        </p>
       </div>
 
       <footer class="np__foot">
+        <button
+          v-if="!isLocal"
+          class="btn-ghost np__test"
+          :disabled="!canTest || testing"
+          @click="test"
+        >
+          <FeatherIcon v-if="testing" name="loader" class="w-4 h-4 np__spin" />
+          {{ testing ? 'Testing…' : 'Test connection' }}
+        </button>
         <button class="btn-ghost" @click="close">Cancel</button>
         <button
           class="btn-primary"
@@ -114,7 +128,7 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, nextTick, reactive, ref, watch } from 'vue'
 import { FeatherIcon, createResource } from 'frappe-ui'
 import { projects } from '@/data/projects'
 
@@ -133,6 +147,8 @@ const blank = () => ({
 const form = reactive(blank())
 const error = ref('')
 const creating = ref(false)
+const testing = ref(false)
+const testResult = ref(null)
 
 const connOptions = [
   { value: 'This Site', label: 'This site', icon: 'home' },
@@ -145,6 +161,9 @@ const canSubmit = computed(() => {
   if (isLocal.value) return true
   return !!(form.site_url && form.user_id && form.password)
 })
+const canTest = computed(
+  () => !!(form.site_url && form.user_id && form.password)
+)
 
 watch(
   () => props.modelValue,
@@ -152,7 +171,16 @@ watch(
     if (open) {
       Object.assign(form, blank())
       error.value = ''
+      testResult.value = null
     }
+  }
+)
+
+// a stale verdict is worse than none: drop it when the credentials change
+watch(
+  () => [form.site_url, form.user_id, form.password, form.connection_type],
+  () => {
+    testResult.value = null
   }
 )
 
@@ -176,6 +204,43 @@ const createSite = createResource({
       'Something went wrong. Please try again.'
   },
 })
+
+function showTestResult(result) {
+  testing.value = false
+  testResult.value = result
+  // the message sits at the end of the scrollable body: keep it visible
+  nextTick(() =>
+    document
+      .querySelector('.np__ok, .np__body .np__error')
+      ?.scrollIntoView({ block: 'nearest' })
+  )
+}
+
+const connectionTest = createResource({
+  url: 'pwa_builder.api.test_connection',
+  onSuccess(result) {
+    showTestResult({ ok: !!result.success, message: result.message })
+  },
+  onError(err) {
+    showTestResult({
+      ok: false,
+      message:
+        (err && err.messages && err.messages[0]) ||
+        'Something went wrong. Please try again.',
+    })
+  },
+})
+
+function test() {
+  if (!canTest.value || testing.value) return
+  testResult.value = null
+  testing.value = true
+  connectionTest.submit({
+    site_url: form.site_url,
+    user_id: form.user_id,
+    password: form.password,
+  })
+}
 
 function submit() {
   if (!canSubmit.value || creating.value) return
@@ -316,6 +381,23 @@ function close() {
   gap: 6px;
   font-size: 12.5px;
   color: var(--danger);
+}
+.np__ok {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--ok);
+}
+.np__test {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: auto;
+}
+.np__test:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .np__foot {
   display: flex;
