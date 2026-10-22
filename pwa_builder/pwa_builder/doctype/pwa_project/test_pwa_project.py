@@ -128,6 +128,31 @@ class TestPWAProject(FrappeTestCase):
 			kwargs["job_id"], frappe.utils.get_job_name("export_app_for", "PWA-Project", project.name)
 		)
 
+	def test_pwa_builder_user_role_access(self):
+		user = frappe.get_doc(
+			{
+				"doctype": "User",
+				"email": "_test_pwa_builder@example.com",
+				"first_name": "_Test PWA Builder",
+				"user_type": "System User",
+				"send_welcome_email": 0,
+				"roles": [{"role": "PWA Builder User"}],
+			}
+		).insert(ignore_permissions=True)
+
+		with self.set_user(user.name):
+			result = api.add_site({"project_title": "_Test Role Project", "connection_type": "This Site"})
+			self.assertEqual(result, "Created")
+
+			project = frappe.get_last_doc("PWA-Project", {"project_title": "_Test Role Project"})
+			screen = make_screen(project.name)
+			api.set_value(
+				"PWA DocType", screen.name, "field_list", {"pwa_form_fields": [{"fieldname": "status"}]}
+			)
+
+			self.assertTrue(frappe.has_permission("PWA GitHub Integration", "read"))
+			self.assertFalse(frappe.has_permission("PWA GitHub Integration", "write"))
+
 	def test_validate_needs_github_setup(self):
 		project = make_project()
 		result = api.validate_form_fields(project.name)
