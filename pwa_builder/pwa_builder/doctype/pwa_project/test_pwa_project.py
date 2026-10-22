@@ -8,6 +8,7 @@ import tempfile
 from unittest.mock import MagicMock, patch
 
 import frappe
+import requests
 from frappe import scrub
 from frappe.tests.utils import FrappeTestCase
 
@@ -34,6 +35,7 @@ class TestPWAProject(FrappeTestCase):
 			api.export_status,
 			api.export_project,
 			api.validate_form_fields,
+			api.test_connection,
 		]
 		with self.set_user("Guest"):
 			for method in methods:
@@ -94,6 +96,34 @@ class TestPWAProject(FrappeTestCase):
 		self.assertEqual(
 			frappe.db.get_value("PWA-Project", project.name, "project_title"), "_Test After Update"
 		)
+
+	@patch("pwa_builder.api.requests.post", return_value=login_response(200))
+	def test_test_connection_valid(self, mock_post):
+		result = api.test_connection("https://remote.example.com/app", "_test@example.com", "_test_pwd")
+
+		self.assertTrue(result["success"])
+		self.assertEqual(mock_post.call_args.args[0], "https://remote.example.com/api/method/login")
+		self.assertFalse(frappe.db.exists("PWA-Project", {"site_url": "https://remote.example.com/app"}))
+
+	@patch("pwa_builder.api.requests.post", return_value=login_response(401))
+	def test_test_connection_invalid_credentials(self, mock_post):
+		result = api.test_connection("https://remote.example.com", "_test@example.com", "_bad_pwd")
+
+		self.assertFalse(result["success"])
+		self.assertEqual(result["message"], "Invalid credentials")
+
+	def test_test_connection_rejects_bad_url(self):
+		for bad_url in ("", "not-a-url", "ftp://remote.example.com"):
+			result = api.test_connection(bad_url, "_test@example.com", "_test_pwd")
+			self.assertFalse(result["success"])
+			self.assertEqual(result["message"], "Enter a valid site URL")
+
+	@patch("pwa_builder.api.requests.post", side_effect=requests.exceptions.ConnectionError)
+	def test_test_connection_unreachable(self, mock_post):
+		result = api.test_connection("https://remote.example.com", "_test@example.com", "_test_pwd")
+
+		self.assertFalse(result["success"])
+		self.assertEqual(result["message"], "Could not reach the site")
 
 	def test_get_meta_this_site(self):
 		project = make_project()
