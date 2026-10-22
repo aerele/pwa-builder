@@ -143,6 +143,16 @@ class TestPWAProject(FrappeTestCase):
 		self.assertFalse(result["success"])
 		self.assertEqual(result["forms_with_missing_fields"]["ToDo"], {"ToDo": ["Description"]})
 
+	def test_validate_fails_for_empty_screen(self):
+		set_github_credentials()
+		project = make_project()
+		make_screen(project.name)
+
+		result = api.validate_form_fields(project.name)
+		self.assertFalse(result["success"])
+		self.assertEqual(result["message"], "Mandatory fields missing in the form/forms")
+		self.assertEqual(result["forms_with_missing_fields"]["ToDo"], {"ToDo": ["Description"]})
+
 	def test_validate_passes_with_mandatory_fields(self):
 		set_github_credentials()
 		project = make_project()
