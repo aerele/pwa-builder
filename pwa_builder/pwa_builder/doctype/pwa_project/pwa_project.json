@@ -101,7 +101,7 @@
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-09 13:10:00.000000",
+ "modified": "2026-10-22 11:57:56.883831",
  "modified_by": "Administrator",
  "module": "PWA Builder",
  "name": "PWA-Project",
@@ -116,6 +116,18 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "PWA Builder User",
    "share": 1,
    "write": 1
   }

@@ -58,7 +58,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-09-05 19:38:00.572290",
+ "modified": "2026-10-22 11:57:56.883831",
  "modified_by": "Administrator",
  "module": "PWA Builder",
  "name": "PWA GitHub Integration",
@@ -73,6 +73,13 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "PWA Builder User",
+   "share": 1
   }
  ],
  "sort_field": "modified",
