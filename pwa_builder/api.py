@@ -300,7 +300,7 @@ def brand_template(file_path, project_doc):
 
 # validate form mandatory fields
 @frappe.whitelist()
-def validate_form_fields(project_name):
+def validate_form_fields(project_name: str):
 	frappe.has_permission("PWA-Project", ptype="read", doc=project_name, throw=True)
 	result = {"success": True, "forms_with_missing_fields": {}}
 	githubDoc = frappe.get_single("PWA GitHub Integration")
