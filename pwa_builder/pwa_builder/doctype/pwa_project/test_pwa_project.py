@@ -11,6 +11,8 @@ import frappe
 import requests
 from frappe import scrub
 from frappe.tests.utils import FrappeTestCase
+from rq.job import JobStatus
+from rq.results import Result
 
 from pwa_builder import api
 from pwa_builder.pwa_builder.doctype.pwa_doctype.test_pwa_doctype import make_project, make_screen
@@ -145,6 +147,36 @@ class TestPWAProject(FrappeTestCase):
 		self.assertIsNone(status["job_status"])
 		self.assertEqual(status["repository_url"], "https://github.com/_test/repo.git")
 		self.assertEqual(status["last_commit"], "version-2")
+
+	def export_status_for(self, status, result=None):
+		job = MagicMock()
+		job.get_status.return_value = status
+		job.latest_result.return_value = result
+		with patch("frappe.utils.background_jobs.get_job", return_value=job):
+			return api.export_status(make_project().name)
+
+	def test_export_status_returns_plain_job_status(self):
+		status = self.export_status_for(JobStatus.STARTED)
+		self.assertEqual(status["job_status"], "started")
+		self.assertIsNone(status["result"])
+
+	def test_export_status_ignores_previous_run_result(self):
+		previous = Result("_test", Result.Type.SUCCESSFUL, MagicMock(), return_value={"success": True})
+		status = self.export_status_for(JobStatus.QUEUED, previous)
+		self.assertEqual(status["job_status"], "queued")
+		self.assertIsNone(status["result"])
+
+	def test_export_status_returns_finished_result(self):
+		done = Result("_test", Result.Type.SUCCESSFUL, MagicMock(), return_value={"success": True})
+		status = self.export_status_for(JobStatus.FINISHED, done)
+		self.assertEqual(status["result"], {"success": True})
+
+	def test_export_status_reports_job_exception(self):
+		exc = "Traceback (most recent call last):\n  ...\nGitCommandError: clone failed\n"
+		failed = Result("_test", Result.Type.FAILED, MagicMock(), exc_string=exc)
+		status = self.export_status_for(JobStatus.FAILED, failed)
+		self.assertEqual(status["job_status"], "failed")
+		self.assertEqual(status["result"], {"success": False, "error": "GitCommandError: clone failed"})
 
 	@patch("pwa_builder.api.frappe.enqueue")
 	def test_export_project_enqueues_job(self, mock_enqueue):

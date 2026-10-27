@@ -158,7 +158,7 @@ def set_value(doctype, docname, fieldname, value):
 
 
 @frappe.whitelist()
-def export_status(project_name):
+def export_status(project_name: str):
 	"""Status of the queued export job plus the project's publish fields."""
 	doc = frappe.get_doc("PWA-Project", project_name)
 	doc.check_permission("read")
@@ -168,10 +168,15 @@ def export_status(project_name):
 
 		job = get_job(frappe.utils.get_job_name("export_app_for", "PWA-Project", project_name))
 		if job:
-			job_status = str(job.get_status())
-			latest = job.latest_result()
+			status = job.get_status()
+			job_status = getattr(status, "value", status)
+			# results outlive a re-enqueue under the same job id, so only read them once this run ends
+			latest = job.latest_result() if job_status in ("finished", "failed") else None
 			if latest is not None:
 				result = latest.return_value
+				if latest.type == latest.Type.FAILED:
+					lines = (latest.exc_string or "").strip().splitlines()
+					result = {"success": False, "error": lines[-1] if lines else None}
 	except Exception:
 		pass
 	return {
