@@ -227,24 +227,27 @@ export function useBuilderState(projectId) {
   async function save() {
     if (!screen.value || saving.value) return false
     saving.value = true
+    // Pin the screen and fields being sent; the user may edit or switch screens mid-save.
+    const target = screen.value
     canvasFields.value.forEach((f, i) => (f.idx = i + 1))
+    const sent = serialize()
+    lastSnapshot = sent
     const payload = {
-      form_name: isDashboard.value ? 'Dashboard' : screen.value.title,
-      name: screen.value.name,
-      doctype_name: isDashboard.value ? 'Dashboard' : screen.value.doctype_name,
+      form_name: isDashboard.value ? 'Dashboard' : target.title,
+      name: target.name,
+      doctype_name: isDashboard.value ? 'Dashboard' : target.doctype_name,
       is_submittable: isSubmittable.value,
-      pwa_form_fields: canvasFields.value,
+      pwa_form_fields: JSON.parse(sent),
     }
     try {
       await createResource({ url: 'pwa_builder.api.set_value' }).submit({
         doctype: 'PWA DocType',
-        docname: screen.value.name,
+        docname: target.name,
         fieldname: 'field_list',
         value: payload,
       })
-      lastSnapshot = serialize()
-      savedSnapshot.value = lastSnapshot
-      screen.value.field_list = JSON.stringify(payload)
+      target.field_list = JSON.stringify(payload)
+      if (screen.value === target) savedSnapshot.value = sent
       return true
     } catch (e) {
       loadError.value = errText(e, 'Could not save the screen.')
