@@ -254,6 +254,34 @@ class TestPWAProject(FrappeTestCase):
 		self.assertTrue(result["success"])
 		self.assertEqual(result["forms_with_missing_fields"], {})
 
+	def make_meta_tag_screen(self, project, columns):
+		# Website Route Meta needs the meta_tags table, whose rows need key and value
+		child_fields = api.get_meta("Website Meta Tag", project.name)["fields"]
+		keys = ("fieldname", "label", "fieldtype", "reqd", "parent")
+		options = [{k: f.get(k) for k in keys} for f in child_fields if f.get("fieldname") in columns]
+		table = {"fieldname": "meta_tags", "label": "Meta Tags", "fieldtype": "Table", "reqd": 1}
+		make_screen(project.name, doctype_name="Website Route Meta", fields=[{**table, "options": options}])
+
+	def test_validate_passes_with_mandatory_child_columns(self):
+		set_github_credentials()
+		project = make_project()
+		self.make_meta_tag_screen(project, ["key", "value"])
+
+		result = api.validate_form_fields(project.name)
+		self.assertTrue(result["success"])
+		self.assertEqual(result["forms_with_missing_fields"], {})
+
+	def test_validate_reports_missing_child_column(self):
+		set_github_credentials()
+		project = make_project()
+		self.make_meta_tag_screen(project, ["key"])
+
+		result = api.validate_form_fields(project.name)
+		self.assertFalse(result["success"])
+		self.assertEqual(
+			result["forms_with_missing_fields"]["Website Route Meta"], {"Website Meta Tag": ["Value"]}
+		)
+
 
 def set_github_credentials():
 	settings = frappe.get_single("PWA GitHub Integration")
