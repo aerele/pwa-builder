@@ -335,10 +335,9 @@ def validate_form_fields(project_name):
 						if field.get("options") and isinstance(field.get("options"), list):
 							for row in field.get("options"):
 								if row.get("reqd"):
-									mandatory_fields_child[row.get("parent")] = {}
-									mandatory_fields_child[row.get("parent")][row.get("fieldname")] = row.get(
-										"label"
-									)
+									mandatory_fields_child.setdefault(row.get("parent"), {})[
+										row.get("fieldname")
+									] = row.get("label")
 									if row.get("parent") not in child_table_list:
 										child_table_list.append(row.get("parent"))
 						else:
@@ -395,7 +394,7 @@ def process_mandatory_fields(
 		elif doctype_field.get("name") in child_table_list:
 			if missing_fields := validate_mandatory_fields(
 				actual_field_meta=doctype_field.get("fields"),
-				mandatory_fields=mandatory_fields_child.get(doctype_field.get("doctype")),
+				mandatory_fields=mandatory_fields_child.get(doctype_field.get("name")),
 			):
 				missing_fields_child[doctype_field.get("name")] = list(missing_fields.values())
 
