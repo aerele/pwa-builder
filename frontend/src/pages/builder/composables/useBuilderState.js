@@ -130,9 +130,14 @@ export function useBuilderState(projectId) {
     return meta
   }
 
+  // Bumped per openScreen so a slower response for an earlier screen is dropped.
+  let openSeq = 0
+
   async function openScreen(name) {
     const row = screens.value.find((s) => s.name === name)
     if (!row) return
+    const seq = ++openSeq
+    const current = () => seq === openSeq
     screen.value = row
     selected.value = null
     loadError.value = ''
@@ -156,6 +161,7 @@ export function useBuilderState(projectId) {
     metaLoading.value = true
     metaFields.value = []
     childMeta.value = {}
+    paletteSource.value = []
     try {
       if (isDashboard.value) {
         // Dashboard screens place local Number Cards instead of doctype fields.
@@ -166,6 +172,7 @@ export function useBuilderState(projectId) {
           fields: ['name', 'label'],
           limit_page_length: 0,
         })
+        if (!current()) return
         isSubmittable.value = 0
         paletteSource.value = (cards || []).map((c) => ({
           fieldtype: 'Number Card',
@@ -174,6 +181,7 @@ export function useBuilderState(projectId) {
         }))
       } else {
         const meta = await loadDoctypeMeta(row.doctype_name)
+        if (!current()) return
         isSubmittable.value = meta?.is_submittable || 0
         metaFields.value = (meta?.fields || []).filter(usableField)
         paletteSource.value = metaFields.value
@@ -183,6 +191,7 @@ export function useBuilderState(projectId) {
             .map(async (f) => {
               try {
                 const child = await loadDoctypeMeta(f.options)
+                if (!current()) return
                 childMeta.value = {
                   ...childMeta.value,
                   [f.fieldname]: (child?.fields || []).filter(usableField),
@@ -194,9 +203,10 @@ export function useBuilderState(projectId) {
         )
       }
     } catch (e) {
-      loadError.value = errText(e, 'Could not load doctype metadata.')
+      if (current())
+        loadError.value = errText(e, 'Could not load doctype metadata.')
     } finally {
-      metaLoading.value = false
+      if (current()) metaLoading.value = false
     }
   }
 
