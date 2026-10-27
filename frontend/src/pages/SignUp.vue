@@ -7,9 +7,9 @@
       <FormControl
         required
         type="text"
-        label="Username"
-        v-model="username"
-        placeholder="johndoe"
+        label="Full Name"
+        v-model="fullName"
+        placeholder="John Doe"
       >
         <template #prefix><FeatherIcon class="w-4" name="user" /></template>
       </FormControl>
@@ -24,49 +24,8 @@
         <template #prefix><FeatherIcon class="w-4" name="mail" /></template>
       </FormControl>
 
-      <div class="relative">
-        <FormControl
-          required
-          label="Password"
-          v-model="password"
-          :type="showPassword ? 'text' : 'password'"
-          placeholder="••••••"
-        >
-          <template #prefix><FeatherIcon class="w-4" name="lock" /></template>
-        </FormControl>
-        <button
-          type="button"
-          @click="showPassword = !showPassword"
-          class="pw-toggle"
-        >
-          {{ showPassword ? 'Hide' : 'Show' }}
-        </button>
-      </div>
-
-      <div class="relative">
-        <FormControl
-          required
-          label="Confirm Password"
-          v-model="confirmPassword"
-          :type="showConfirm ? 'text' : 'password'"
-          placeholder="••••••"
-        >
-          <template #prefix><FeatherIcon class="w-4" name="lock" /></template>
-        </FormControl>
-        <button
-          type="button"
-          @click="showConfirm = !showConfirm"
-          class="pw-toggle"
-        >
-          {{ showConfirm ? 'Hide' : 'Show' }}
-        </button>
-      </div>
-
       <p v-if="formSubmitted && !emailValid" class="auth-error">
         Enter a valid email
-      </p>
-      <p v-if="formSubmitted && !passwordsMatch" class="auth-error">
-        Passwords do not match
       </p>
 
       <p
@@ -91,62 +50,45 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { FormControl, FeatherIcon, createListResource } from 'frappe-ui'
+import { FormControl, FeatherIcon, createResource } from 'frappe-ui'
 import AuthLayout from '@/components/AuthLayout.vue'
 
-const username = ref('')
+const fullName = ref('')
 const email = ref('')
-const password = ref('')
-const confirmPassword = ref('')
 const message = ref('')
 const messageType = ref('error')
 const formSubmitted = ref(false)
 const loading = ref(false)
-const showPassword = ref(false)
-const showConfirm = ref(false)
 
 const emailValid = computed(() => /\S+@\S+\.\S+/.test(email.value))
-const passwordsMatch = computed(() => password.value === confirmPassword.value)
 
-function signUp() {
+// Guests can't insert User; frappe's sign_up honours "Disable Signup" and emails a password link.
+async function signUp() {
   formSubmitted.value = true
   message.value = ''
-  if (!emailValid.value || !passwordsMatch.value) return
+  if (!emailValid.value) return
 
   loading.value = true
-  const users = createListResource({ doctype: 'User' })
-  users.insert
-    .submit({
+  try {
+    const [status, text] = await createResource({
+      url: 'frappe.core.doctype.user.user.sign_up',
+    }).submit({
       email: email.value,
-      first_name: username.value,
-      new_password: password.value,
+      full_name: fullName.value,
+      redirect_to: '/pwa-builder',
     })
-    .then(() => {
-      messageType.value = 'ok'
-      message.value = 'Account created. You can now log in.'
-    })
-    .catch((error) => {
-      messageType.value = 'error'
-      const status = error?.response?.status
-      if (status === 417) message.value = 'Password is too weak'
-      else if (status === 409) message.value = 'Email already exists'
-      else message.value = 'Could not create the account'
-    })
-    .finally(() => {
-      loading.value = false
-    })
+    messageType.value = status ? 'ok' : 'error'
+    message.value = text
+  } catch (error) {
+    messageType.value = 'error'
+    message.value = error?.messages?.[0] || 'Could not create the account'
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
 <style scoped>
-.pw-toggle {
-  position: absolute;
-  right: 8px;
-  top: 30px;
-  cursor: pointer;
-  font-size: 13px;
-  color: var(--text-muted);
-}
 .btn-primary {
   width: 100%;
   display: inline-flex;
