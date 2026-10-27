@@ -236,7 +236,7 @@ class TestPWAProjectExport(FrappeTestCase):
 		self.workdir = tempfile.mkdtemp()
 		self.project = make_project("_Test Export App")
 		self.project.db_set({"theme_color": "#112233", "background_color": "#ffffff"})
-		make_screen(self.project.name, fields=[{"fieldname": "description"}], nav_order=2)
+		self.screen = make_screen(self.project.name, fields=[{"fieldname": "description"}], nav_order=2)
 		self.template = self.make_template()
 
 	def tearDown(self):
@@ -271,7 +271,9 @@ class TestPWAProjectExport(FrappeTestCase):
 		self.assertTrue(result["success"])
 
 		app_dir = self.template["public_folder_path"]
-		with open(os.path.join(app_dir, "pwa_build", "pwa_build", "pwa_form", "_test todo screen.json")) as f:
+		with open(
+			os.path.join(app_dir, "pwa_build", "pwa_build", "pwa_form", f"{self.screen.name}.json")
+		) as f:
 			form = json.load(f)
 		self.assertEqual(form["nav_order"], 2)
 		self.assertEqual(form["pwa_form_fields"], [{"fieldname": "description"}])
@@ -297,3 +299,22 @@ class TestPWAProjectExport(FrappeTestCase):
 		self.assertEqual(result, {"success": False, "error": "Bad credentials"})
 		self.project.reload()
 		self.assertFalse(self.project.github_repository_url)
+
+	def form_files(self):
+		form_dir = os.path.join(self.template["public_folder_path"], "pwa_build", "pwa_build", "pwa_form")
+		return sorted(os.listdir(form_dir))
+
+	def test_export_screen_title_cannot_escape_form_dir(self):
+		self.screen.db_set("title", "../../../../site_config")
+		result, _ = self.export({"success": False, "error": "skip push"})
+
+		self.assertEqual(result["error"], "skip push")
+		self.assertEqual(self.form_files(), [f"{self.screen.name}.json"])
+		self.assertFalse(os.path.exists(os.path.join(self.workdir, "site_config.json")))
+
+	def test_export_keeps_screens_with_same_title(self):
+		other = make_screen(self.project.name, fields=[{"fieldname": "status"}])
+		other.db_set("title", self.screen.title.upper())
+		self.export({"success": False, "error": "skip push"})
+
+		self.assertEqual(self.form_files(), sorted([f"{self.screen.name}.json", f"{other.name}.json"]))

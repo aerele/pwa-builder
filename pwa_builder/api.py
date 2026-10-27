@@ -207,8 +207,7 @@ def schedule_export_project(project_name):
 			for doctype in pwa_doctype:
 				doc = frappe.get_doc("PWA DocType", doctype.name)
 				json_data = with_nav_order(doc)
-				file_name = doc.title + ".json"
-				path = file_path + "/pwa_build/pwa_build/pwa_form/" + file_name.lower()
+				path = screen_file_path(file_path, doc.name)
 				os.makedirs(os.path.dirname(path), exist_ok=True)
 				with open(path, "w") as json_file:
 					json_file.write(json_data)
@@ -249,6 +248,15 @@ def schedule_export_project(project_name):
 	else:
 		frappe.log_error(message=_(git_clone_response), title=_("Failed to clone repository"))
 		return {"success": False, "error": git_clone_response.get("error")}
+
+
+def screen_file_path(app_path, screen_name):
+	"""Path of a screen's form JSON inside the template; named by docname so titles can't escape or collide."""
+	form_dir = os.path.realpath(os.path.join(app_path, "pwa_build", "pwa_build", "pwa_form"))
+	path = os.path.realpath(os.path.join(form_dir, f"{screen_name}.json"))
+	if os.path.dirname(path) != form_dir:
+		frappe.throw(_("Invalid screen name {0}").format(screen_name))
+	return path
 
 
 def with_nav_order(doc):
