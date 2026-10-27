@@ -31,7 +31,7 @@
         <select
           class="bld__switch"
           :value="state.screen.value.name"
-          @change="switchScreen($event.target.value)"
+          @change="switchScreen($event)"
         >
           <option
             v-for="s in state.screens.value"
@@ -189,7 +189,7 @@
 
 <script setup>
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { onBeforeRouteLeave, useRouter } from 'vue-router'
+import { onBeforeRouteLeave, onBeforeRouteUpdate, useRouter } from 'vue-router'
 import {
   Badge,
   Dialog,
@@ -249,17 +249,15 @@ watch(
   }
 )
 
-function switchScreen(name) {
+async function switchScreen(event) {
+  const name = event.target.value
   if (name === state.screen.value?.name) return
-  if (
-    state.dirty.value &&
-    !confirm('You have unsaved changes. Switch screens anyway?')
-  )
-    return
-  router.push({
+  const failure = await router.push({
     name: 'ProjectBuilder',
     params: { projectId: props.projectId, screenId: name },
   })
+  // A cancelled switch keeps the old screen, so put the picker back on it.
+  if (failure) event.target.value = state.screen.value?.name
 }
 
 function onSelect(fieldname) {
@@ -273,11 +271,12 @@ function onCanvasChanged() {
 }
 
 async function saveScreen() {
+  const title = state.screen.value?.title
   const ok = await state.save()
   if (ok) {
     toast({
       title: 'Saved',
-      text: `${state.screen.value.title} saved.`,
+      text: `${title} saved.`,
       icon: 'check-circle',
       position: 'bottom-right',
       iconClasses: 'text-green-500',
@@ -382,8 +381,18 @@ onBeforeUnmount(() => {
   window.removeEventListener('beforeunload', onBeforeUnload)
 })
 
+// Covers the screen switcher and back/forward between screens of this builder.
+onBeforeRouteUpdate((to, from) => {
+  if (
+    to.params.screenId !== from.params.screenId &&
+    state.dirty.value &&
+    !confirm('You have unsaved changes. Switch screens anyway?')
+  )
+    return false
+  return true
+})
+
 onBeforeRouteLeave((to) => {
-  // Screen switches inside the builder are guarded in switchScreen already.
   if (to.name === 'ProjectBuilder') return true
   if (
     state.dirty.value &&
