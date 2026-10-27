@@ -158,7 +158,7 @@ def set_value(doctype, docname, fieldname, value):
 
 
 @frappe.whitelist()
-def export_status(project_name):
+def export_status(project_name: str):
 	"""Status of the queued export job plus the project's publish fields."""
 	doc = frappe.get_doc("PWA-Project", project_name)
 	doc.check_permission("read")
